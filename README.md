@@ -22,11 +22,12 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 - [x] Create an 2D implementation
 - [x] Check correctness vs torch interpolate in float32
 - [x] Benchmark
+- [x] Benchmarking on other test sizes
+    - [x] Compare with https://github.com/mingfeima/op_bench-py
 
 ### Step 3
 
-- [ ] Benchmarking on other test sizes
-    - [ ] Compare with https://github.com/mingfeima/op_bench-py
+- [ ] Refactor implementation like in Advanced Indexing codebase
 - [ ] Apply vectorization
 
 ## Questions
@@ -103,7 +104,7 @@ make
 make && ./bench
 ```
 
-Result 1:
+#### Result 1:
 ```
 Input tensor: [4, 3, 320, 320]
 
@@ -125,7 +126,7 @@ Elapsed time: 0.00227043
 ```
 
 
-Result 2:
+#### Result 2:
 ```
 Input tensor: [1, 3, 320, 320]
 
@@ -147,7 +148,7 @@ Elapsed time: 0.000595403
 ```
 
 
-Result 3:
+#### Result 3:
 ```
 Input tensor: [1, 3, 320, 320]
 Num threads: 1
@@ -167,6 +168,65 @@ Elapsed time: 0.00356224
 
 - Bench ti_upsample_bilinear2d_cpu (7500 rounds) - upsampling
 Elapsed time: 0.00291151
+```
+
+
+#### Result 4:
+```
+Input tensor: [1, 3, 320, 320]
+Num threads: 6
+
+- Check consistency (downsampling to 256x256): OK
+
+- Check consistency (upsampling to 512x512): OK
+
+- Bench upsample_bilinear2d_cpu (5000 rounds) - downsampling to 256x256
+Elapsed time: 0.000331258
+
+- Bench ti_upsample_bilinear2d_cpu (5000 rounds) - downsampling to 256x256
+Elapsed time: 0.000191895
+
+- Bench upsample_bilinear2d_cpu (5000 rounds) - upsampling to 512x512
+Elapsed time: 0.001274
+
+- Bench ti_upsample_bilinear2d_cpu (5000 rounds) - upsampling to 512x512
+Elapsed time: 0.000576962
+
+1 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 1
+Input is_contiguous : 0
+
+- Bench upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Elapsed time: 0.0374804
+
+- Bench ti_upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Elapsed time: 0.101596
+
+2 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 0
+Input is_contiguous : 1
+
+- Bench upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Elapsed time: 0.088325
+
+- Bench ti_upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Elapsed time: 0.0788824
+```
+
+
+### Step 3
+
+```bash
+cd step_three && mkdir -p build && cd $_
+export TORCH_PATH=/pytorch/torch
+cmake -DTORCH_DIR=$TORCH_PATH ..
+make
+```
+
+```bash
+make && ./bench
 ```
 
 
@@ -313,6 +373,30 @@ upsample_bilinear_cl: memory format: nhwc, input size:  [32, 64, 64, 128]
 input.is_contiguous(memory_format=torch.channels_last):  True
 input.is_contiguous():  False
 forward time per iteration: 108.430 ms
+```
+
+
+## OpenCV Resize function inspection
+
+```
+// https://github.com/opencv/opencv/blob/7d7ab462d6bcf39e453b47e95641ede41d3ef8bd/modules/imgproc/src/resize.cpp#L4044
+|-- void cv::resize( InputArray _src, OutputArray _dst, Size dsize,
+|                    double inv_scale_x, double inv_scale_y, int interpolation )
+|                 
+|
+// https://github.com/opencv/opencv/blob/7d7ab462d6bcf39e453b47e95641ede41d3ef8bd/modules/imgproc/src/resize.cpp#L3669 
+|-- hal::resize(...)
+|
+|
+|--> CALL_HAL(resize, cv_hal_resize, ...) 
+|--> CV_IPP_RUN_FAST(ipp_resize(...)
+|
+|
+|
+|
+|
+|
+
 ```
 
 
