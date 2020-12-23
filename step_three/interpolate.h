@@ -47,16 +47,28 @@ void ti_cpu_upsample_linear(
 }
 
 
-#define GET_VEC_OFFSETS(i, x_index, x_inner_stride, x_outer_stride, y_index, y_inner_stride, y_outer_stride, c) { \
-  *(int64_t*)&x_index[(i + 0) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 0) * y_inner_stride] * y_outer_stride + (i + 0) * c, \
-  *(int64_t*)&x_index[(i + 1) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 1) * y_inner_stride] * y_outer_stride + (i + 1) * c, \
-  *(int64_t*)&x_index[(i + 2) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 2) * y_inner_stride] * y_outer_stride + (i + 2) * c, \
-  *(int64_t*)&x_index[(i + 3) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 3) * y_inner_stride] * y_outer_stride + (i + 3) * c, \
-  *(int64_t*)&x_index[(i + 4) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 4) * y_inner_stride] * y_outer_stride + (i + 4) * c, \
-  *(int64_t*)&x_index[(i + 5) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 5) * y_inner_stride] * y_outer_stride + (i + 5) * c, \
-  *(int64_t*)&x_index[(i + 6) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 6) * y_inner_stride] * y_outer_stride + (i + 6) * c, \
-  *(int64_t*)&x_index[(i + 7) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 7) * y_inner_stride] * y_outer_stride + (i + 7) * c \
+// #define GET_VEC_OFFSETS(i, x_index, x_inner_stride, x_outer_stride, y_index, y_inner_stride, y_outer_stride, c) { \
+//   *(int64_t*)&x_index[(i + 0) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 0) * y_inner_stride] * y_outer_stride + (i + 0) * c, \
+//   *(int64_t*)&x_index[(i + 1) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 1) * y_inner_stride] * y_outer_stride + (i + 1) * c, \
+//   *(int64_t*)&x_index[(i + 2) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 2) * y_inner_stride] * y_outer_stride + (i + 2) * c, \
+//   *(int64_t*)&x_index[(i + 3) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 3) * y_inner_stride] * y_outer_stride + (i + 3) * c, \
+//   *(int64_t*)&x_index[(i + 4) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 4) * y_inner_stride] * y_outer_stride + (i + 4) * c, \
+//   *(int64_t*)&x_index[(i + 5) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 5) * y_inner_stride] * y_outer_stride + (i + 5) * c, \
+//   *(int64_t*)&x_index[(i + 6) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 6) * y_inner_stride] * y_outer_stride + (i + 6) * c, \
+//   *(int64_t*)&x_index[(i + 7) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 7) * y_inner_stride] * y_outer_stride + (i + 7) * c \
+// }
+
+#define GET_VEC_OFFSETS(i, x_index, x_inner_stride, x_outer_stride, y_index, y_inner_stride, y_outer_stride) { \
+  *(int64_t*)&x_index[(i + 0) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 0) * y_inner_stride] * y_outer_stride, \
+  *(int64_t*)&x_index[(i + 1) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 1) * y_inner_stride] * y_outer_stride, \
+  *(int64_t*)&x_index[(i + 2) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 2) * y_inner_stride] * y_outer_stride, \
+  *(int64_t*)&x_index[(i + 3) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 3) * y_inner_stride] * y_outer_stride, \
+  *(int64_t*)&x_index[(i + 4) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 4) * y_inner_stride] * y_outer_stride, \
+  *(int64_t*)&x_index[(i + 5) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 5) * y_inner_stride] * y_outer_stride, \
+  *(int64_t*)&x_index[(i + 6) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 6) * y_inner_stride] * y_outer_stride, \
+  *(int64_t*)&x_index[(i + 7) * x_inner_stride] * x_outer_stride + *(int64_t*)&y_index[(i + 7) * y_inner_stride] * y_outer_stride \ 
 } 
+
 
 
 template <typename scalar_t, typename vec_func_t>
@@ -83,8 +95,15 @@ void ti_cpu_upsample_linear_vectorized(
     char* iy1 = data[8];
     char* wy1 = data[9];
 
+    if (strides[1] > 0) {
+      std::cout << "Src stride is not 0" << std::endl;
+      assert(false);
+    }
+
     int64_t offset1, offset2, offset3, offset4;
     using Vec = at::vec256::Vec256<scalar_t>;
+    using integer_t = at::vec256::int_same_size_t<scalar_t>;
+    using iVec = at::vec256::Vec256<integer_t>;
 
     Vec vec_dst;
     Vec vec_srcs[4];
@@ -108,7 +127,7 @@ void ti_cpu_upsample_linear_vectorized(
     };
 
     auto setup_vec_wght = [&](char* _src1, int64_t _stride1, char* _src2, int64_t _stride2, Vec * _vec_wghts, uint8_t _vec_wght_index) {
-      scalar_t buffer1[8] = {      
+      scalar_t buffer1[8] = {
         *(scalar_t *)(_src1 + _stride1 * 0),
         *(scalar_t *)(_src1 + _stride1 * 1),
         *(scalar_t *)(_src1 + _stride1 * 2),
@@ -119,6 +138,10 @@ void ti_cpu_upsample_linear_vectorized(
         *(scalar_t *)(_src1 + _stride1 * 7)
       };
       Vec v1 = Vec::loadu(buffer1, 8);
+
+      // SLOWER THEN ABOVE CODE      
+      // Vec v1 = at::vec256::gather<>((scalar_t*)_src1, iVec::arange(0, _stride1));
+
       scalar_t buffer2[8] = { 
         *(scalar_t *)(_src2 + _stride2 * 0),
         *(scalar_t *)(_src2 + _stride2 * 1),
@@ -130,6 +153,9 @@ void ti_cpu_upsample_linear_vectorized(
         *(scalar_t *)(_src2 + _stride2 * 7)    
       };
       Vec v2 = Vec::loadu(buffer2, 8);
+
+      // SLOWER THEN ABOVE CODE
+      // Vec v2 = at::vec256::gather<>((scalar_t*)_src2, iVec::arange(0, _stride2));
       _vec_wghts[_vec_wght_index] = v1 * v2;
     };
 
@@ -141,13 +167,14 @@ void ti_cpu_upsample_linear_vectorized(
       // offset4 = *(int64_t*)&iy1[i * strides[8]] * y_stride;
 
       // setup vec_srcs:
-      int64_t vec_offsets00[step] = GET_VEC_OFFSETS(i, ix0, strides[2], x_stride, iy0, strides[6], y_stride, strides[1]);
+      // We assume that source stride is zero (stride[1] == 0)
+      int64_t vec_offsets00[step] = GET_VEC_OFFSETS(i, ix0, strides[2], x_stride, iy0, strides[6], y_stride); // , strides[1]);
       setup_vec_src(src, vec_offsets00, vec_srcs, 0);
-      int64_t vec_offsets01[step] = GET_VEC_OFFSETS(i, ix1, strides[4], x_stride, iy0, strides[6], y_stride, strides[1]);
+      int64_t vec_offsets01[step] = GET_VEC_OFFSETS(i, ix1, strides[4], x_stride, iy0, strides[6], y_stride); // , strides[1]);
       setup_vec_src(src, vec_offsets01, vec_srcs, 1);
-      int64_t vec_offsets10[step] = GET_VEC_OFFSETS(i, ix0, strides[2], x_stride, iy1, strides[8], y_stride, strides[1]);
+      int64_t vec_offsets10[step] = GET_VEC_OFFSETS(i, ix0, strides[2], x_stride, iy1, strides[8], y_stride); // , strides[1]);
       setup_vec_src(src, vec_offsets10, vec_srcs, 2);
-      int64_t vec_offsets11[step] = GET_VEC_OFFSETS(i, ix1, strides[4], x_stride, iy1, strides[8], y_stride, strides[1]);
+      int64_t vec_offsets11[step] = GET_VEC_OFFSETS(i, ix1, strides[4], x_stride, iy1, strides[8], y_stride); // , strides[1]);
       setup_vec_src(src, vec_offsets11, vec_srcs, 3);
 
       // *(scalar_t*)(wx0 + strides[3] * i) * *(scalar_t*)(wy0 + strides[7] * i);
@@ -285,7 +312,8 @@ at::Tensor ti_upsample_bilinear2d_kernel_impl(
             //                   *(scalar_t*)(src + offset2 + offset4) * *(scalar_t*)v1 * *(scalar_t*)v3;
             vec_dst = vec_srcs[0] * vec_wghts[0];
             for (uint8_t j=1; j < n; j++) {
-              vec_dst += vec_srcs[j] * vec_wghts[j];
+              // fmadd = a * b + c
+              vec_dst = at::vec256::fmadd(vec_srcs[j], vec_wghts[j], vec_dst);
             }
           });
     });

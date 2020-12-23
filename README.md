@@ -218,6 +218,12 @@ Elapsed time: 0.0788824
 
 ### Step 3
 
+**Important:** to activate AVX we need to add the following to CMakeLists.txt:
+```
+set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O3 -mavx")
+add_definitions("-DCPU_CAPABILITY_AVX")
+```
+
 ```bash
 cd step_three && mkdir -p build && cd $_
 export TORCH_PATH=/pytorch/torch
@@ -227,6 +233,40 @@ make
 
 ```bash
 make && ./bench
+```
+
+#### Result 0
+
+```
+Input tensor: [1, 3, 320, 320]
+Num threads: 6
+
+- Check consistency (downsampling to 256x256): OK
+
+- Check consistency (upsampling to 512x512): OK
+
+- Bench upsample_bilinear2d_cpu (5000 rounds) - downsampling to 256x256
+Elapsed time: 0.000321109
+
+- Bench ti_upsample_bilinear2d_cpu (5000 rounds) - downsampling to 256x256
+Elapsed time: 0.000316369
+
+- Bench upsample_bilinear2d_cpu (5000 rounds) - upsampling to 512x512
+Elapsed time: 0.00125611
+
+- Bench ti_upsample_bilinear2d_cpu (5000 rounds) - upsampling to 512x512
+Elapsed time: 0.000969901
+
+1 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 1
+Input is_contiguous : 0
+
+- Bench upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Elapsed time: 0.0322194
+
+- Bench ti_upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Segmentation fault (core dumped)
 ```
 
 

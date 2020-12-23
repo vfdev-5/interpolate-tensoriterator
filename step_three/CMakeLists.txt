@@ -7,12 +7,13 @@ else()
   message("Found TORCH_DIR:${TORCH_DIR}")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O3 -mavx -mfma -mavx2")
+add_definitions(-DCPU_CAPABILITY_AVX -DCPU_CAPABILITY_AVX2)
 
 include_directories(${TORCH_DIR}/include ${TORCH_DIR}/include/torch/csrc/api/include)
 set(TORCH_LIBRARIES 
     "${TORCH_DIR}/lib/libtorch.so" 
-    "${TORCH_DIR}/lib/libtorch_cpu.so" 
+    "${TORCH_DIR}/lib/libtorch_cpu.so"
     "${TORCH_DIR}/lib/libc10.so"
 )
 
