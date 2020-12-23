@@ -63,7 +63,7 @@ int main(int argc, char** argv)
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
     {
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
     // return 1;
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
     {
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
     // ---- benchmark test size as in https://github.com/mingfeima/op_bench-py
@@ -128,7 +128,7 @@ int main(int argc, char** argv)
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
 
         {
@@ -141,7 +141,7 @@ int main(int argc, char** argv)
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
     }
 
@@ -162,7 +162,7 @@ int main(int argc, char** argv)
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
 
         {
@@ -175,7 +175,7 @@ int main(int argc, char** argv)
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
     }
 
