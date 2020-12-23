@@ -79,7 +79,7 @@ int main(int argc, char** argv)
         std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
     }
 
-    return 1;
+    // return 1;
     // TEMPORARY DISABLE ALL OTHER BENCHMARKS
 
     {
