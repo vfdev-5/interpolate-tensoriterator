@@ -224,6 +224,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O3 -mavx")
 add_definitions("-DCPU_CAPABILITY_AVX")
 ```
 
+  - Skip multiplications on zero stride (e.g. src, y-indices and y-weights (under certain conditions))
+  - Integrate index strides directly into tensors
+  - 
+
+
 ```bash
 cd step_three && mkdir -p build && cd $_
 export TORCH_PATH=/pytorch/torch
