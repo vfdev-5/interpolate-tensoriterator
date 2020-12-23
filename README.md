@@ -227,6 +227,7 @@ add_definitions("-DCPU_CAPABILITY_AVX")
   - Rewritten `ti_compute_indices_weights` as a single loop
   - Skip multiplications on zero stride (e.g. src, y-indices and y-weights (under certain conditions))
   - Integrate index strides directly into tensors
+  - Replaced manual buffer expansion with for-loop
 
 
 ```bash
@@ -269,6 +270,39 @@ Input is_contiguous : 0
 
 - Bench upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
 Elapsed time: 0.0309762
+
+- Bench ti_upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Segmentation fault (core dumped)
+```
+
+#### Result 2
+```
+Input tensor: [1, 3, 320, 320]
+Num threads: 6
+
+- Check consistency (downsampling to 256x256): OK
+
+- Check consistency (upsampling to 512x512): OK
+
+- Bench upsample_bilinear2d_cpu (5000 rounds) - downsampling to 256x256
+Elapsed time: 0.000320324
+
+- Bench ti_upsample_bilinear2d_cpu (5000 rounds) - downsampling to 256x256
+Elapsed time: 0.000144485
+
+- Bench upsample_bilinear2d_cpu (5000 rounds) - upsampling to 512x512
+Elapsed time: 0.00128517
+
+- Bench ti_upsample_bilinear2d_cpu (5000 rounds) - upsampling to 512x512
+Elapsed time: 0.000500686
+
+1 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 1
+Input is_contiguous : 0
+
+- Bench upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Elapsed time: 0.0303925
 
 - Bench ti_upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
 Segmentation fault (core dumped)

@@ -82,6 +82,10 @@ void ti_cpu_upsample_linear(
 } 
 
 
+// static inline gather() {
+// }
+
+
 template <typename scalar_t, typename vec_func_t>
 void ti_cpu_upsample_linear_vectorized(
   // at::TensorIterator& iter, int64_t y_stride, int64_t x_stride, const vec_func_t& vec_f, bool serial_execution=false
@@ -121,64 +125,40 @@ void ti_cpu_upsample_linear_vectorized(
     Vec vec_srcs[4];
     Vec vec_wghts[4];
 
-    auto step = Vec::size();
+    constexpr int step = Vec::size();
 
     auto setup_vec_src = [&](char* _src, int64_t* vec_offsets, Vec * _vec_srcs, uint8_t _vec_src_index) {
       // TODO replace step by min(step, num_remaining_elements)
-      scalar_t buffer[8] = {
-        *(scalar_t*) (_src + vec_offsets[0]),
-        *(scalar_t*) (_src + vec_offsets[1]),
-        *(scalar_t*) (_src + vec_offsets[2]),
-        *(scalar_t*) (_src + vec_offsets[3]),
-        *(scalar_t*) (_src + vec_offsets[4]),
-        *(scalar_t*) (_src + vec_offsets[5]),
-        *(scalar_t*) (_src + vec_offsets[6]),
-        *(scalar_t*) (_src + vec_offsets[7])
-      };
-      _vec_srcs[_vec_src_index] = Vec::loadu(buffer, 8);
+      // scalar_t buffer[8] = {
+      //   *(scalar_t*) (_src + vec_offsets[0]),
+      //   *(scalar_t*) (_src + vec_offsets[1]),
+      //   *(scalar_t*) (_src + vec_offsets[2]),
+      //   *(scalar_t*) (_src + vec_offsets[3]),
+      //   *(scalar_t*) (_src + vec_offsets[4]),
+      //   *(scalar_t*) (_src + vec_offsets[5]),
+      //   *(scalar_t*) (_src + vec_offsets[6]),
+      //   *(scalar_t*) (_src + vec_offsets[7])
+      // };
+
+      scalar_t buffer[step];      
+      for (int i=0; i<step; i++) {
+        buffer[i] = *(scalar_t *)(_src + vec_offsets[i]);
+      }
+      _vec_srcs[_vec_src_index] = Vec::loadu(buffer);
     };
-      
-    // auto gather = [&](char * base_addr, const at::vec256::int_same_size_t<scalar_t>& index_arr) {
-    //   static constexpr int size = Vec256<scalar_t>::size();
-    //   // int_same_size_t<T> index_arr[size];
-    //   // vindex.store(static_cast<void*>(index_arr));
-    //   scalar_t buffer[size];
-    //   for (int64_t i = 0; i < size; i++) {
-    //     buffer[i] = base_addr[index_arr[i]];
-    //   }
-    //   return Vec256<scalar_t>::loadu(static_cast<void*>(buffer));
-    // };
 
     auto setup_vec_wght = [&](char* _src1, int64_t _stride1, char* _src2, int64_t _stride2, Vec * _vec_wghts, uint8_t _vec_wght_index) {
-      scalar_t buffer1[8] = {
-        *(scalar_t *)(_src1 + _stride1 * 0),
-        *(scalar_t *)(_src1 + _stride1 * 1),
-        *(scalar_t *)(_src1 + _stride1 * 2),
-        *(scalar_t *)(_src1 + _stride1 * 3),
-        *(scalar_t *)(_src1 + _stride1 * 4),
-        *(scalar_t *)(_src1 + _stride1 * 5),
-        *(scalar_t *)(_src1 + _stride1 * 6),
-        *(scalar_t *)(_src1 + _stride1 * 7)
-      };
-      Vec v1 = Vec::loadu(buffer1, 8);
+      scalar_t buffer1[step]; 
+      for (int i=0; i<step; i++) {
+        buffer1[i] = *(scalar_t *)(_src1 + _stride1 * i);
+      }
+      Vec v1 = Vec::loadu(buffer1);
 
-      // SLOWER THEN ABOVE CODE      
-      // Vec v1 = at::vec256::gather<>((scalar_t*)_src1, iVec::arange(0, _stride1));
-
-      scalar_t buffer2[8] = { 
-        *(scalar_t *)(_src2 + _stride2 * 0),
-        *(scalar_t *)(_src2 + _stride2 * 1),
-        *(scalar_t *)(_src2 + _stride2 * 2),
-        *(scalar_t *)(_src2 + _stride2 * 3),
-        *(scalar_t *)(_src2 + _stride2 * 4),
-        *(scalar_t *)(_src2 + _stride2 * 5),
-        *(scalar_t *)(_src2 + _stride2 * 6),
-        *(scalar_t *)(_src2 + _stride2 * 7)    
-      };
-      Vec v2 = Vec::loadu(buffer2, 8);
-
-      // SLOWER THEN ABOVE CODE
-      // Vec v2 = at::vec256::gather<>((scalar_t*)_src2, iVec::arange(0, _stride2));
+      scalar_t buffer2[step];
+      for (int i=0; i<step; i++) {
+        buffer2[i] = *(scalar_t *)(_src2 + _stride2 * i);
+      }
+      Vec v2 = Vec::loadu(buffer2);
       _vec_wghts[_vec_wght_index] = v1 * v2;
     };
 
@@ -202,32 +182,32 @@ void ti_cpu_upsample_linear_vectorized(
 
       if (zero_stride_y0) {
         y0_offset = *(int64_t*) iy0;
-        int64_t vec_offsets00[step] = GET_VEC_OFFSETS2(i, ix0, strides[2], y0_offset);  
+        int64_t vec_offsets00[] = GET_VEC_OFFSETS2(i, ix0, strides[2], y0_offset);  
         setup_vec_src(src, vec_offsets00, vec_srcs, 0);
 
-        int64_t vec_offsets01[step] = GET_VEC_OFFSETS2(i, ix1, strides[4], y0_offset);
+        int64_t vec_offsets01[] = GET_VEC_OFFSETS2(i, ix1, strides[4], y0_offset);
         setup_vec_src(src, vec_offsets01, vec_srcs, 1);
 
       } else {
-        int64_t vec_offsets00[step] = GET_VEC_OFFSETS(i, ix0, strides[2], iy0, strides[6]);
+        int64_t vec_offsets00[] = GET_VEC_OFFSETS(i, ix0, strides[2], iy0, strides[6]);
         setup_vec_src(src, vec_offsets00, vec_srcs, 0);
 
-        int64_t vec_offsets01[step] = GET_VEC_OFFSETS(i, ix1, strides[4], iy0, strides[6]);
+        int64_t vec_offsets01[] = GET_VEC_OFFSETS(i, ix1, strides[4], iy0, strides[6]);
         setup_vec_src(src, vec_offsets01, vec_srcs, 1);
       }
       
       if (zero_stride_y1) {
         y1_offset = *(int64_t*) iy1;
-        int64_t vec_offsets10[step] = GET_VEC_OFFSETS2(i, ix0, strides[2], y1_offset);
+        int64_t vec_offsets10[] = GET_VEC_OFFSETS2(i, ix0, strides[2], y1_offset);
         setup_vec_src(src, vec_offsets10, vec_srcs, 2);
 
-        int64_t vec_offsets11[step] = GET_VEC_OFFSETS2(i, ix1, strides[4], y1_offset);
+        int64_t vec_offsets11[] = GET_VEC_OFFSETS2(i, ix1, strides[4], y1_offset);
         setup_vec_src(src, vec_offsets11, vec_srcs, 3);
       } else {
-        int64_t vec_offsets10[step] = GET_VEC_OFFSETS(i, ix0, strides[2], iy1, strides[8]);
+        int64_t vec_offsets10[] = GET_VEC_OFFSETS(i, ix0, strides[2], iy1, strides[8]);
         setup_vec_src(src, vec_offsets10, vec_srcs, 2);
 
-        int64_t vec_offsets11[step] = GET_VEC_OFFSETS(i, ix1, strides[4], iy1, strides[8]);
+        int64_t vec_offsets11[] = GET_VEC_OFFSETS(i, ix1, strides[4], iy1, strides[8]);
         setup_vec_src(src, vec_offsets11, vec_srcs, 3);
       }      
 
