@@ -32,6 +32,13 @@ int main(int argc, char** argv)
 
         if (!ref_out.allclose(out)){
             std::cout << "Error" << std::endl;
+            //std::cout << (ref_out[0][0][0] - out[0][0][0]) << std::endl;
+            auto mse = (ref_out - out).pow(2.0).mean();
+            auto max_e = (ref_out - out).view(-1).abs().max();
+            std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
+
+            //std::cout << ref_out[0][0][0] << std::endl;
+            //std::cout << out[0][0][0] << std::endl;
             return 1;
         }
 

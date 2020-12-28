@@ -7,6 +7,8 @@ else()
   message("Found TORCH_DIR:${TORCH_DIR}")
 endif()
 
+#set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O3 -g -Wa,-aslh")
+# run with make > bench.dump
 set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O3")
 
 include_directories(${TORCH_DIR}/include ${TORCH_DIR}/include/torch/csrc/api/include)
