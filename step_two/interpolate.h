@@ -1,18 +1,28 @@
 #include <vector>
 #include <ATen/native/TensorIterator.h>
 
-/*
+
+#if 0
+template <int N>
 struct Indexer {
-  Indexer(int64_t num_indexers, char** indexers, const int64_t* indexer_strides,
-          IntArrayRef original_sizes, IntArrayRef original_strides)
-    : num_indexers(num_indexers)
+  Indexer(int64_t num_interp_dims, int64_t k_size, char** indexers, const int64_t* indexer_strides)
+    : num_interp_dims(num_interp_dims)
+    , k_size(k_size)
     , indexers(indexers)
     , indexer_strides(indexer_strides) {
-    AT_ASSERT(original_strides.size() == num_indexers);
-    AT_ASSERT(original_sizes.size() == num_indexers);
+    // AT_ASSERT(original_strides.size() == num_indexers);
+    // AT_ASSERT(original_sizes.size() == num_indexers);
+    /*
+    for (int i=0; i < num_interp_dims * k_size; i += k_size) {
+      for (int j=0; j < k_size; j++) {
+        TORCH_CHECK(strides[i] == strides[j])
+      }
+    }
+    */
   }
 
-  int64_t num_indexers;
+  int64_t num_interp_dims;
+  int64_t k_size;
   char** indexers;
   const int64_t* indexer_strides;
 
@@ -20,12 +30,32 @@ struct Indexer {
     int64_t offset = 0;
     for (int j = 0; j < num_indexers; j++) {
       int64_t value = *(int64_t*)&indexers[j][idx * indexer_strides[j]];
-      offset += value * original_strides[j];
     }
     return offset;
+
+    for (int64_t j = 0; j < num_interp_dims; j++) {
+      for (int64_t k = 0; k < k_size, k++) {
+        int64_t loc = 2 + j * k_size + k;
+        char* idx = indexers[loc];
+        char* weight = indexers[]
+        for (int64_t i = 0; i < n; i++) {
+
+        }
+      }
+
+      for (int64_t i = 0; i < n; i++) {
+        offset1 = *(int64_t*)&indexers[2][i * indexer_strides[2]];
+        offset2 = *(int64_t*)&indexers[4][i * indexer_strides[4]];
+        offset3 = *(int64_t*)&indexers[6][i * indexer_strides[6]];
+        offset4 = *(int64_t*)&indexers[8][i * indexer_strides[8]];
+        f(dst + strides[0] * i, src + strides[1] * i, \
+          offset1, offset2, data[3] + strides[3] * i, data[5] + strides[5] * i, \
+          offset3, offset4, data[7] + strides[7] * i, data[9] + strides[9] * i);
+      }
+    }
   }
 };
-*/
+#endif
 
 template <typename scalar_t, typename func_t>
 void ti_cpu_upsample_linear(
@@ -35,6 +65,7 @@ void ti_cpu_upsample_linear(
   // to make the whole available thread numbers get more balanced work load and a better cache location.
   // The grain size here is chosen by the op benchmark to overcome the thread launch overhead
   // const int index_parallel_grain_size = 3000;
+  //auto loop = [&](char** data, const int64_t* strides, int64_t n, int64_t n_interp_dims, int64_t k_size) {
   auto loop = [&](char** data, const int64_t* strides, int64_t n) {
     char* dst = data[0];
     char* src = data[1];
@@ -48,10 +79,10 @@ void ti_cpu_upsample_linear(
     char* wy1 = data[9];
 
     int64_t offset1, offset2, offset3, offset4;
-    TORCH_CHECK(strides[2] == strides[4]); // ix
-    TORCH_CHECK(strides[6] == strides[8]); // iy
-    TORCH_CHECK(strides[3] == strides[5]); // wx
-    TORCH_CHECK(strides[7] == strides[9]); // wy
+    TORCH_INTERNAL_ASSERT(strides[2] == strides[4]); // ix
+    TORCH_INTERNAL_ASSERT(strides[6] == strides[8]); // iy
+    TORCH_INTERNAL_ASSERT(strides[3] == strides[5]); // wx
+    TORCH_INTERNAL_ASSERT(strides[7] == strides[9]); // wy
 
     if (strides[2] == 0) {
       offset1 = *(int64_t*)&ix0[0];
@@ -73,7 +104,58 @@ void ti_cpu_upsample_linear(
       TORCH_CHECK(strides[1] == 0); // TODO need to add this case
 
       if (strides[2] == sizeof(int64_t) && strides[4] && sizeof(int64_t) && strides[3] == sizeof(float) && strides[5] == sizeof(float) && strides[0] == sizeof(scalar_t)) {
-      for (int64_t i = 0; i < n; i++) {
+
+      constexpr int step = 4;
+      scalar_t temp1[step] = {0};
+      scalar_t temp2[step] = {0};
+      char * src1 = src + offset3;
+      char * src2 = src + offset4;
+      int64_t i = 0;
+      int64_t * ix0_;// = (int64_t *) ix0;
+      int64_t * ix1_;// = (int64_t *) ix1;
+
+      float * wx0_;// = (float*) wx0;
+      float * wx1_;// = (float*) wx1;
+
+      float wy0_ = *(float*) wy0;
+      float wy1_ = *(float*) wy1;
+
+      scalar_t *dst_ = (scalar_t*) dst;
+
+      for (; i < n - (n % step); i += step) {
+        ix0_ = (int64_t *) ix0 + i;
+        ix1_ = (int64_t *) ix1 + i;
+        wx0_ = (float*) wx0 + i;
+        wx1_ = (float*) wx1 + i;
+        for (int k = 0; k < step; k++) {
+          offset1 = *ix0_;
+          offset2 = *ix1_;
+          temp1[k] = (*(scalar_t*)(src1 + offset1) * (*wx0_) + *(scalar_t*)(src1 + offset2) * (*wx1_));
+          ix0_++;
+          ix1_++;
+          wx0_++;
+          wx1_++;
+        }
+        ix0_ = (int64_t *) ix0 + i;
+        ix1_ = (int64_t *) ix1 + i;
+        wx0_ = (float*) wx0 + i;
+        wx1_ = (float*) wx1 + i;
+        for (int k = 0; k < step; k++) {
+          offset1 = *ix0_;
+          offset2 = *ix1_;
+          temp2[k] = (*(scalar_t*)(src2 + offset1) * (*wx0_) + *(scalar_t*)(src2 + offset2) * (*wx1_));
+          ix0_++;
+          ix1_++;
+          wx0_++;
+          wx1_++;
+        }
+        for (int k = 0; k < step; k++) {
+          *dst_ = temp1[k] * wy0_ + temp2[k] * wy1_;
+          dst_++;
+        }
+      }
+      //for (int64_t i = 0; i < n; i++) {
+      for (; i < n; i++) {
         offset1 = *(int64_t*)&ix0[i * strides[2]];
         offset2 = *(int64_t*)&ix1[i * strides[4]];
         f(dst + strides[0] * i, src, \
