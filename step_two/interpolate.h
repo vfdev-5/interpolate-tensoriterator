@@ -55,7 +55,59 @@ struct Indexer {
     }
   }
 };
+
+
+
+template <typename scalar_t, int N>
+inline scalar_t dot_product(scalar_t *a, scalar_t * b, int64_t n) {
+  scalar_t res = a[0] * b[0];
+  for (int64_t i = 1; i < n; i++) {
+    res += a[i] * b[i];
+  }
+  return res;
+}
 #endif
+
+
+template <typename scalar_t, int step>
+inline void load1(scalar_t* temp, char *src, int64_t * ix0_) {
+    for (int k = 0; k < step; k++) {
+      temp[k] = *(scalar_t*)(src + (*ix0_));
+      ix0_++;
+    }
+}
+
+template <typename scalar_t, int step>
+inline void compute_loaded(scalar_t* temp, scalar_t * src1, scalar_t* src2, float* wx0_, float* wx1_) {
+    for (int k = 0; k < step; k++) {
+      temp[k] = *src1 * *wx0_ + *src2 * *wx1_;
+      src1++;
+      src2++;
+      wx0_++;
+      wx1_++;
+    }
+}
+
+
+template <typename scalar_t, int step>
+inline void compute1(scalar_t* temp, char *src, int64_t * ix0_, int64_t * ix1_, float* wx0_, float* wx1_) {
+    for (int k = 0; k < step; k++) {
+      temp[k] = (*(scalar_t*)(src + (*ix0_)) * (*wx0_) + *(scalar_t*)(src + (*ix1_)) * (*wx1_));
+      ix0_++;
+      ix1_++;
+      wx0_++;
+      wx1_++;
+    }
+}
+
+template <typename scalar_t, int step>
+inline void compute2(scalar_t * dst, scalar_t* temp1, scalar_t* temp2, float wy0_, float wy1_) {
+    for (int k = 0; k < step; k++) {
+      *dst = temp1[k] * wy0_ + temp2[k] * wy1_;
+      dst++;
+    }
+}
+
 
 template <typename scalar_t, typename func_t>
 void ti_cpu_upsample_linear(
@@ -108,6 +160,8 @@ void ti_cpu_upsample_linear(
       constexpr int step = 4;
       scalar_t temp1[step] = {0};
       scalar_t temp2[step] = {0};
+      scalar_t temp3[step] = {0};
+      scalar_t temp4[step] = {0};
       char * src1 = src + offset3;
       char * src2 = src + offset4;
       int64_t i = 0;
@@ -123,36 +177,15 @@ void ti_cpu_upsample_linear(
       scalar_t *dst_ = (scalar_t*) dst;
 
       for (; i < n - (n % step); i += step) {
-        ix0_ = (int64_t *) ix0 + i;
-        ix1_ = (int64_t *) ix1 + i;
-        wx0_ = (float*) wx0 + i;
-        wx1_ = (float*) wx1 + i;
-        for (int k = 0; k < step; k++) {
-          offset1 = *ix0_;
-          offset2 = *ix1_;
-          temp1[k] = (*(scalar_t*)(src1 + offset1) * (*wx0_) + *(scalar_t*)(src1 + offset2) * (*wx1_));
-          ix0_++;
-          ix1_++;
-          wx0_++;
-          wx1_++;
-        }
-        ix0_ = (int64_t *) ix0 + i;
-        ix1_ = (int64_t *) ix1 + i;
-        wx0_ = (float*) wx0 + i;
-        wx1_ = (float*) wx1 + i;
-        for (int k = 0; k < step; k++) {
-          offset1 = *ix0_;
-          offset2 = *ix1_;
-          temp2[k] = (*(scalar_t*)(src2 + offset1) * (*wx0_) + *(scalar_t*)(src2 + offset2) * (*wx1_));
-          ix0_++;
-          ix1_++;
-          wx0_++;
-          wx1_++;
-        }
-        for (int k = 0; k < step; k++) {
-          *dst_ = temp1[k] * wy0_ + temp2[k] * wy1_;
-          dst_++;
-        }
+        //compute1<scalar_t, step>(temp1, src1, (int64_t *) ix0 + i, (int64_t*) ix1 + i, (float*) wx0 + i, (float*) wx1 + i);
+        //compute1<scalar_t, step>(temp2, src2, (int64_t *) ix0 + i, (int64_t*) ix1 + i, (float*) wx0 + i, (float*) wx1 + i);
+        load1<scalar_t, step>(temp3, src1, (int64_t *) ix0 + i);
+        load1<scalar_t, step>(temp4, src1, (int64_t *) ix1 + i);
+        compute_loaded<scalar_t, step>(temp1, temp3, temp4,  (float*) wx0 + i, (float*) wx1 + i);
+        load1<scalar_t, step>(temp3, src2, (int64_t *) ix0 + i);
+        load1<scalar_t, step>(temp4, src2, (int64_t *) ix1 + i);
+        compute_loaded<scalar_t, step>(temp2, temp3, temp4,  (float*) wx0 + i, (float*) wx1 + i);
+        compute2<scalar_t, step>(dst_ + i, temp1, temp2, wy0_, wy1_);
       }
       //for (int64_t i = 0; i < n; i++) {
       for (; i < n; i++) {
