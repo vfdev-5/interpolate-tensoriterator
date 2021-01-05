@@ -1,11 +1,15 @@
 #include <vector>
 #include <ATen/native/TensorIterator.h>
+#include <ATen/cpu/vec256/vec256.h>
 
+#include <ATen/cpu/vec256/intrinsics.h>
+
+using index_t = int32_t;
 
 #if 0
 template <int N>
 struct Indexer {
-  Indexer(int64_t num_interp_dims, int64_t k_size, char** indexers, const int64_t* indexer_strides)
+  Indexer(index_t num_interp_dims, index_t k_size, char** indexers, const index_t* indexer_strides)
     : num_interp_dims(num_interp_dims)
     , k_size(k_size)
     , indexers(indexers)
@@ -21,33 +25,33 @@ struct Indexer {
     */
   }
 
-  int64_t num_interp_dims;
-  int64_t k_size;
+  index_t num_interp_dims;
+  index_t k_size;
   char** indexers;
-  const int64_t* indexer_strides;
+  const index_t* indexer_strides;
 
-  int64_t get(int64_t idx) {
-    int64_t offset = 0;
+  index_t get(index_t idx) {
+    index_t offset = 0;
     for (int j = 0; j < num_indexers; j++) {
-      int64_t value = *(int64_t*)&indexers[j][idx * indexer_strides[j]];
+      index_t value = *(index_t*)&indexers[j][idx * indexer_strides[j]];
     }
     return offset;
 
-    for (int64_t j = 0; j < num_interp_dims; j++) {
-      for (int64_t k = 0; k < k_size, k++) {
-        int64_t loc = 2 + j * k_size + k;
+    for (index_t j = 0; j < num_interp_dims; j++) {
+      for (index_t k = 0; k < k_size, k++) {
+        index_t loc = 2 + j * k_size + k;
         char* idx = indexers[loc];
         char* weight = indexers[]
-        for (int64_t i = 0; i < n; i++) {
+        for (index_t i = 0; i < n; i++) {
 
         }
       }
 
-      for (int64_t i = 0; i < n; i++) {
-        offset1 = *(int64_t*)&indexers[2][i * indexer_strides[2]];
-        offset2 = *(int64_t*)&indexers[4][i * indexer_strides[4]];
-        offset3 = *(int64_t*)&indexers[6][i * indexer_strides[6]];
-        offset4 = *(int64_t*)&indexers[8][i * indexer_strides[8]];
+      for (index_t i = 0; i < n; i++) {
+        offset1 = *(index_t*)&indexers[2][i * indexer_strides[2]];
+        offset2 = *(index_t*)&indexers[4][i * indexer_strides[4]];
+        offset3 = *(index_t*)&indexers[6][i * indexer_strides[6]];
+        offset4 = *(index_t*)&indexers[8][i * indexer_strides[8]];
         f(dst + strides[0] * i, src + strides[1] * i, \
           offset1, offset2, data[3] + strides[3] * i, data[5] + strides[5] * i, \
           offset3, offset4, data[7] + strides[7] * i, data[9] + strides[9] * i);
@@ -59,9 +63,9 @@ struct Indexer {
 
 
 template <typename scalar_t, int N>
-inline scalar_t dot_product(scalar_t *a, scalar_t * b, int64_t n) {
+inline scalar_t dot_product(scalar_t *a, scalar_t * b, index_t n) {
   scalar_t res = a[0] * b[0];
-  for (int64_t i = 1; i < n; i++) {
+  for (index_t i = 1; i < n; i++) {
     res += a[i] * b[i];
   }
   return res;
@@ -70,11 +74,21 @@ inline scalar_t dot_product(scalar_t *a, scalar_t * b, int64_t n) {
 
 
 template <typename scalar_t, int step>
-inline void load1(scalar_t* temp, char *src, int64_t * ix0_) {
+//inline void load1(scalar_t* temp, char *src, index_t * ix0_) {
+inline void load1(scalar_t* temp, scalar_t *src, index_t * ix0_) {
     for (int k = 0; k < step; k++) {
-      temp[k] = *(scalar_t*)(src + (*ix0_));
+      //temp[k] = *(scalar_t*)(src + (*ix0_));
+      //temp[k] = *((scalar_t*)src + *ix0_);
+      temp[k] = *(src + *ix0_);
       ix0_++;
     }
+}
+
+template <typename scalar_t, int step>
+inline void load2(scalar_t* temp, char *src, index_t * ix0_) {
+    using Vec = at::vec256::Vec256<index_t>;
+    auto ix0 = Vec::loadu(ix0_);
+    return at::vec256::gather(temp, ix0, 1);
 }
 
 template <typename scalar_t, int step>
@@ -90,7 +104,7 @@ inline void compute_loaded(scalar_t* temp, scalar_t * src1, scalar_t* src2, floa
 
 
 template <typename scalar_t, int step>
-inline void compute1(scalar_t* temp, char *src, int64_t * ix0_, int64_t * ix1_, float* wx0_, float* wx1_) {
+inline void compute1(scalar_t* temp, char *src, index_t * ix0_, index_t * ix1_, float* wx0_, float* wx1_) {
     for (int k = 0; k < step; k++) {
       temp[k] = (*(scalar_t*)(src + (*ix0_)) * (*wx0_) + *(scalar_t*)(src + (*ix1_)) * (*wx1_));
       ix0_++;
@@ -117,7 +131,7 @@ void ti_cpu_upsample_linear(
   // to make the whole available thread numbers get more balanced work load and a better cache location.
   // The grain size here is chosen by the op benchmark to overcome the thread launch overhead
   // const int index_parallel_grain_size = 3000;
-  //auto loop = [&](char** data, const int64_t* strides, int64_t n, int64_t n_interp_dims, int64_t k_size) {
+  //auto loop = [&](char** data, const index_t* strides, index_t n, index_t n_interp_dims, index_t k_size) {
   auto loop = [&](char** data, const int64_t* strides, int64_t n) {
     char* dst = data[0];
     char* src = data[1];
@@ -130,46 +144,46 @@ void ti_cpu_upsample_linear(
     char* iy1 = data[8];
     char* wy1 = data[9];
 
-    int64_t offset1, offset2, offset3, offset4;
+    index_t offset1, offset2, offset3, offset4;
     TORCH_INTERNAL_ASSERT(strides[2] == strides[4]); // ix
     TORCH_INTERNAL_ASSERT(strides[6] == strides[8]); // iy
     TORCH_INTERNAL_ASSERT(strides[3] == strides[5]); // wx
     TORCH_INTERNAL_ASSERT(strides[7] == strides[9]); // wy
 
     if (strides[2] == 0) {
-      offset1 = *(int64_t*)&ix0[0];
-      offset2 = *(int64_t*)&ix1[0];
+      offset1 = *(index_t*)&ix0[0];
+      offset2 = *(index_t*)&ix1[0];
       TORCH_CHECK(strides[3] == 0);
       TORCH_CHECK(strides[5] == 0);
-      for (int64_t i = 0; i < n; i++) {
-        offset3 = *(int64_t*)&iy0[i * strides[6]];
-        offset4 = *(int64_t*)&iy1[i * strides[8]];
+      for (index_t i = 0; i < n; i++) {
+        offset3 = *(index_t*)&iy0[i * strides[6]];
+        offset4 = *(index_t*)&iy1[i * strides[8]];
         f(dst + strides[0] * i, src + strides[1] * i, \
           offset1, offset2, wx0, wx1, \
           offset3, offset4, wy0 + strides[7] * i, wy1 + strides[9] * i);
       }
     } else if (strides[6] == 0) {
-      offset3 = *(int64_t*)&iy0[0];
-      offset4 = *(int64_t*)&iy1[0];
+      offset3 = *(index_t*)&iy0[0];
+      offset4 = *(index_t*)&iy1[0];
       TORCH_CHECK(strides[7] == 0);
       TORCH_CHECK(strides[9] == 0);
       TORCH_CHECK(strides[1] == 0); // TODO need to add this case
 
-      if (strides[2] == sizeof(int64_t) && strides[4] && sizeof(int64_t) && strides[3] == sizeof(float) && strides[5] == sizeof(float) && strides[0] == sizeof(scalar_t)) {
+      if (strides[2] == sizeof(index_t) && strides[4] && sizeof(index_t) && strides[3] == sizeof(float) && strides[5] == sizeof(float) && strides[0] == sizeof(scalar_t)) {
 
       constexpr int step = 4;
       scalar_t temp1[step] = {0};
       scalar_t temp2[step] = {0};
       scalar_t temp3[step] = {0};
       scalar_t temp4[step] = {0};
-      char * src1 = src + offset3;
-      char * src2 = src + offset4;
-      int64_t i = 0;
-      int64_t * ix0_;// = (int64_t *) ix0;
-      int64_t * ix1_;// = (int64_t *) ix1;
+      scalar_t * src1 = (scalar_t *)(src) + offset3;
+      scalar_t * src2 = (scalar_t *)(src) + offset4;
+      index_t i = 0;
+      index_t * ix0_ = (index_t *) ix0;
+      index_t * ix1_ = (index_t *) ix1;
 
-      float * wx0_;// = (float*) wx0;
-      float * wx1_;// = (float*) wx1;
+      float * wx0_ = (float*) wx0;
+      float * wx1_ = (float*) wx1;
 
       float wy0_ = *(float*) wy0;
       float wy1_ = *(float*) wy1;
@@ -177,33 +191,42 @@ void ti_cpu_upsample_linear(
       scalar_t *dst_ = (scalar_t*) dst;
 
       for (; i < n - (n % step); i += step) {
-        //compute1<scalar_t, step>(temp1, src1, (int64_t *) ix0 + i, (int64_t*) ix1 + i, (float*) wx0 + i, (float*) wx1 + i);
-        //compute1<scalar_t, step>(temp2, src2, (int64_t *) ix0 + i, (int64_t*) ix1 + i, (float*) wx0 + i, (float*) wx1 + i);
-        load1<scalar_t, step>(temp3, src1, (int64_t *) ix0 + i);
-        load1<scalar_t, step>(temp4, src1, (int64_t *) ix1 + i);
-        compute_loaded<scalar_t, step>(temp1, temp3, temp4,  (float*) wx0 + i, (float*) wx1 + i);
-        load1<scalar_t, step>(temp3, src2, (int64_t *) ix0 + i);
-        load1<scalar_t, step>(temp4, src2, (int64_t *) ix1 + i);
-        compute_loaded<scalar_t, step>(temp2, temp3, temp4,  (float*) wx0 + i, (float*) wx1 + i);
+        //compute1<scalar_t, step>(temp1, src1, (index_t *) ix0 + i, (index_t*) ix1 + i, (float*) wx0 + i, (float*) wx1 + i);
+        //compute1<scalar_t, step>(temp2, src2, (index_t *) ix0 + i, (index_t*) ix1 + i, (float*) wx0 + i, (float*) wx1 + i);
+        load1<scalar_t, step>(temp3, src1, ix0_ + i);
+        load1<scalar_t, step>(temp4, src1, ix1_ + i);
+        compute_loaded<scalar_t, step>(temp1, temp3, temp4,  wx0_ + i, wx1_ + i);
+        load1<scalar_t, step>(temp3, src2, ix0_ + i);
+        load1<scalar_t, step>(temp4, src2, ix1_ + i);
+        compute_loaded<scalar_t, step>(temp2, temp3, temp4,  wx0_ + i, wx1_ + i);
         compute2<scalar_t, step>(dst_ + i, temp1, temp2, wy0_, wy1_);
       }
-      //for (int64_t i = 0; i < n; i++) {
+      //for (index_t i = 0; i < n; i++) {
       for (; i < n; i++) {
-        offset1 = *(int64_t*)&ix0[i * strides[2]];
-        offset2 = *(int64_t*)&ix1[i * strides[4]];
+        load1<scalar_t, 1>(temp3, src1, ix0_ + i);
+        load1<scalar_t, 1>(temp4, src1, ix1_ + i);
+        compute_loaded<scalar_t, 1>(temp1, temp3, temp4,  wx0_ + i, wx1_ + i);
+        load1<scalar_t, 1>(temp3, src2, ix0_ + i);
+        load1<scalar_t, 1>(temp4, src2, ix1_ + i);
+        compute_loaded<scalar_t, 1>(temp2, temp3, temp4, wx0_ + i, wx1_ + i);
+        compute2<scalar_t, 1>(dst_ + i, temp1, temp2, wy0_, wy1_);
+      }
+      for (; i < n; i++) {
+        offset1 = *(index_t*)&ix0[i * strides[2]];
+        offset2 = *(index_t*)&ix1[i * strides[4]];
         f(dst + strides[0] * i, src, \
           offset1, offset2, wx0 + strides[3] * i, wx1 + strides[5] * i, \
           offset3, offset4, wy0, wy1);
       }
       } else {
-        TORCH_CHECK(false, "Not supposed to be here ", strides[0], " ", strides[1]);
+        TORCH_CHECK(false, "Not supposed to be here ", strides[0], " ", strides[1], " ", strides[2]);
       }
     } else {
-      for (int64_t i = 0; i < n; i++) {
-        offset1 = *(int64_t*)&ix0[i * strides[2]];
-        offset2 = *(int64_t*)&ix1[i * strides[4]];
-        offset3 = *(int64_t*)&iy0[i * strides[6]];
-        offset4 = *(int64_t*)&iy1[i * strides[8]];
+      for (index_t i = 0; i < n; i++) {
+        offset1 = *(index_t*)&ix0[i * strides[2]];
+        offset2 = *(index_t*)&ix1[i * strides[4]];
+        offset3 = *(index_t*)&iy0[i * strides[6]];
+        offset4 = *(index_t*)&iy1[i * strides[8]];
         f(dst + strides[0] * i, src + strides[1] * i, \
           offset1, offset2, wx0 + strides[3] * i, wx1 + strides[5] * i, \
           offset3, offset4, wy0 + strides[7] * i, wy1 + strides[9] * i);
@@ -221,7 +244,7 @@ void ti_cpu_upsample_linear(
 
 
 void ti_compute_indices_weights(
-  long input_size, long output_size, int64_t stride, at::Tensor & input_index0, at::Tensor & input_index1, at::Tensor & lambda0, at::Tensor & lambda1
+  long input_size, long output_size, index_t stride, at::Tensor & input_index0, at::Tensor & input_index1, at::Tensor & lambda0, at::Tensor & lambda1
 ) {
     auto scale = float(input_size) / output_size;
     // ((at::arange(output_size).to(at::kFloat) + 0.5) * scale - 0.5).clamp(0);
@@ -237,13 +260,13 @@ void ti_compute_indices_weights_faster(
   int64_t input_size, int64_t output_size, int64_t stride, at::Tensor & input_index0, at::Tensor & input_index1, at::Tensor & lambda0, at::Tensor & lambda1
 ) {
     auto scale = float(input_size) / output_size;
-    input_index0 = at::empty({output_size, }, at::CPU(at::kLong));
-    input_index1 = at::empty({output_size, }, at::CPU(at::kLong));
+    input_index0 = at::empty({output_size, }, at::CPU(at::kInt));
+    input_index1 = at::empty({output_size, }, at::CPU(at::kInt));
     lambda1 = at::empty({output_size, }, at::CPU(at::kFloat));
     lambda0 = at::empty({output_size, }, at::CPU(at::kFloat));
 
-    auto input_index0_ptr = (int64_t *) input_index0.data_ptr();
-    auto input_index1_ptr = (int64_t *) input_index1.data_ptr();
+    auto input_index0_ptr = (index_t *) input_index0.data_ptr();
+    auto input_index1_ptr = (index_t *) input_index1.data_ptr();
     auto lambda1_ptr = (float *) lambda1.data_ptr();
     auto lambda0_ptr = (float *) lambda0.data_ptr();
     float xf;
@@ -255,7 +278,7 @@ void ti_compute_indices_weights_faster(
     // input_index0 = input_index.to(at::kLong);
     // input_index1 = (input_index0 + 1).clamp(0, input_size - 1);
 
-    for (uint64_t i=0; i<output_size; i++) {
+    for (index_t i=0; i<output_size; i++) {
         xf = std::max((float)((i + 0.5f) * scale - 0.5), 0.0f);
         xl = (long) xf;
         input_index0_ptr[i] = xl * stride;
@@ -287,9 +310,9 @@ at::Tensor ti_upsample_bilinear2d_kernel_impl(
     strides[3] = 0;
     auto restrided_input = input.as_strided(shape, strides);
 
-    int64_t element_size_bytes = input.element_size();
-    int64_t x_indexed_stride = input.stride(3) * element_size_bytes;
-    int64_t y_indexed_stride = input.stride(2) * element_size_bytes;
+    index_t element_size_bytes = input.element_size();
+    index_t x_indexed_stride = input.stride(3);// * element_size_bytes;
+    index_t y_indexed_stride = input.stride(2);// * element_size_bytes;
 
 
     at::Tensor ix0, ix1, wx0, wx1;
@@ -322,12 +345,13 @@ at::Tensor ti_upsample_bilinear2d_kernel_impl(
         .add_input(wy1)
         .build();
 
-    AT_DISPATCH_ALL_TYPES(
+    //AT_DISPATCH_ALL_TYPES(
+    AT_DISPATCH_FLOATING_TYPES(
         iter.dtype(), "upsample_bilinear2d", [&] {
         ti_cpu_upsample_linear<scalar_t>(iter, [](
                 char* dst, char* src, \
-                int64_t offset1, int64_t offset2, char* v0, char* v1, \
-                int64_t offset3, int64_t offset4, char* v2, char* v3)
+                index_t offset1, index_t offset2, char* v0, char* v1, \
+                index_t offset3, index_t offset4, char* v2, char* v3)
         {
 //           output_data[output_offset] =
 //               h0lambda * w0lambda * input_indexr(c, ih0, iw0) + /* h0 * w0 * i00 */

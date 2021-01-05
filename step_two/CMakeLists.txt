@@ -9,7 +9,8 @@ endif()
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O3 -g -Wa,-aslh")
 # run with make > bench.dump
-set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O3 -mavx -mfma -mavx2")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O0 -g -mavx -mfma -mavx2")
 
 include_directories(${TORCH_DIR}/include ${TORCH_DIR}/include/torch/csrc/api/include)
 set(TORCH_LIBRARIES 
