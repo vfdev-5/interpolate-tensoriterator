@@ -84,11 +84,11 @@ inline void load1(scalar_t* temp, scalar_t *src, index_t * ix0_) {
     }
 }
 
-template <typename scalar_t, int step>
-inline void load2(scalar_t* temp, char *src, index_t * ix0_) {
+template <typename scalar_t>
+inline at::vec256::Vec256<scalar_t> load2(const scalar_t *src, index_t * ix0_) {
     using Vec = at::vec256::Vec256<index_t>;
     auto ix0 = Vec::loadu(ix0_);
-    return at::vec256::gather(temp, ix0, 1);
+    return at::vec256::gather<sizeof(scalar_t)>(src, ix0);
 }
 
 template <typename scalar_t, int step>
@@ -101,6 +101,14 @@ inline void compute_loaded(scalar_t* temp, scalar_t * src1, scalar_t* src2, floa
       wx1_++;
     }
 }
+
+template <typename scalar_t>
+inline at::vec256::Vec256<scalar_t> compute_loaded2(at::vec256::Vec256<scalar_t> src1, at::vec256::Vec256<scalar_t> src2,
+    at::vec256::Vec256<scalar_t> wx0, at::vec256::Vec256<scalar_t> wx1) {
+  using Vec = at::vec256::Vec256<scalar_t>;
+  return src1 * wx0 + src2 * wx1;
+}
+
 
 
 template <typename scalar_t, int step>
@@ -120,6 +128,12 @@ inline void compute2(scalar_t * dst, scalar_t* temp1, scalar_t* temp2, float wy0
       *dst = temp1[k] * wy0_ + temp2[k] * wy1_;
       dst++;
     }
+}
+
+template <typename scalar_t>
+inline at::vec256::Vec256<scalar_t> compute2_(at::vec256::Vec256<scalar_t> temp1, at::vec256::Vec256<scalar_t> temp2,
+    at::vec256::Vec256<scalar_t> wy0_, at::vec256::Vec256<scalar_t> wy1_) {
+    return temp1 * wy0_ + temp2 * wy1_;
 }
 
 
@@ -172,6 +186,7 @@ void ti_cpu_upsample_linear(
       if (strides[2] == sizeof(index_t) && strides[4] && sizeof(index_t) && strides[3] == sizeof(float) && strides[5] == sizeof(float) && strides[0] == sizeof(scalar_t)) {
 
       constexpr int step = 4;
+      //constexpr int step = at::vec256::Vec256<scalar_t>::size();
       scalar_t temp1[step] = {0};
       scalar_t temp2[step] = {0};
       scalar_t temp3[step] = {0};
@@ -190,9 +205,14 @@ void ti_cpu_upsample_linear(
 
       scalar_t *dst_ = (scalar_t*) dst;
 
+      at::vec256::Vec256<scalar_t> t1, t2, t3, t4, dd, wwx0, wwx1, wwy0, wwy1;
+
+      using Vec = at::vec256::Vec256<scalar_t>;
+      wwy0 = Vec(wy0_);
+      wwy1 = Vec(wy1_);
+
       for (; i < n - (n % step); i += step) {
-        //compute1<scalar_t, step>(temp1, src1, (index_t *) ix0 + i, (index_t*) ix1 + i, (float*) wx0 + i, (float*) wx1 + i);
-        //compute1<scalar_t, step>(temp2, src2, (index_t *) ix0 + i, (index_t*) ix1 + i, (float*) wx0 + i, (float*) wx1 + i);
+#if 1
         load1<scalar_t, step>(temp3, src1, ix0_ + i);
         load1<scalar_t, step>(temp4, src1, ix1_ + i);
         compute_loaded<scalar_t, step>(temp1, temp3, temp4,  wx0_ + i, wx1_ + i);
@@ -200,6 +220,19 @@ void ti_cpu_upsample_linear(
         load1<scalar_t, step>(temp4, src2, ix1_ + i);
         compute_loaded<scalar_t, step>(temp2, temp3, temp4,  wx0_ + i, wx1_ + i);
         compute2<scalar_t, step>(dst_ + i, temp1, temp2, wy0_, wy1_);
+#endif
+#if 0
+        wwx0 = Vec::loadu(wx0_ + i);
+        wwx1 = Vec::loadu(wx1_ + i);
+        t3 = load2<scalar_t>(src1, ix0_ + i);
+        t4 = load2<scalar_t>(src1, ix1_ + i);
+        t1 = compute_loaded2<scalar_t>(t3, t4, wwx0, wwx1);
+        t3 = load2<scalar_t>(src2, ix0_ + i);
+        t4 = load2<scalar_t>(src2, ix1_ + i);
+        t2 = compute_loaded2<scalar_t>(t3, t4, wwx0, wwx1);
+        dd = compute2_<scalar_t>(t1, t2, wwy0, wwy1);
+        dd.store(dst_ + i);
+#endif
       }
       //for (index_t i = 0; i < n; i++) {
       for (; i < n; i++) {
@@ -346,8 +379,9 @@ at::Tensor ti_upsample_bilinear2d_kernel_impl(
         .build();
 
     //AT_DISPATCH_ALL_TYPES(
-    AT_DISPATCH_FLOATING_TYPES(
-        iter.dtype(), "upsample_bilinear2d", [&] {
+    //AT_DISPATCH_FLOATING_TYPES(
+    //    iter.dtype(), "upsample_bilinear2d", [&] {
+    using scalar_t = float;
         ti_cpu_upsample_linear<scalar_t>(iter, [](
                 char* dst, char* src, \
                 index_t offset1, index_t offset2, char* v0, char* v1, \
@@ -371,7 +405,7 @@ at::Tensor ti_upsample_bilinear2d_kernel_impl(
                             *(scalar_t*)(src + offset2 + offset4) * *(scalar_t*)v1 * *(scalar_t*)v3;
 #endif
         });
-    });
+    //});
 
     return iter.output();
 }
