@@ -31,14 +31,9 @@ int main(int argc, char** argv)
         auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {256, 256});
 
         if (!ref_out.allclose(out)){
-            std::cout << "Error" << std::endl;
-            //std::cout << (ref_out[0][0][0] - out[0][0][0]) << std::endl;
             auto mse = (ref_out - out).pow(2.0).mean();
             auto max_e = (ref_out - out).view(-1).abs().max();
             std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
-
-            //std::cout << ref_out[0][0][0] << std::endl;
-            //std::cout << out[0][0][0] << std::endl;
             return 1;
         }
 
@@ -68,7 +63,7 @@ int main(int argc, char** argv)
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
     {
@@ -81,8 +76,11 @@ int main(int argc, char** argv)
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
+
+    return 1;
+    TEMPORARY DISABLE ALL OTHER BENCHMARKS
 
     {
         std::cout << "\n- Bench upsample_bilinear2d_cpu (" << n << " rounds) - upsampling to 512x512" << std::endl;
@@ -94,7 +92,7 @@ int main(int argc, char** argv)
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
     {
@@ -107,11 +105,12 @@ int main(int argc, char** argv)
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
     // ---- benchmark test size as in https://github.com/mingfeima/op_bench-py
     n = n / 10;
+
     {
         std::cout << "\n1 - Benchmark test size as in https://github.com/mingfeima/op_bench-py" << std::endl;
         t_input = at::rand({32, 64, 64, 128}, at::CPU(at::kFloat));
@@ -119,6 +118,22 @@ int main(int argc, char** argv)
         std::cout << "Input tensor: " << t_input.sizes() << std::endl;
         std::cout << "Input is_contiguous memory_format torch.channels_last: " << t_input.is_contiguous(at::MemoryFormat::ChannelsLast) << std::endl;
         std::cout << "Input is_contiguous : " << t_input.is_contiguous() << std::endl;
+
+        // Check consistency:
+        {
+            std::cout << "\n- Check consistency (upsampling to 128x128): ";
+            auto ref_out = at::native::upsample_bilinear2d_cpu(t_input, {128, 128}, false);
+            auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128});
+
+            if (!ref_out.allclose(out)){
+                auto mse = (ref_out - out).pow(2.0).mean();
+                auto max_e = (ref_out - out).view(-1).abs().max();
+                std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
+                return 1;
+            }
+
+            std::cout << "OK" << std::endl;
+        }
 
         {    
             std::cout << "\n- Bench upsample_bilinear2d_cpu (" << n << " rounds) - upsampling to 128x128" << std::endl;
@@ -130,7 +145,7 @@ int main(int argc, char** argv)
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
 
         {
@@ -143,7 +158,7 @@ int main(int argc, char** argv)
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
     }
 
@@ -154,6 +169,23 @@ int main(int argc, char** argv)
         std::cout << "Input is_contiguous memory_format torch.channels_last: " << t_input.is_contiguous(at::MemoryFormat::ChannelsLast) << std::endl;
         std::cout << "Input is_contiguous : " << t_input.is_contiguous() << std::endl;
 
+
+        // Check consistency:
+        {
+            std::cout << "\n- Check consistency (upsampling to 128x128): ";
+            auto ref_out = at::native::upsample_bilinear2d_cpu(t_input, {128, 128}, false);
+            auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128});
+
+            if (!ref_out.allclose(out)){
+                auto mse = (ref_out - out).pow(2.0).mean();
+                auto max_e = (ref_out - out).view(-1).abs().max();
+                std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
+                return 1;
+            }
+
+            std::cout << "OK" << std::endl;
+        }
+
         {    
             std::cout << "\n- Bench upsample_bilinear2d_cpu (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
@@ -164,8 +196,10 @@ int main(int argc, char** argv)
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
+
+        // auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128});
 
         {
             std::cout << "\n- Bench ti_upsample_bilinear2d_cpu (" << n << " rounds) - upsampling to 128x128" << std::endl;
@@ -177,7 +211,7 @@ int main(int argc, char** argv)
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "Elapsed time: " << elapsed_seconds.count() / n << std::endl;
+            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
     }
 

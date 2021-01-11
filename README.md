@@ -27,8 +27,13 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 
 ### Step 3
 
-- [ ] Refactor implementation like in Advanced Indexing codebase
-- [ ] Apply vectorization
+- [x] Refactor implementation like in Advanced Indexing codebase
+- [x] Apply vectorization
+
+
+### Step 2.1
+
+
 
 ## Questions
 
@@ -344,6 +349,67 @@ Elapsed time (ms): 30.2949
 Segmentation fault (core dumped)
 ```
 
+### Step 2.1
+
+```bash
+cd step_two_dot_one && mkdir -p build && cd $_
+export TORCH_PATH=/pytorch/torch
+cmake -DTORCH_DIR=$TORCH_PATH ..
+make
+```
+
+```bash
+make && ./bench
+```
+
+#### Result 1:
+
+```
+Input tensor: [1, 3, 320, 320]
+Num threads: 6
+
+- Check consistency (downsampling to 256x256): OK
+
+- Check consistency (upsampling to 512x512): OK
+
+- Bench upsample_bilinear2d_cpu (5000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.322771
+
+- Bench ti_upsample_bilinear2d_cpu (5000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0721024
+
+- Bench upsample_bilinear2d_cpu (5000 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.26993
+
+- Bench ti_upsample_bilinear2d_cpu (5000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.199163
+
+1 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 1
+Input is_contiguous : 0
+
+- Check consistency (upsampling to 128x128): OK
+
+- Bench upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Elapsed time (ms): 35.68
+
+- Bench ti_upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Elapsed time (ms): 61.7569
+
+2 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 0
+Input is_contiguous : 1
+
+- Check consistency (upsampling to 128x128): OK
+
+- Bench upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Elapsed time (ms): 88.6877
+
+- Bench ti_upsample_bilinear2d_cpu (500 rounds) - upsampling to 128x128
+Elapsed time (ms): 48.9633
+```
 
 
 ## Upsampling code inspection

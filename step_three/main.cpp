@@ -199,7 +199,7 @@ int main(int argc, char** argv)
             std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
 
-        auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128});
+        // auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128});
 
         {
             std::cout << "\n- Bench ti_upsample_bilinear2d_cpu (" << n << " rounds) - upsampling to 128x128" << std::endl;

@@ -61,7 +61,6 @@ struct Indexer {
 };
 
 
-
 template <typename scalar_t, int N>
 inline scalar_t dot_product(scalar_t *a, scalar_t * b, index_t n) {
   scalar_t res = a[0] * b[0];
@@ -74,11 +73,8 @@ inline scalar_t dot_product(scalar_t *a, scalar_t * b, index_t n) {
 
 
 template <typename scalar_t, int step>
-//inline void load1(scalar_t* temp, char *src, index_t * ix0_) {
 inline void load1(scalar_t* temp, scalar_t *src, index_t * ix0_) {
     for (int k = 0; k < step; k++) {
-      //temp[k] = *(scalar_t*)(src + (*ix0_));
-      //temp[k] = *((scalar_t*)src + *ix0_);
       temp[k] = *(src + *ix0_);
       ix0_++;
     }
