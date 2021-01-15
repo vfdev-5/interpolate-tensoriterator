@@ -148,28 +148,13 @@ void ti_cpu_upsample_linear(
 
         for (; i < n - (n % step); i += step) {
   #if 1
-
           load1<scalar_t, step>(temp3, src1, ix0_ + i);
           load1<scalar_t, step>(temp4, src1, ix1_ + i);
           compute_loaded<scalar_t, step>(temp1, temp3, temp4,  wx0_ + i, wx1_ + i);
-          // compute_loaded<scalar_t, step>(
-          //   temp1, 
-          //   src1 + *(ix0_ + i), // temp3, 
-          //   src1 + *(ix1_ + i), // temp4,
-          //   wx0_ + i, wx1_ + i);
-
           load1<scalar_t, step>(temp3, src2, ix0_ + i);
           load1<scalar_t, step>(temp4, src2, ix1_ + i);
           compute_loaded<scalar_t, step>(temp2, temp3, temp4,  wx0_ + i, wx1_ + i);
-          // compute_loaded<scalar_t, step>(
-          //   temp2, 
-          //   src2 + *(ix0_ + i), // temp3, 
-          //   src2 + *(ix1_ + i), // temp4,
-          //   wx0_ + i, wx1_ + i);
-
           compute2<scalar_t, step>(dst_ + i, temp1, temp2, wy0_, wy1_);
-
-
   #endif
   #if 0
           wwx0 = Vec::loadu(wx0_ + i);

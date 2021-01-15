@@ -10,21 +10,13 @@
 #include "interpolate.h"
 
 
-int main(int argc, char** argv)
-{
-    std::cout << "Torch config: " << at::show_config() << std::endl;
+int bench_2d(int n, bool full_bench) {
 
     auto t_input = at::rand({1, 3, 320, 320}, at::CPU(at::kFloat));
     std::cout << "Input tensor: " << t_input.sizes() << std::endl;
  
     at::set_num_threads(6);
     std::cout << "Num threads: " << at::get_num_threads() << std::endl;
-
-    auto n = 5000;
-    if (argc == 2)
-    {        
-        n = std::atoi(argv[1]);
-    }
 
     // Check consistency:
     {
@@ -81,8 +73,8 @@ int main(int argc, char** argv)
         std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
-    return 1;
-    // TEMPORARY DISABLE ALL OTHER BENCHMARKS
+    if (!full_bench)
+        return 1;
 
     {
         std::cout << "\n- Bench upsample_bilinear2d_cpu (" << n << " rounds) - upsampling to 512x512" << std::endl;
@@ -216,6 +208,220 @@ int main(int argc, char** argv)
             std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
     }
+    return 0;
+}
+
+
+int bench_1d(int n, bool full_bench) {
+
+    auto t_input = at::rand({4, 512, 320}, at::CPU(at::kFloat));
+    std::cout << "Input tensor: " << t_input.sizes() << std::endl;
+ 
+    at::set_num_threads(6);
+    std::cout << "Num threads: " << at::get_num_threads() << std::endl;
+
+    // Check consistency:
+    {
+        std::cout << "\n- Check consistency (downsampling to 256): ";
+        auto ref_out = at::native::upsample_linear1d_cpu(t_input, {256, }, false);
+        auto out = ti_upsample_linear1d_kernel_impl(t_input, {256, });
+
+        if (!ref_out.allclose(out)){
+            auto mse = (ref_out - out).pow(2.0).mean();
+            auto max_e = (ref_out - out).view(-1).abs().max();
+            std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
+            return 1;
+        }
+
+        std::cout << "OK" << std::endl;
+    }
+    {
+        std::cout << "\n- Check consistency (upsampling to 512): ";
+        auto ref_out = at::native::upsample_linear1d_cpu(t_input, {512, }, false);
+        auto out = ti_upsample_linear1d_kernel_impl(t_input, {512, });
+
+        if (!ref_out.allclose(out)){
+            std::cout << "Error" << std::endl;
+            return 1;
+        }
+
+        std::cout << "OK" << std::endl;
+    }
+
+    // Time benchmark
+    {
+        std::cout << "\n- Bench upsample_linear1d_cpu (" << n << " rounds) - downsampling to 256" << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto ref_out = at::native::upsample_linear1d_cpu(t_input, {256, }, false);
+            auto result = ref_out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    {
+        std::cout << "\n- Bench ti_upsample_linear1d_cpu (" << n << " rounds) - downsampling to 256" << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto out = ti_upsample_linear1d_kernel_impl(t_input, {256, });
+            auto result = out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    if (!full_bench)
+        return 1;
+
+    {
+        std::cout << "\n- Bench upsample_linear1d_cpu (" << n << " rounds) - upsampling to 512" << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto ref_out = at::native::upsample_bilinear2d_cpu(t_input, {512, }, false);
+            auto result = ref_out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    {
+        std::cout << "\n- Bench ti_upsample_linear1d_cpu (" << n << " rounds) - upsampling to 512" << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto out = ti_upsample_linear1d_kernel_impl(t_input, {512, });
+            auto result = out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    return 0;
+}
+
+
+int bench_3d(int n, bool full_bench) {
+    auto t_input = at::rand({1, 3, 16, 320, 320}, at::CPU(at::kFloat));
+    std::cout << "Input tensor: " << t_input.sizes() << std::endl;
+ 
+    at::set_num_threads(6);
+    std::cout << "Num threads: " << at::get_num_threads() << std::endl;
+
+    // Check consistency:
+    {
+        std::cout << "\n- Check consistency (downsampling to 256): ";
+        auto ref_out = at::native::upsample_trilinear3d_cpu(t_input, {8, 256, 256}, false);
+        auto out = ti_upsample_trilinear3d_kernel_impl(t_input, {8, 256, 256});
+
+        if (!ref_out.allclose(out)){
+            auto mse = (ref_out - out).pow(2.0).mean();
+            auto max_e = (ref_out - out).view(-1).abs().max();
+            std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
+            return 1;
+        }
+
+        std::cout << "OK" << std::endl;
+    }
+    {
+        std::cout << "\n- Check consistency (upsampling to 512): ";
+        auto ref_out = at::native::upsample_trilinear3d_cpu(t_input, {32, 512, 512}, false);
+        auto out = ti_upsample_trilinear3d_kernel_impl(t_input, {32, 512, 512});
+
+        if (!ref_out.allclose(out)){
+            std::cout << "Error" << std::endl;
+            return 1;
+        }
+
+        std::cout << "OK" << std::endl;
+    }
+
+    // Time benchmark
+    {
+        std::cout << "\n- Bench upsample_trilinear3d_cpu (" << n << " rounds) - downsampling to 256" << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto ref_out = at::native::upsample_trilinear3d_cpu(t_input, {8, 256, 256}, false);
+            auto result = ref_out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    {
+        std::cout << "\n- Bench ti_upsample_trilinear3d_kernel_impl (" << n << " rounds) - downsampling to 256" << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto out = ti_upsample_trilinear3d_kernel_impl(t_input, {8, 256, 256 });
+            auto result = out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    if (!full_bench)
+        return 1;
+
+    {
+        std::cout << "\n- Bench upsample_trilinear3d_cpu (" << n << " rounds) - upsampling to 512" << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto ref_out = at::native::upsample_trilinear3d_cpu(t_input, {32, 512, 512}, false);
+            auto result = ref_out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    {
+        std::cout << "\n- Bench ti_upsample_trilinear3d_kernel_impl (" << n << " rounds) - upsampling to 512" << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto out = ti_upsample_trilinear3d_kernel_impl(t_input, {32, 512, 512});
+            auto result = out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    return 0;
+}
+
+int main(int argc, char** argv)
+{
+    auto n = 7500;
+    if (argc == 2)
+    {        
+        n = std::atoi(argv[1]);
+    }
+
+    std::cout << "Torch config: " << at::show_config() << std::endl;
+
+    bool full_bench = false;
+
+    std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
+    bench_2d(n, full_bench);
+
+    std::cout << "\n\n---- Benchmark 1D ----" << std::endl;
+    bench_1d(n, full_bench);
+
+    std::cout << "\n\n---- Benchmark 3D ----" << std::endl;
+    bench_3d(n / 10, full_bench);
 
     return 0;
 }

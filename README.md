@@ -33,14 +33,29 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 
 ### Step 2.1
 
+- [x] Reproduce fmassa's results
+
+### Step 4: 1d, 2d, 3d
+
+- [x] Clean up the code
+- [x] Generalize Step 2.1 code to 1d, 2d and 3d cases
+- [ ] Verify if using `int64_t` brings a slowdown, if not, just use it instead of int32_t
+  - Checking https://github.com/pytorch/pytorch/pull/41923 and potentially using `canUse32BitIndexMath` if we decide to keep int32 as well
 
 
 ## Questions
 
-- ~~Force parallelization on output size only (do not take into accound input shape)~~
-- Usage of a buffer to accelerate the processing
+- ~~Force parallelization on output size only (do not take into account input shape)~~
+- ~~Usage of a buffer to accelerate the processing~~
 
 ## Development
+
+<details>
+
+<summary>
+Click here for details
+</summary>
+
 
 ```bash
 docker run --rm -it \
@@ -63,7 +78,16 @@ apt-get update && ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && 
     pip install numpy typing_extensions
 ```
 
+</details>
+
 ### Step 1
+
+<details>
+
+<summary>
+Click here for details
+</summary>
+
 
 ```bash
 cd step_one && mkdir -p build && cd $_
@@ -94,8 +118,16 @@ Elapsed time: 0.00267952
 Elapsed time: 0.00224466
 ```
 
+</details>
 
 ### Step 2
+
+<details>
+
+<summary>
+Click here for details
+</summary>
+
 
 ```bash
 cd step_two && mkdir -p build && cd $_
@@ -220,6 +252,7 @@ Elapsed time: 0.088325
 Elapsed time: 0.0788824
 ```
 
+</details>
 
 ### Step 3
 
@@ -247,6 +280,13 @@ make
 ```bash
 make && ./bench
 ```
+
+<details>
+
+<summary>
+Results
+</summary>
+
 
 #### Result 1
 
@@ -349,6 +389,8 @@ Elapsed time (ms): 30.2949
 Segmentation fault (core dumped)
 ```
 
+</details>
+
 ### Step 2.1
 
 ```bash
@@ -361,6 +403,13 @@ make
 ```bash
 make && ./bench
 ```
+
+<details>
+
+<summary>
+Results
+</summary>
+
 
 #### Result 1:
 
@@ -411,8 +460,101 @@ Elapsed time (ms): 88.6877
 Elapsed time (ms): 48.9633
 ```
 
+</details>
+
+
+### Step 4: 1d, 2d, 3d
+
+```bash
+cd step_four_1d_2d_3d && mkdir -p build && cd $_
+export TORCH_PATH=/pytorch/torch
+cmake -DTORCH_DIR=$TORCH_PATH ..
+make
+```
+
+```bash
+make && ./bench
+```
+
+<details>
+
+<summary>
+Results
+</summary>
+
+
+#### Result 1:
+
+```
+Torch config: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-h
+idden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-l
+imits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-ty
+pedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -
+Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=for
+mat -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_
+FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON,
+
+                                                                    
+                            
+---- Benchmark 2D ----
+Input tensor: [1, 3, 320, 320]
+Num threads: 6        
+                                  
+- Check consistency (downsampling to 256x256): OK
+
+- Check consistency (upsampling to 512x512): OK
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.316959
+                                                                   
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0636201
+
+---- Benchmark 1D ----
+Input tensor: [4, 512, 320]
+Num threads: 6
+
+- Check consistency (downsampling to 256): OK
+
+- Check consistency (upsampling to 512): OK
+
+- Bench upsample_linear1d_cpu (7500 rounds) - downsampling to 256
+Elapsed time (ms): 0.288682
+
+- Bench ti_upsample_linear1d_cpu (7500 rounds) - downsampling to 256
+Elapsed time (ms): 0.0954624
+
+
+---- Benchmark 3D ----
+Input tensor: [1, 3, 16, 320, 320]
+Num threads: 6
+
+- Check consistency (downsampling to 256): OK
+
+- Check consistency (upsampling to 512): OK
+
+- Bench upsample_trilinear3d_cpu (750 rounds) - downsampling to 256
+Elapsed time (ms): 4.48405
+
+- Bench ti_upsample_trilinear3d_kernel_impl (750 rounds) - downsampling to 256
+Elapsed time (ms): 0.743611
+```
+
+</details>
+
 
 ## Upsampling code inspection
+
+<details>
+
+<summary>
+Click here for details
+</summary>
 
 ```
 Native functions: upsample_bilinear2d, pytorch/aten/src/ATen/native/native_functions.yaml:8889
@@ -438,7 +580,15 @@ Native functions: upsample_bilinear2d, pytorch/aten/src/ATen/native/native_funct
 \-> at::parallel_for(0, channels, at::internal::GRAIN_SIZE / output_slice_size / 4, loop2d);
 ```
 
+</details>
+
 ## Repro op_bench-py
+
+<details>
+
+<summary>
+Click here for details
+</summary>
 
 ```
 docker run --rm -it \
@@ -555,8 +705,17 @@ input.is_contiguous():  False
 forward time per iteration: 108.430 ms
 ```
 
+</details>
+
 
 ## OpenCV Resize function inspection
+
+<details>
+
+<summary>
+Click here for details
+</summary>
+
 
 ```
 // https://github.com/opencv/opencv/blob/7d7ab462d6bcf39e453b47e95641ede41d3ef8bd/modules/imgproc/src/resize.cpp#L4044
@@ -579,6 +738,7 @@ forward time per iteration: 108.430 ms
 
 ```
 
+</details>
 
 ## References:
 
