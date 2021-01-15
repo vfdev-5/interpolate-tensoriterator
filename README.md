@@ -548,6 +548,28 @@ Elapsed time (ms): 0.743611
 </details>
 
 
+#### Benchmark with OpenCV
+
+Install OpenCV libs
+```
+apt-get install -y libopencv-core-dev libopencv-imgproc-dev 
+
+ls /usr/include/opencv4/opencv2/core/
+```
+
+Build with OpenCV
+```bash
+cd step_four_1d_2d_3d && mkdir -p build && cd $_
+export TORCH_PATH=/pytorch/torch
+cmake -DTORCH_DIR=$TORCH_PATH -DOPENCV_INCLUDE_DIR=/usr/include/opencv4/ -DOPENCV_LIB_DIR=/usr/lib/x86_64-linux-gnu/ ..
+make
+```
+
+```bash
+make && ./bench
+```
+
+
 ## Upsampling code inspection
 
 <details>
