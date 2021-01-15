@@ -1,0 +1,157 @@
+Torch config: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON, 
+
+
+General configuration for OpenCV 4.2.0 =====================================
+  Version control:               unknown
+
+  Extra modules:
+    Location (extra):            /build/opencv-YsXJoR/opencv-4.2.0+dfsg/contrib/modules
+    Version control (extra):     unknown
+
+  Platform:
+    Timestamp:                   2020-02-18T03:31:25Z
+    Host:                        Linux 4.4.0-173-generic x86_64
+    CMake:                       3.16.3
+    CMake generator:             Ninja
+    CMake build tool:            /usr/bin/ninja
+    Configuration:               Release
+
+  CPU/HW features:
+    Baseline:                    SSE SSE2
+      requested:                 SSE2
+      disabled:                  SSE3
+    Dispatched code generation:  SSE4_1 SSE4_2 FP16 AVX AVX2 AVX512_SKX
+      requested:                 SSE4_1 SSE4_2 AVX FP16 AVX2 AVX512_SKX
+      SSE4_1 (13 files):         + SSE3 SSSE3 SSE4_1
+      SSE4_2 (1 files):          + SSE3 SSSE3 SSE4_1 POPCNT SSE4_2
+      FP16 (0 files):            + SSE3 SSSE3 SSE4_1 POPCNT SSE4_2 FP16 AVX
+      AVX (4 files):             + SSE3 SSSE3 SSE4_1 POPCNT SSE4_2 AVX
+      AVX2 (26 files):           + SSE3 SSSE3 SSE4_1 POPCNT SSE4_2 FP16 FMA3 AVX AVX2
+      AVX512_SKX (3 files):      + SSE3 SSSE3 SSE4_1 POPCNT SSE4_2 FP16 FMA3 AVX AVX2 AVX_512F AVX512_COMMON AVX512_SKX
+
+  C/C++:
+    Built as dynamic libs?:      YES
+    C++ Compiler:                /usr/bin/c++  (ver 9.2.1)
+    C++ flags (Release):         -g -O2 -fdebug-prefix-map=/build/opencv-YsXJoR/opencv-4.2.0+dfsg=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2   -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Winit-self -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -Wno-long-long -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse -msse2 -fvisibility=hidden -fvisibility-inlines-hidden -g -O2 -fdebug-prefix-map=/build/opencv-YsXJoR/opencv-4.2.0+dfsg=. -fstack-protector-strong -Wformat -Werror=format-security  -DNDEBUG
+  
+
+
+---- Benchmark 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.324098
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0625553
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.24495
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.182606
+
+1 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 1
+Input is_contiguous : 0
+
+- Bench upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
+Elapsed time (ms): 27.0171
+
+- Bench ti_upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
+Elapsed time (ms): 49.7759
+
+2 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 0
+Input is_contiguous : 1
+
+- Bench upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
+Elapsed time (ms): 75.3358
+
+- Bench ti_upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
+Elapsed time (ms): 37.8549
+
+Input tensor: [1, 3, 1024, 1024]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 512x512
+Elapsed time (ms): 1.27627
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 512x512
+Elapsed time (ms): 0.220127
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.27516
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.219857
+
+1 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 1
+Input is_contiguous : 0
+
+- Bench upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
+Elapsed time (ms): 27.0638
+
+- Bench ti_upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
+Elapsed time (ms): 50.1932
+
+2 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 0
+Input is_contiguous : 1
+
+- Bench upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
+Elapsed time (ms): 75.5121
+
+- Bench ti_upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
+Elapsed time (ms): 37.9502
+
+
+---- Benchmark OpenCV 2D ----
+
+Input tensor: [320 x 320]
+
+- Bench cv::resize (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.216135
+
+- Bench cv::resize (7500 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.173062
+
+Input tensor: [320 x 320]
+
+- Bench cv::resize (7500 rounds) - uint8 downsampling to 256x256
+Elapsed time (ms): 0.177591
+
+- Bench cv::resize (7500 rounds) - uint8 upsampling to 512x512
+Elapsed time (ms): 0.138899
+
+Input tensor: [1024 x 1024]
+
+- Bench cv::resize (7500 rounds) - downsampling to 512x512
+Elapsed time (ms): 0.602967
+
+- Bench cv::resize (7500 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.60912
+
+Input tensor: [1024 x 1024]
+
+- Bench cv::resize (7500 rounds) - uint8 downsampling to 512x512
+Elapsed time (ms): 0.123083
+
+- Bench cv::resize (7500 rounds) - uint8 upsampling to 512x512
+Elapsed time (ms): 0.121907
