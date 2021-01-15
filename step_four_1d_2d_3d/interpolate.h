@@ -1,83 +1,58 @@
 #include <vector>
 #include <ATen/native/TensorIterator.h>
-#include <ATen/cpu/vec256/vec256.h>
-
-#include <ATen/cpu/vec256/intrinsics.h>
+#include <ATen/native/IndexingUtils.h>
 
 // using index_t = int32_t;
-using index_t = int64_t;
+// using index_t = int64_t;
 
 
-template <typename scalar_t, int step>
-inline void load1(scalar_t* temp, scalar_t *src, index_t * index) {
-    for (int k = 0; k < step; k++) {
-      temp[k] = *(src + *index);
-      index++;
-    }
-}
-
-
-template <typename scalar_t, int step>
-inline void compute_loaded(scalar_t* temp, scalar_t * src1, scalar_t* src2, float* wx0_, float* wx1_) {
-    for (int k = 0; k < step; k++) {
-      temp[k] = *src1 * *wx0_ + *src2 * *wx1_;
-      src1++;
-      src2++;
-      wx0_++;
-      wx1_++;
-    }
+template <typename scalar_t, typename index_t, int step>
+inline void load(scalar_t* dst, scalar_t *src, index_t * index) {
+  for (int k = 0; k < step; k++) {
+    *dst = *(src + *index);
+    dst++;
+    index++;
+  }
 }
 
 
 template <typename scalar_t, int step>
 inline void compute_linear(scalar_t* dst, scalar_t * src1, scalar_t* src2, float* w0, float* w1) {
-    for (int k = 0; k < step; k++) {
-      *dst = *src1 * *w0 + *src2 * *w1;
-      dst++;
-      src1++;
-      src2++;
-      w0++;
-      w1++;
-    }
+  for (int k = 0; k < step; k++) {
+    *dst = *src1 * *w0 + *src2 * *w1;
+    dst++;
+    src1++;
+    src2++;
+    w0++;
+    w1++;
+  }
 }
 
 
 template <typename scalar_t, int step>
 inline void compute_linear(scalar_t* dst, scalar_t * src1, scalar_t* src2, float w0, float w1) {
-    for (int k = 0; k < step; k++) {
-      *dst = *src1 * w0 + *src2 * w1;
-      dst++;
-      src1++;
-      src2++;
-    }
+  for (int k = 0; k < step; k++) {
+    *dst = *src1 * w0 + *src2 * w1;
+    dst++;
+    src1++;
+    src2++;
+  }
 }
 
 
+// Slower using this function
+// template <typename scalar_t, int step>
+// inline void compute_linear_single_line(
+//   scalar_t* dst, scalar_t* buffer0, scalar_t* buffer1, scalar_t* src, index_t * index0, index_t * index1, float * w0, float * w1
+// ) {
+//   load<scalar_t, step>(buffer0, src, index0);
+//   load<scalar_t, step>(buffer1, src, index1);
+//   compute_linear<scalar_t, step>(dst, buffer0, buffer1, w0, w1);
+// }
 
 
-template <typename scalar_t, int step>
-inline void compute1(scalar_t* temp, char *src, index_t * ix0_, index_t * ix1_, float* wx0_, float* wx1_) {
-    for (int k = 0; k < step; k++) {
-      temp[k] = (*(scalar_t*)(src + (*ix0_)) * (*wx0_) + *(scalar_t*)(src + (*ix1_)) * (*wx1_));
-      ix0_++;
-      ix1_++;
-      wx0_++;
-      wx1_++;
-    }
-}
-
-
-template <typename scalar_t, int step>
-inline void compute2(scalar_t * dst, scalar_t* temp1, scalar_t* temp2, float wy0_, float wy1_) {
-    for (int k = 0; k < step; k++) {
-      *dst = temp1[k] * wy0_ + temp2[k] * wy1_;
-      dst++;
-    }
-}
-
-
-template <typename scalar_t, int out_ndims>
-void assert_strides(const int64_t* strides) {
+template <typename scalar_t, typename index_t, int out_ndims>
+inline void assert_strides(const int64_t* strides) {
   for (int i=0; i<out_ndims; i++) {
     // Assert strides for indices 0, 1 and weights 0, 1
     TORCH_INTERNAL_ASSERT(
@@ -107,7 +82,7 @@ void assert_strides(const int64_t* strides) {
 }
 
 
-template <typename scalar_t, int out_ndims>
+template <typename scalar_t, typename index_t, int out_ndims>
 void ti_cpu_upsample_linear(
   at::TensorIterator& iter, bool serial_execution=false
 ) {
@@ -125,7 +100,7 @@ void ti_cpu_upsample_linear(
       i1[i] = (index_t *) data[4 * i + 2 + 2];
       w1[i] = (float *) data[4 * i + 3 + 2];
     }
-    assert_strides<scalar_t, out_ndims>(strides);
+    assert_strides<scalar_t, index_t, out_ndims>(strides);
 
     constexpr int step = 8;
     scalar_t buffer[2 * out_ndims][step];
@@ -135,15 +110,15 @@ void ti_cpu_upsample_linear(
     index_t i = 0;
     for (; i < n - (n % step); i += step) {
 
-      load1<scalar_t, step>(buffer[0], src, i0[0] + i);
-      load1<scalar_t, step>(buffer[1], src, i1[0] + i);
+      load<scalar_t, index_t, step>(buffer[0], src, i0[0] + i);
+      load<scalar_t, index_t, step>(buffer[1], src, i1[0] + i);
       compute_linear<scalar_t, step>(dst + i, buffer[0], buffer[1], w0[0] + i, w1[0] + i);
 
     }
     for (; i < n; i++) {
 
-      load1<scalar_t, 1>(buffer[0], src, i0[0] + i);
-      load1<scalar_t, 1>(buffer[1], src, i1[0] + i);
+      load<scalar_t, index_t, 1>(buffer[0], src, i0[0] + i);
+      load<scalar_t, index_t, 1>(buffer[1], src, i1[0] + i);
       compute_linear<scalar_t, 1>(dst + i, buffer[0], buffer[1], w0[0] + i, w1[0] + i);
 
     }
@@ -162,7 +137,7 @@ void ti_cpu_upsample_linear(
       i1[i] = (index_t *) data[4 * i + 2 + 2];
       w1[i] = (float *) data[4 * i + 3 + 2];
     }
-    assert_strides<scalar_t, out_ndims>(strides);
+    assert_strides<scalar_t, index_t, out_ndims>(strides);
 
     constexpr int step = 4;
     scalar_t buffer[2 * out_ndims][step];
@@ -182,21 +157,23 @@ void ti_cpu_upsample_linear(
 
     index_t i = 0;
     for (; i < n - (n % step); i += step) {
-      load1<scalar_t, step>(buffer[0], src0, i0[1] + i);
-      load1<scalar_t, step>(buffer[1], src0, i1[1] + i);
+
+      load<scalar_t, index_t, step>(buffer[0], src0, i0[1] + i);
+      load<scalar_t, index_t, step>(buffer[1], src0, i1[1] + i);
       compute_linear<scalar_t, step>(buffer[2], buffer[0], buffer[1], w0[1] + i, w1[1] + i);
-      load1<scalar_t, step>(buffer[0], src1, i0[1] + i);
-      load1<scalar_t, step>(buffer[1], src1, i1[1] + i);
+      load<scalar_t, index_t, step>(buffer[0], src1, i0[1] + i);
+      load<scalar_t, index_t, step>(buffer[1], src1, i1[1] + i);
       compute_linear<scalar_t, step>(buffer[3], buffer[0], buffer[1], w0[1] + i, w1[1] + i);
       compute_linear<scalar_t, step>(dst + i, buffer[2], buffer[3], wv0[0], wv1[0]);
+
     }
     for (; i < n; i++) {
 
-      load1<scalar_t, 1>(buffer[0], src0, i0[1] + i);
-      load1<scalar_t, 1>(buffer[1], src0, i1[1] + i);
+      load<scalar_t, index_t, 1>(buffer[0], src0, i0[1] + i);
+      load<scalar_t, index_t, 1>(buffer[1], src0, i1[1] + i);
       compute_linear<scalar_t, 1>(buffer[2], buffer[0], buffer[1], w0[1] + i, w1[1] + i);
-      load1<scalar_t, 1>(buffer[0], src1, i0[1] + i);
-      load1<scalar_t, 1>(buffer[1], src1, i1[1] + i);
+      load<scalar_t, index_t, 1>(buffer[0], src1, i0[1] + i);
+      load<scalar_t, index_t, 1>(buffer[1], src1, i1[1] + i);
       compute_linear<scalar_t, 1>(buffer[3], buffer[0], buffer[1], w0[1] + i, w1[1] + i);
       compute_linear<scalar_t, 1>(dst + i, buffer[2], buffer[3], wv0[0], wv1[0]);
 
@@ -217,7 +194,7 @@ void ti_cpu_upsample_linear(
       i1[i] = (index_t *) data[4 * i + 2 + 2];
       w1[i] = (float *) data[4 * i + 3 + 2];
     }
-    assert_strides<scalar_t, out_ndims>(strides);
+    assert_strides<scalar_t, index_t, out_ndims>(strides);
 
     constexpr int step = 4;
     scalar_t buffer[2 * out_ndims][step];
@@ -240,39 +217,41 @@ void ti_cpu_upsample_linear(
     index_t i = 0;
     for (; i < n - (n % step); i += step) {
 
-      load1<scalar_t, step>(buffer[0], src0, i0[2] + i);
-      load1<scalar_t, step>(buffer[1], src0, i1[2] + i);
+      load<scalar_t, index_t, step>(buffer[0], src0, i0[2] + i);
+      load<scalar_t, index_t, step>(buffer[1], src0, i1[2] + i);
       compute_linear<scalar_t, step>(buffer[2], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-      load1<scalar_t, step>(buffer[0], src1, i0[2] + i);
-      load1<scalar_t, step>(buffer[1], src1, i1[2] + i);
+      load<scalar_t, index_t, step>(buffer[0], src1, i0[2] + i);
+      load<scalar_t, index_t, step>(buffer[1], src1, i1[2] + i);
       compute_linear<scalar_t, step>(buffer[3], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
+
       compute_linear<scalar_t, step>(buffer[4], buffer[2], buffer[3], wv0[1], wv1[1]);
 
-      load1<scalar_t, step>(buffer[0], src2, i0[2] + i);
-      load1<scalar_t, step>(buffer[1], src2, i1[2] + i);
+      load<scalar_t, index_t, step>(buffer[0], src2, i0[2] + i);
+      load<scalar_t, index_t, step>(buffer[1], src2, i1[2] + i);
       compute_linear<scalar_t, step>(buffer[2], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-      load1<scalar_t, step>(buffer[0], src3, i0[2] + i);
-      load1<scalar_t, step>(buffer[1], src3, i1[2] + i);
+      load<scalar_t, index_t, step>(buffer[0], src3, i0[2] + i);
+      load<scalar_t, index_t, step>(buffer[1], src3, i1[2] + i);
       compute_linear<scalar_t, step>(buffer[3], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
+
       compute_linear<scalar_t, step>(buffer[5], buffer[2], buffer[3], wv0[1], wv1[1]);
 
       compute_linear<scalar_t, step>(dst + i, buffer[4], buffer[5], wv0[0], wv1[0]);
     }
     for (; i < n; i++) {
 
-      load1<scalar_t, 1>(buffer[0], src0, i0[2] + i);
-      load1<scalar_t, 1>(buffer[1], src0, i1[2] + i);
+      load<scalar_t, index_t, 1>(buffer[0], src0, i0[2] + i);
+      load<scalar_t, index_t, 1>(buffer[1], src0, i1[2] + i);
       compute_linear<scalar_t, 1>(buffer[2], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-      load1<scalar_t, 1>(buffer[0], src1, i0[2] + i);
-      load1<scalar_t, 1>(buffer[1], src1, i1[2] + i);
+      load<scalar_t, index_t, 1>(buffer[0], src1, i0[2] + i);
+      load<scalar_t, index_t, 1>(buffer[1], src1, i1[2] + i);
       compute_linear<scalar_t, 1>(buffer[3], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
       compute_linear<scalar_t, 1>(buffer[4], buffer[2], buffer[3], wv0[1], wv1[1]);
 
-      load1<scalar_t, 1>(buffer[0], src2, i0[2] + i);
-      load1<scalar_t, 1>(buffer[1], src2, i1[2] + i);
+      load<scalar_t, index_t, 1>(buffer[0], src2, i0[2] + i);
+      load<scalar_t, index_t, 1>(buffer[1], src2, i1[2] + i);
       compute_linear<scalar_t, 1>(buffer[2], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-      load1<scalar_t, 1>(buffer[0], src3, i0[2] + i);
-      load1<scalar_t, 1>(buffer[1], src3, i1[2] + i);
+      load<scalar_t, index_t, 1>(buffer[0], src3, i0[2] + i);
+      load<scalar_t, index_t, 1>(buffer[1], src3, i1[2] + i);
       compute_linear<scalar_t, 1>(buffer[3], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
       compute_linear<scalar_t, 1>(buffer[5], buffer[2], buffer[3], wv0[1], wv1[1]);
 
@@ -290,15 +269,13 @@ void ti_cpu_upsample_linear(
   }
 }
 
-
+template<typename index_t>
 void ti_compute_indices_weights_faster(
   int64_t input_size, int64_t output_size, int64_t stride, at::Tensor & input_index0, at::Tensor & input_index1, at::Tensor & lambda0, at::Tensor & lambda1
 ) {
     auto scale = float(input_size) / output_size;
-    // input_index0 = at::empty({output_size, }, at::CPU(at::kInt));
-    // input_index1 = at::empty({output_size, }, at::CPU(at::kInt));
-    input_index0 = at::empty({output_size, }, at::CPU(at::kLong));
-    input_index1 = at::empty({output_size, }, at::CPU(at::kLong));
+    input_index0 = at::empty({output_size, }, at::CPU(c10::CppTypeToScalarType<index_t>()));
+    input_index1 = at::empty({output_size, }, at::CPU(c10::CppTypeToScalarType<index_t>()));
     lambda1 = at::empty({output_size, }, at::CPU(at::kFloat));
     lambda0 = at::empty({output_size, }, at::CPU(at::kFloat));
 
@@ -334,7 +311,7 @@ void ti_reshape_indices_weights(at::Tensor & ix, at::Tensor & wx, const std::vec
 }
 
 
-template <int out_ndims>
+template <typename index_t, int out_ndims>
 at::Tensor ti_upsample_linearNd_kernel_impl(
     const at::Tensor& input,
     at::IntArrayRef output_size)
@@ -354,7 +331,7 @@ at::Tensor ti_upsample_linearNd_kernel_impl(
   at::Tensor i0[out_ndims], i1[out_ndims], w0[out_ndims], w1[out_ndims];  
   for (int i=0; i<out_ndims; i++) {
     int64_t index_stride = input.stride(i + 2);
-    ti_compute_indices_weights_faster(input.size(i + 2), output_size[i], index_stride, i0[i], i1[i], w0[i], w1[i]);
+    ti_compute_indices_weights_faster<index_t>(input.size(i + 2), output_size[i], index_stride, i0[i], i1[i], w0[i], w1[i]);
     auto new_shape = std::vector<long>(input.dim(), 1);
     new_shape[i + 2] = -1;
     ti_reshape_indices_weights(i0[i], w0[i], new_shape);
@@ -378,7 +355,7 @@ at::Tensor ti_upsample_linearNd_kernel_impl(
 
   AT_DISPATCH_FLOATING_TYPES(
       iter.dtype(), "upsample_linearNd", [&] {
-      ti_cpu_upsample_linear<scalar_t, out_ndims>(iter);
+      ti_cpu_upsample_linear<scalar_t, index_t, out_ndims>(iter);
   });
 
   return iter.output();
@@ -389,7 +366,10 @@ at::Tensor ti_upsample_bilinear2d_kernel_impl(
     const at::Tensor& input,
     at::IntArrayRef output_size)
 {
-  return ti_upsample_linearNd_kernel_impl<2>(input, output_size);
+  if (at::native::canUse32BitIndexMath(input))
+    return ti_upsample_linearNd_kernel_impl<int32_t, 2>(input, output_size);
+  
+  return ti_upsample_linearNd_kernel_impl<int64_t, 2>(input, output_size);
 }
 
 
@@ -397,7 +377,10 @@ at::Tensor ti_upsample_linear1d_kernel_impl(
     const at::Tensor& input,
     at::IntArrayRef output_size)
 {
-  return ti_upsample_linearNd_kernel_impl<1>(input, output_size);
+  if (at::native::canUse32BitIndexMath(input))
+    return ti_upsample_linearNd_kernel_impl<int32_t, 1>(input, output_size);
+
+  return ti_upsample_linearNd_kernel_impl<int64_t, 1>(input, output_size);
 }
 
 
@@ -405,5 +388,8 @@ at::Tensor ti_upsample_trilinear3d_kernel_impl(
     const at::Tensor& input,
     at::IntArrayRef output_size)
 {
-  return ti_upsample_linearNd_kernel_impl<3>(input, output_size);
+  if (at::native::canUse32BitIndexMath(input))
+    return ti_upsample_linearNd_kernel_impl<int32_t, 3>(input, output_size);
+
+  return ti_upsample_linearNd_kernel_impl<int64_t, 3>(input, output_size);
 }

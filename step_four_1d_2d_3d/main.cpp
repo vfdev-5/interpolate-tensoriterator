@@ -413,9 +413,12 @@ int main(int argc, char** argv)
     std::cout << "Torch config: " << at::show_config() << std::endl;
 
     bool full_bench = false;
+    bool test_all_dims = true;
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench);
+
+    if (!test_all_dims) return 0;
 
     std::cout << "\n\n---- Benchmark 1D ----" << std::endl;
     bench_1d(n, full_bench);

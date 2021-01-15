@@ -39,7 +39,7 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 
 - [x] Clean up the code
 - [x] Generalize Step 2.1 code to 1d, 2d and 3d cases
-- [ ] Verify if using `int64_t` brings a slowdown, if not, just use it instead of int32_t
+- [x] Verify if using `int64_t` brings a slowdown, if not, just use it instead of int32_t
   - Checking https://github.com/pytorch/pytorch/pull/41923 and potentially using `canUse32BitIndexMath` if we decide to keep int32 as well
 
 
