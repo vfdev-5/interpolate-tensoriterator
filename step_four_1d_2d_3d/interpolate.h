@@ -40,6 +40,32 @@ inline void compute_linear(scalar_t* dst, scalar_t * src1, scalar_t* src2, float
 }
 
 
+template <int n, typename scalar_t, typename index_t, int step>
+struct Interp {
+    static inline void eval(scalar_t* out, scalar_t buf[][step], scalar_t* src[], index_t* idx[], float* w[]) {
+        constexpr int i = 2 * (n - 1);
+        constexpr int j = 2 * (n - 1) + 1;
+        Interp<n - 1, scalar_t, index_t, step>::eval(buf[i], buf, &src[0], idx, &w[2]);
+        Interp<n - 1, scalar_t, index_t, step>::eval(buf[j], buf, &src[n - 1], idx, &w[2]);
+        compute_linear<scalar_t, step>(out, buf[i], buf[j], w[0][0], w[1][0]);
+    }
+};
+
+template <typename scalar_t, typename index_t, int step>
+struct Interp<1, scalar_t, index_t, step> {
+    static inline void eval(scalar_t* out, scalar_t buf[][step], scalar_t* src[], index_t* idx[], float* w[]) {
+      load<scalar_t, index_t, step>(buf[0], src[0], idx[0]);
+      load<scalar_t, index_t, step>(buf[1], src[0], idx[1]);
+      compute_linear<scalar_t, step>(out, buf[0], buf[1], w[0], w[1]);
+    }
+};
+
+template <int n, typename scalar_t, typename index_t, int step>
+static inline void interp(scalar_t* out, scalar_t buf[][step], scalar_t* src[], index_t* idx[], float* w[]) {
+  Interp<n, scalar_t, index_t, step>::eval(out, buf, src, idx, w);
+}
+
+
 // Slower using this function
 // template <typename scalar_t, int step>
 // inline void compute_linear_single_line(
@@ -104,23 +130,30 @@ void ti_cpu_upsample_linear(
 
     constexpr int step = 8;
     scalar_t buffer[2 * out_ndims][step];
+    scalar_t buffer2[2 * out_ndims][1];
 
     // Add all constant offsets -> nothing to add
+    scalar_t * src_[1];
+    src_[0] = src;
+
+    index_t * idx[2];
+    float * w[2 * out_ndims];
+    for (int i = 0; i < out_ndims; i ++) {
+      w[2 * i] = w0[i];
+      w[2 * i + 1] = w1[i];
+    }
 
     index_t i = 0;
     for (; i < n - (n % step); i += step) {
-
-      load<scalar_t, index_t, step>(buffer[0], src, i0[0] + i);
-      load<scalar_t, index_t, step>(buffer[1], src, i1[0] + i);
-      compute_linear<scalar_t, step>(dst + i, buffer[0], buffer[1], w0[0] + i, w1[0] + i);
+      idx[0] = i0[0] + i; idx[1] = i1[0] + i;
+      w[0] = w0[0] + i;; w[1] = w1[0] + i;
+      interp<out_ndims, scalar_t, index_t, step>(dst + i, buffer, src_, idx, w);
 
     }
     for (; i < n; i++) {
-
-      load<scalar_t, index_t, 1>(buffer[0], src, i0[0] + i);
-      load<scalar_t, index_t, 1>(buffer[1], src, i1[0] + i);
-      compute_linear<scalar_t, 1>(dst + i, buffer[0], buffer[1], w0[0] + i, w1[0] + i);
-
+      idx[0] = i0[0] + i; idx[1] = i1[0] + i;
+      w[0] = w0[0] + i;; w[1] = w1[0] + i;
+      interp<out_ndims, scalar_t, index_t, 1>(dst + i, buffer2, src_, idx, w);
     }
   };
 
@@ -141,6 +174,7 @@ void ti_cpu_upsample_linear(
 
     constexpr int step = 4;
     scalar_t buffer[2 * out_ndims][step];
+    scalar_t buffer2[2 * out_ndims][1];
     index_t offset0[out_ndims];
     index_t offset1[out_ndims];
     float wv0[out_ndims], wv1[out_ndims];
@@ -152,31 +186,26 @@ void ti_cpu_upsample_linear(
     }
 
     // Add all constant offsets
-    scalar_t * src0 = src + offset0[0];
-    scalar_t * src1 = src + offset1[0];
+    scalar_t * src_[2];
+    src_[0] = src + offset0[0];
+    src_[1] = src + offset1[0];
+    index_t * idx[2];
+    float * w[2 * out_ndims];
+    for (int i = 0; i < out_ndims; i ++) {
+      w[2 * i] = w0[i];
+      w[2 * i + 1] = w1[i];
+    }
 
     index_t i = 0;
     for (; i < n - (n % step); i += step) {
-
-      load<scalar_t, index_t, step>(buffer[0], src0, i0[1] + i);
-      load<scalar_t, index_t, step>(buffer[1], src0, i1[1] + i);
-      compute_linear<scalar_t, step>(buffer[2], buffer[0], buffer[1], w0[1] + i, w1[1] + i);
-      load<scalar_t, index_t, step>(buffer[0], src1, i0[1] + i);
-      load<scalar_t, index_t, step>(buffer[1], src1, i1[1] + i);
-      compute_linear<scalar_t, step>(buffer[3], buffer[0], buffer[1], w0[1] + i, w1[1] + i);
-      compute_linear<scalar_t, step>(dst + i, buffer[2], buffer[3], wv0[0], wv1[0]);
-
+      idx[0] = i0[1] + i; idx[1] = i1[1] + i;
+      w[2 * (out_ndims - 1)] = w0[1] + i; w[2 * (out_ndims - 1) + 1] = w1[1] + i;
+      interp<out_ndims, scalar_t, index_t, step>(dst + i, buffer, src_, idx, w);
     }
     for (; i < n; i++) {
-
-      load<scalar_t, index_t, 1>(buffer[0], src0, i0[1] + i);
-      load<scalar_t, index_t, 1>(buffer[1], src0, i1[1] + i);
-      compute_linear<scalar_t, 1>(buffer[2], buffer[0], buffer[1], w0[1] + i, w1[1] + i);
-      load<scalar_t, index_t, 1>(buffer[0], src1, i0[1] + i);
-      load<scalar_t, index_t, 1>(buffer[1], src1, i1[1] + i);
-      compute_linear<scalar_t, 1>(buffer[3], buffer[0], buffer[1], w0[1] + i, w1[1] + i);
-      compute_linear<scalar_t, 1>(dst + i, buffer[2], buffer[3], wv0[0], wv1[0]);
-
+      idx[0] = i0[1] + i; idx[1] = i1[1] + i;
+      w[2 * (out_ndims - 1)] = w0[1] + i; w[2 * (out_ndims - 1) + 1] = w1[1] + i;
+      interp<out_ndims, scalar_t, index_t, 1>(dst + i, buffer2, src_, idx, w);
     }
   };
 
@@ -198,6 +227,7 @@ void ti_cpu_upsample_linear(
 
     constexpr int step = 4;
     scalar_t buffer[2 * out_ndims][step];
+    scalar_t buffer2[2 * out_ndims][1];
     index_t offset0[out_ndims];
     index_t offset1[out_ndims];
     float wv0[out_ndims], wv1[out_ndims];
@@ -209,53 +239,29 @@ void ti_cpu_upsample_linear(
     }
 
     // Add all constant offsets
-    scalar_t * src0 = src + offset0[0] + offset0[1];
-    scalar_t * src1 = src + offset0[0] + offset1[1];
-    scalar_t * src2 = src + offset1[0] + offset0[1];
-    scalar_t * src3 = src + offset1[0] + offset1[1];;
+    scalar_t * src_[4];
+    src_[0] = src + offset0[0] + offset0[1];
+    src_[1] = src + offset0[0] + offset1[1];
+    src_[2] = src + offset1[0] + offset0[1];
+    src_[3] = src + offset1[0] + offset1[1];
+
+    index_t * idx[2];
+    float * w[2 * out_ndims];
+    for (int i = 0; i < out_ndims; i ++) {
+      w[2 * i] = w0[i];
+      w[2 * i + 1] = w1[i];
+    }
 
     index_t i = 0;
     for (; i < n - (n % step); i += step) {
-
-      load<scalar_t, index_t, step>(buffer[0], src0, i0[2] + i);
-      load<scalar_t, index_t, step>(buffer[1], src0, i1[2] + i);
-      compute_linear<scalar_t, step>(buffer[2], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-      load<scalar_t, index_t, step>(buffer[0], src1, i0[2] + i);
-      load<scalar_t, index_t, step>(buffer[1], src1, i1[2] + i);
-      compute_linear<scalar_t, step>(buffer[3], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-
-      compute_linear<scalar_t, step>(buffer[4], buffer[2], buffer[3], wv0[1], wv1[1]);
-
-      load<scalar_t, index_t, step>(buffer[0], src2, i0[2] + i);
-      load<scalar_t, index_t, step>(buffer[1], src2, i1[2] + i);
-      compute_linear<scalar_t, step>(buffer[2], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-      load<scalar_t, index_t, step>(buffer[0], src3, i0[2] + i);
-      load<scalar_t, index_t, step>(buffer[1], src3, i1[2] + i);
-      compute_linear<scalar_t, step>(buffer[3], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-
-      compute_linear<scalar_t, step>(buffer[5], buffer[2], buffer[3], wv0[1], wv1[1]);
-
-      compute_linear<scalar_t, step>(dst + i, buffer[4], buffer[5], wv0[0], wv1[0]);
+      idx[0] = i0[2] + i; idx[1] = i1[2] + i;
+      w[2 * (out_ndims - 1)] = w0[2] + i; w[2 * (out_ndims - 1) + 1] = w1[2] + i;
+      interp<out_ndims, scalar_t, index_t, step>(dst + i, buffer, src_, idx, w);
     }
     for (; i < n; i++) {
-
-      load<scalar_t, index_t, 1>(buffer[0], src0, i0[2] + i);
-      load<scalar_t, index_t, 1>(buffer[1], src0, i1[2] + i);
-      compute_linear<scalar_t, 1>(buffer[2], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-      load<scalar_t, index_t, 1>(buffer[0], src1, i0[2] + i);
-      load<scalar_t, index_t, 1>(buffer[1], src1, i1[2] + i);
-      compute_linear<scalar_t, 1>(buffer[3], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-      compute_linear<scalar_t, 1>(buffer[4], buffer[2], buffer[3], wv0[1], wv1[1]);
-
-      load<scalar_t, index_t, 1>(buffer[0], src2, i0[2] + i);
-      load<scalar_t, index_t, 1>(buffer[1], src2, i1[2] + i);
-      compute_linear<scalar_t, 1>(buffer[2], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-      load<scalar_t, index_t, 1>(buffer[0], src3, i0[2] + i);
-      load<scalar_t, index_t, 1>(buffer[1], src3, i1[2] + i);
-      compute_linear<scalar_t, 1>(buffer[3], buffer[0], buffer[1], w0[2] + i, w1[2] + i);
-      compute_linear<scalar_t, 1>(buffer[5], buffer[2], buffer[3], wv0[1], wv1[1]);
-
-      compute_linear<scalar_t, 1>(dst + i, buffer[4], buffer[5], wv0[0], wv1[0]);
+      idx[0] = i0[2] + i; idx[1] = i1[2] + i;
+      w[2 * (out_ndims - 1)] = w0[2] + i; w[2 * (out_ndims - 1) + 1] = w1[2] + i;
+      interp<out_ndims, scalar_t, index_t, 1>(dst + i, buffer2, src_, idx, w);
     }
   };
 
