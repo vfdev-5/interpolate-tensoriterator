@@ -1,3 +1,4 @@
+#include <math.h>
 #include <vector>
 #include <ATen/native/TensorIterator.h>
 #include <ATen/native/IndexingUtils.h>
@@ -42,39 +43,33 @@ inline void compute_linear(scalar_t* dst, scalar_t * src1, scalar_t* src2, float
 
 template <int n, typename scalar_t, typename index_t, int step>
 struct Interp {
-    static inline void eval(scalar_t* out, scalar_t buf[][step], scalar_t* src[], index_t* idx[], float* w[]) {
+    static inline void eval(scalar_t* out, scalar_t* buf, scalar_t* src[], index_t* idx[], float* w[]) {
         constexpr int i = 2 * (n - 1);
         constexpr int j = 2 * (n - 1) + 1;
-        Interp<n - 1, scalar_t, index_t, step>::eval(buf[i], buf, &src[0], idx, &w[2]);
-        Interp<n - 1, scalar_t, index_t, step>::eval(buf[j], buf, &src[n - 1], idx, &w[2]);
-        compute_linear<scalar_t, step>(out, buf[i], buf[j], w[0][0], w[1][0]);
+        constexpr int is = i * step;
+        constexpr int js = j * step;
+        constexpr int half = 1 << (n - 2);
+        Interp<n - 1, scalar_t, index_t, step>::eval(&buf[is], buf, &src[0], idx, &w[2]);        
+        Interp<n - 1, scalar_t, index_t, step>::eval(&buf[js], buf, &src[half], idx, &w[2]); 
+        compute_linear<scalar_t, step>(out, &buf[is], &buf[js], w[0][0], w[1][0]);
     }
 };
+
 
 template <typename scalar_t, typename index_t, int step>
 struct Interp<1, scalar_t, index_t, step> {
-    static inline void eval(scalar_t* out, scalar_t buf[][step], scalar_t* src[], index_t* idx[], float* w[]) {
-      load<scalar_t, index_t, step>(buf[0], src[0], idx[0]);
-      load<scalar_t, index_t, step>(buf[1], src[0], idx[1]);
-      compute_linear<scalar_t, step>(out, buf[0], buf[1], w[0], w[1]);
+    static inline void eval(scalar_t* out, scalar_t* buf, scalar_t* src[], index_t* idx[], float* w[]) {
+      load<scalar_t, index_t, step>(&buf[0], src[0], idx[0]);
+      load<scalar_t, index_t, step>(&buf[step], src[0], idx[1]);
+      compute_linear<scalar_t, step>(out, &buf[0], &buf[step], w[0], w[1]);
     }
 };
 
+
 template <int n, typename scalar_t, typename index_t, int step>
-static inline void interp(scalar_t* out, scalar_t buf[][step], scalar_t* src[], index_t* idx[], float* w[]) {
+static inline void interp(scalar_t* out, scalar_t* buf, scalar_t* src[], index_t* idx[], float* w[]) {
   Interp<n, scalar_t, index_t, step>::eval(out, buf, src, idx, w);
 }
-
-
-// Slower using this function
-// template <typename scalar_t, int step>
-// inline void compute_linear_single_line(
-//   scalar_t* dst, scalar_t* buffer0, scalar_t* buffer1, scalar_t* src, index_t * index0, index_t * index1, float * w0, float * w1
-// ) {
-//   load<scalar_t, step>(buffer0, src, index0);
-//   load<scalar_t, step>(buffer1, src, index1);
-//   compute_linear<scalar_t, step>(dst, buffer0, buffer1, w0, w1);
-// }
 
 
 template <typename scalar_t, typename index_t, int out_ndims>
@@ -109,170 +104,125 @@ inline void assert_strides(const int64_t* strides) {
 
 
 template <typename scalar_t, typename index_t, int out_ndims>
-void ti_cpu_upsample_linear(
-  at::TensorIterator& iter, bool serial_execution=false
-) {
+void ti_cpu_upsample_linear(at::TensorIterator& iter) {
 
-  auto loop1d = [&](char** data, const int64_t* strides, int64_t n) {
+  auto loop = [&](char** data, const int64_t* strides, int64_t n) {
+
     scalar_t * dst = (scalar_t *) data[0];
     scalar_t * src = (scalar_t *) data[1];
 
-    index_t * i0[out_ndims], * i1[out_ndims];
-    float * w0[out_ndims], * w1[out_ndims];
-
-    for (int i=0; i<out_ndims; i++) {
-      i0[i] = (index_t *) data[4 * i + 0 + 2];
-      w0[i] = (float *) data[4 * i + 1 + 2];
-      i1[i] = (index_t *) data[4 * i + 2 + 2];
-      w1[i] = (float *) data[4 * i + 3 + 2];
-    }
-    assert_strides<scalar_t, index_t, out_ndims>(strides);
-
-    constexpr int step = 8;
-    scalar_t buffer[2 * out_ndims][step];
-    scalar_t buffer2[2 * out_ndims][1];
-
-    // Add all constant offsets -> nothing to add
-    scalar_t * src_[1];
-    src_[0] = src;
-
-    index_t * idx[2];
-    float * w[2 * out_ndims];
-    for (int i = 0; i < out_ndims; i ++) {
-      w[2 * i] = w0[i];
-      w[2 * i + 1] = w1[i];
-    }
-
-    index_t i = 0;
-    for (; i < n - (n % step); i += step) {
-      idx[0] = i0[0] + i; idx[1] = i1[0] + i;
-      w[0] = w0[0] + i;; w[1] = w1[0] + i;
-      interp<out_ndims, scalar_t, index_t, step>(dst + i, buffer, src_, idx, w);
-
-    }
-    for (; i < n; i++) {
-      idx[0] = i0[0] + i; idx[1] = i1[0] + i;
-      w[0] = w0[0] + i;; w[1] = w1[0] + i;
-      interp<out_ndims, scalar_t, index_t, 1>(dst + i, buffer2, src_, idx, w);
-    }
-  };
-
-  auto loop2d = [&](char** data, const int64_t* strides, int64_t n) {
-    scalar_t * dst = (scalar_t *) data[0];
-    scalar_t * src = (scalar_t *) data[1];
-
-    index_t * i0[out_ndims], * i1[out_ndims];
-    float * w0[out_ndims], * w1[out_ndims];
-
-    for (int i=0; i<out_ndims; i++) {
-      i0[i] = (index_t *) data[4 * i + 0 + 2];
-      w0[i] = (float *) data[4 * i + 1 + 2];
-      i1[i] = (index_t *) data[4 * i + 2 + 2];
-      w1[i] = (float *) data[4 * i + 3 + 2];
-    }
     assert_strides<scalar_t, index_t, out_ndims>(strides);
 
     constexpr int step = 4;
-    scalar_t buffer[2 * out_ndims][step];
-    scalar_t buffer2[2 * out_ndims][1];
-    index_t offset0[out_ndims];
-    index_t offset1[out_ndims];
-    float wv0[out_ndims], wv1[out_ndims];
-    for (int i=0; i<out_ndims - 1; i++) {
-      offset0[i] = *i0[i];
-      offset1[i] = *i1[i];
-      wv0[i] = *w0[i];
-      wv1[i] = *w1[i];
-    }
+    constexpr int p2_size = 1 << (out_ndims - 1);
 
-    // Add all constant offsets
-    scalar_t * src_[2];
-    src_[0] = src + offset0[0];
-    src_[1] = src + offset1[0];
-    index_t * idx[2];
-    float * w[2 * out_ndims];
-    for (int i = 0; i < out_ndims; i ++) {
-      w[2 * i] = w0[i];
-      w[2 * i + 1] = w1[i];
-    }
+    // temporary buffer for src values
+    scalar_t buffer[p2_size * step];
 
+    // placeholders for pointers on indices for iterated dimension (e.g. -1)
+    index_t * idx_ptrs[2];
+    float * weights_ptrs[2 * out_ndims];
+    scalar_t * src_offset[p2_size];
+    {
+      index_t * constval_idx_ptrs[2 * (out_ndims - 1)];
+      int i = 0;
+      for (; i<out_ndims - 1; i++) {
+        constval_idx_ptrs[2 * i + 0] = (index_t *) data[4 * i + 0 + 2];
+        weights_ptrs[2 * i + 0] = (float *) data[4 * i + 1 + 2];
+        constval_idx_ptrs[2 * i + 1] = (index_t *) data[4 * i + 2 + 2];
+        weights_ptrs[2 * i + 1] = (float *) data[4 * i + 3 + 2];
+      }
+      idx_ptrs[0] = (index_t *) data[4 * i + 0 + 2];
+      weights_ptrs[2 * i + 0] = (float *) data[4 * i + 1 + 2];
+      idx_ptrs[1] = (index_t *) data[4 * i + 2 + 2];
+      weights_ptrs[2 * i + 1] = (float *) data[4 * i + 3 + 2];
+
+      // Add all constant offsets to src
+      int dim_idx = 0;
+      for (int j=0; j<p2_size; j++) {
+        src_offset[j] = src;
+        for (int i=0; i<out_ndims - 1; i++) {
+          dim_idx = (j >> (out_ndims - 2 - i)) % 2;
+          src_offset[j] += *constval_idx_ptrs[2 * i + dim_idx];
+        }
+      }
+    }
+    
     index_t i = 0;
-    for (; i < n - (n % step); i += step) {
-      idx[0] = i0[1] + i; idx[1] = i1[1] + i;
-      w[2 * (out_ndims - 1)] = w0[1] + i; w[2 * (out_ndims - 1) + 1] = w1[1] + i;
-      interp<out_ndims, scalar_t, index_t, step>(dst + i, buffer, src_, idx, w);
+    for (; i < n - (n % step); i += step) {      
+      interp<out_ndims, scalar_t, index_t, step>(dst + i, buffer, src_offset, idx_ptrs, weights_ptrs);
+      idx_ptrs[0] += step;
+      idx_ptrs[1] += step;
+      weights_ptrs[2 * (out_ndims - 1) + 0] += step;
+      weights_ptrs[2 * (out_ndims - 1) + 1] += step;
+    }    
+    for (; i < n; i++) {            
+      interp<out_ndims, scalar_t, index_t, 1>(dst + i, buffer, src_offset, idx_ptrs, weights_ptrs);
+      idx_ptrs[0] += 1;
+      idx_ptrs[1] += 1;
+      weights_ptrs[2 * (out_ndims - 1) + 0] += 1;
+      weights_ptrs[2 * (out_ndims - 1) + 1] += 1;
     }
-    for (; i < n; i++) {
-      idx[0] = i0[1] + i; idx[1] = i1[1] + i;
-      w[2 * (out_ndims - 1)] = w0[1] + i; w[2 * (out_ndims - 1) + 1] = w1[1] + i;
-      interp<out_ndims, scalar_t, index_t, 1>(dst + i, buffer2, src_, idx, w);
-    }
+    
   };
 
-  auto loop3d = [&](char** data, const int64_t* strides, int64_t n) {
+  // auto loop = [&](char** data, const int64_t* strides, int64_t n) {
 
-    scalar_t * dst = (scalar_t *) data[0];
-    scalar_t * src = (scalar_t *) data[1];
+  //   scalar_t * dst = (scalar_t *) data[0];
+  //   scalar_t * src = (scalar_t *) data[1];
 
-    index_t * i0[out_ndims], * i1[out_ndims];
-    float * w0[out_ndims], * w1[out_ndims];
+  //   index_t * i0[out_ndims], * i1[out_ndims];
+  //   float * w0[out_ndims], * w1[out_ndims];
 
-    for (int i=0; i<out_ndims; i++) {
-      i0[i] = (index_t *) data[4 * i + 0 + 2];
-      w0[i] = (float *) data[4 * i + 1 + 2];
-      i1[i] = (index_t *) data[4 * i + 2 + 2];
-      w1[i] = (float *) data[4 * i + 3 + 2];
-    }
-    assert_strides<scalar_t, index_t, out_ndims>(strides);
+  //   for (int i=0; i<out_ndims; i++) {
+  //     i0[i] = (index_t *) data[4 * i + 0 + 2];
+  //     w0[i] = (float *) data[4 * i + 1 + 2];
+  //     i1[i] = (index_t *) data[4 * i + 2 + 2];
+  //     w1[i] = (float *) data[4 * i + 3 + 2];
+  //   }
+  //   assert_strides<scalar_t, index_t, out_ndims>(strides);
 
-    constexpr int step = 4;
-    scalar_t buffer[2 * out_ndims][step];
-    scalar_t buffer2[2 * out_ndims][1];
-    index_t offset0[out_ndims];
-    index_t offset1[out_ndims];
-    float wv0[out_ndims], wv1[out_ndims];
-    for (int i=0; i<out_ndims - 1; i++) {
-      offset0[i] = *i0[i];
-      offset1[i] = *i1[i];
-      wv0[i] = *w0[i];
-      wv1[i] = *w1[i];
-    }
+  //   constexpr int step = 4;
+  //   scalar_t buffer[2 * out_ndims][step];
+  //   scalar_t buffer2[2 * out_ndims][1];
+  //   index_t offset0[out_ndims];
+  //   index_t offset1[out_ndims];
+  //   float wv0[out_ndims], wv1[out_ndims];
+  //   for (int i=0; i<out_ndims - 1; i++) {
+  //     offset0[i] = *i0[i];
+  //     offset1[i] = *i1[i];
+  //     wv0[i] = *w0[i];
+  //     wv1[i] = *w1[i];
+  //   }
 
-    // Add all constant offsets
-    scalar_t * src_[4];
-    src_[0] = src + offset0[0] + offset0[1];
-    src_[1] = src + offset0[0] + offset1[1];
-    src_[2] = src + offset1[0] + offset0[1];
-    src_[3] = src + offset1[0] + offset1[1];
+  //   // Add all constant offsets
+  //   scalar_t * src_[4];
+  //   src_[0] = src + offset0[0] + offset0[1];
+  //   src_[1] = src + offset0[0] + offset1[1];
+  //   src_[2] = src + offset1[0] + offset0[1];
+  //   src_[3] = src + offset1[0] + offset1[1];
 
-    index_t * idx[2];
-    float * w[2 * out_ndims];
-    for (int i = 0; i < out_ndims; i ++) {
-      w[2 * i] = w0[i];
-      w[2 * i + 1] = w1[i];
-    }
+  //   index_t * idx[2];
+  //   float * w[2 * out_ndims];
+  //   for (int i = 0; i < out_ndims; i ++) {
+  //     w[2 * i] = w0[i];
+  //     w[2 * i + 1] = w1[i];
+  //   }
 
-    index_t i = 0;
-    for (; i < n - (n % step); i += step) {
-      idx[0] = i0[2] + i; idx[1] = i1[2] + i;
-      w[2 * (out_ndims - 1)] = w0[2] + i; w[2 * (out_ndims - 1) + 1] = w1[2] + i;
-      interp<out_ndims, scalar_t, index_t, step>(dst + i, buffer, src_, idx, w);
-    }
-    for (; i < n; i++) {
-      idx[0] = i0[2] + i; idx[1] = i1[2] + i;
-      w[2 * (out_ndims - 1)] = w0[2] + i; w[2 * (out_ndims - 1) + 1] = w1[2] + i;
-      interp<out_ndims, scalar_t, index_t, 1>(dst + i, buffer2, src_, idx, w);
-    }
-  };
+  //   index_t i = 0;
+  //   for (; i < n - (n % step); i += step) {
+  //     idx[0] = i0[2] + i; idx[1] = i1[2] + i;
+  //     w[2 * (out_ndims - 1)] = w0[2] + i; w[2 * (out_ndims - 1) + 1] = w1[2] + i;
+  //     interp<out_ndims, scalar_t, index_t, step>(dst + i, buffer, src_, idx, w);
+  //   }
+  //   for (; i < n; i++) {
+  //     idx[0] = i0[2] + i; idx[1] = i1[2] + i;
+  //     w[2 * (out_ndims - 1)] = w0[2] + i; w[2 * (out_ndims - 1) + 1] = w1[2] + i;
+  //     interp<out_ndims, scalar_t, index_t, 1>(dst + i, buffer2, src_, idx, w);
+  //   }
+  // };
 
-  if (out_ndims == 1) {
-    iter.for_each(loop1d);
-  } else if (out_ndims == 2) {
-    iter.for_each(loop2d);
-  } else {
-    TORCH_INTERNAL_ASSERT(out_ndims == 3);
-    iter.for_each(loop3d);
-  }
+  iter.for_each(loop);
 }
 
 template<typename index_t>

@@ -41,7 +41,14 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 - [x] Generalize Step 2.1 code to 1d, 2d and 3d cases
 - [x] Verify if using `int64_t` brings a slowdown, if not, just use it instead of int32_t
   - Checking https://github.com/pytorch/pytorch/pull/41923 and potentially using `canUse32BitIndexMath` if we decide to keep int32 as well
-
+- [ ] Add a documentation in the code
+  - put all hypothesis on strides and indices
+  - how we access pointer while iteration a single dimension
+  - strides are already to indices
+  - Mention that output is constructed inside the function and contiguous
+- [ ] Change ti_compute_indices_weights_faster to output one or two TensorLists (to define depending on generalization)
+- [ ] Merge reshape (ti_reshape_indices_weights) into ti_compute_indices_weights_faster by passing new arg : dim
+- [ ] To see: revert order of added indices and weights -> x, y, z, ...
 
 ## Questions
 
@@ -543,6 +550,71 @@ Elapsed time (ms): 4.48405
 
 - Bench ti_upsample_trilinear3d_kernel_impl (750 rounds) - downsampling to 256
 Elapsed time (ms): 0.743611
+```
+
+
+#### Result 2 (single loop):
+
+```
+Torch config: PyTorch built with:                                      
+  - GCC 9.3                
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)                                     
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPO
+OL -fopenmp -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragm
+as -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=dep
+recated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-se
+t-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX51
+2=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNP
+ACK=0, USE_OPENMP=ON,
+
+
+
+---- Benchmark 2D ----
+                      
+Input tensor: [1, 3, 320, 320]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.325516
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0668158
+
+Input tensor: [1, 3, 1024, 1024]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 512x512
+Elapsed time (ms): 1.29353
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 512x512
+Elapsed time (ms): 0.232354
+
+
+---- Benchmark 1D ----
+
+Input tensor: [4, 512, 320]
+Num threads: 6
+
+- Bench upsample_linear1d_cpu (7500 rounds) - downsampling to 256
+Elapsed time (ms): 0.289353
+
+- Bench ti_upsample_linear1d_cpu (7500 rounds) - downsampling to 256
+Elapsed time (ms): 0.109785
+
+
+---- Benchmark 3D ----
+
+Input tensor: [1, 3, 16, 320, 320]
+Num threads: 6
+
+- Check consistency (upsampling to 512): 
+- Bench upsample_trilinear3d_cpu (750 rounds) - downsampling to 256
+Elapsed time (ms): 4.49102
+
+- Bench ti_upsample_trilinear3d_kernel_impl (750 rounds) - downsampling to 256
+Elapsed time (ms): 0.978064
 ```
 
 </details>
