@@ -41,14 +41,14 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 - [x] Generalize Step 2.1 code to 1d, 2d and 3d cases
 - [x] Verify if using `int64_t` brings a slowdown, if not, just use it instead of int32_t
   - Checking https://github.com/pytorch/pytorch/pull/41923 and potentially using `canUse32BitIndexMath` if we decide to keep int32 as well
-- [ ] Add a documentation in the code
+- [x] Add a documentation in the code
   - put all hypothesis on strides and indices
   - how we access pointer while iteration a single dimension
-  - strides are already to indices
+  - strides are already added to indices
   - Mention that output is constructed inside the function and contiguous
 - [x] Change ti_compute_indices_weights_faster to output one or two TensorLists (to define depending on generalization)
 - [x] Merge reshape (ti_reshape_indices_weights) into ti_compute_indices_weights_faster by passing new arg : dim
-- [ ] Optional: revert order of added indices and weights -> x, y, z, ...
+- [ ] ~~Optional: revert order of added indices and weights -> x, y, z, ...~~
 
 ## Questions
 

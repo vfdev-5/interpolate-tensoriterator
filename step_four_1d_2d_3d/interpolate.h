@@ -28,6 +28,7 @@ inline void compute_linear(scalar_t* dst, scalar_t * src1, scalar_t* src2, float
 }
 
 
+//
 template <typename scalar_t, int step>
 inline void compute_linear(scalar_t* dst, scalar_t * src1, scalar_t* src2, float w0, float w1) {
   for (int k = 0; k < step; k++) {
@@ -39,6 +40,22 @@ inline void compute_linear(scalar_t* dst, scalar_t * src1, scalar_t* src2, float
 }
 
 
+// Interpolation type structure to compute output value in n-dimensional case.
+// - use buffers (buf) to prefetch source data.
+// - recursively compute interpolated output for each dimension
+//
+// for example for 2d:
+// 
+// source[0, 0] -> buffer[0]
+// source[0, 1] -> buffer[1]
+// interpolate(buffer[0], weight00, buffer[1], weight01) -> buffer[2]
+//
+// source[1, 0] -> buffer[0]
+// source[1, 1] -> buffer[1]
+// interpolate(buffer[0], weight00, buffer[1], weight01) -> buffer[3]
+// 
+// interpolate(buffer[2], weight10, buffer[3], weight11) -> output
+//
 template <int n, typename scalar_t, typename index_t, int step>
 struct Interp {
     static inline void eval(scalar_t* out, scalar_t* buf, scalar_t* src[], index_t* idx[], float* w[]) {
@@ -71,7 +88,7 @@ static inline void interp(scalar_t* out, scalar_t* buf, scalar_t* src[], index_t
 
 
 template <typename scalar_t, typename index_t, int out_ndims>
-inline void assert_strides(const int64_t* strides) {
+inline void assert_strides_linear(const int64_t* strides) {
   for (int i=0; i<out_ndims; i++) {
     // Assert strides for indices 0, 1 and weights 0, 1
     TORCH_INTERNAL_ASSERT(
@@ -101,6 +118,31 @@ inline void assert_strides(const int64_t* strides) {
 }
 
 
+// Linear upsampling dispatched computation method using TensorIterator.
+// 
+// Assumptions:
+// - input and output are of shape (B, C, D1, D2, D3, ..., DN) and
+// - upsampling is computed on D_i axes.
+// - zero strides for construced indices and weights on dims D1, D2, ..., DN-1
+// - zero stride for input source (as it is restrided)
+// - non-zero stride for indices and weights on DN dimension
+// 
+// Using these assumptions we iterate over DN dimension and compute the output 
+// using the following tricks for optimizations:
+// - indices are already containing strides
+// - src pointer is advanced once by the constant offset for D1, D2, ..., DN-1
+// - using buffers to prefetch src data before the computations
+// 
+// Single loop function for 1d, 2d and 3d cases.
+// For N dimensions, output value up to Di dimension can be computed as
+///
+// output_i[a] = linear_interp(output_{i+1}[a], w_{i+1}[a], output_{i+1}[a+1], w_{i+1}[a+1])
+// with
+// output_DN[a] = linear_interp(input_DN[a], w_DN[a], input_DN[a+1], w_DN[a+1])
+//
+// This recursive call is implemented with Interp struct using template for 
+// the loop unrolling on compile time.
+// 
 template <typename scalar_t, typename index_t, int out_ndims>
 void ti_cpu_upsample_linear(at::TensorIterator& iter) {
 
@@ -109,7 +151,7 @@ void ti_cpu_upsample_linear(at::TensorIterator& iter) {
     scalar_t * dst = (scalar_t *) data[0];
     scalar_t * src = (scalar_t *) data[1];
 
-    assert_strides<scalar_t, index_t, out_ndims>(strides);
+    assert_strides_linear<scalar_t, index_t, out_ndims>(strides);
 
     constexpr int step = 4;
     constexpr int p2_size = 1 << (out_ndims - 1);
@@ -117,9 +159,11 @@ void ti_cpu_upsample_linear(at::TensorIterator& iter) {
     // temporary buffer for src values
     scalar_t buffer[p2_size * step];
 
-    // placeholders for pointers on indices for iterated dimension (e.g. -1)
+    // placeholder for pointers on indices for iterated dimension (e.g. -1)
     index_t * idx_ptrs[2];
+    // placeholder for pointers on all weights: w0 and w1 for each dimension
     float * weights_ptrs[2 * out_ndims];
+    // placeholder src pointer with all possible constant offsets added
     scalar_t * src_offset[p2_size];
     {
       index_t * constval_idx_ptrs[2 * (out_ndims - 1)];
@@ -149,6 +193,7 @@ void ti_cpu_upsample_linear(at::TensorIterator& iter) {
     index_t i = 0;
     for (; i < n - (n % step); i += step) {      
       interp<out_ndims, scalar_t, index_t, step>(dst + i, buffer, src_offset, idx_ptrs, weights_ptrs);
+      // Here we advance only on the last dimension (i.e. dim -1)
       idx_ptrs[0] += step;
       idx_ptrs[1] += step;
       weights_ptrs[2 * (out_ndims - 1) + 0] += step;
@@ -187,12 +232,6 @@ std::vector<at::Tensor> ti_compute_indices_weights_linear(
   float xf;
   long xl;
 
-  // auto input_index = real_input_index.floor();
-  // lambda1 = real_input_index - input_index;
-  // lambda0 = 1.0 - lambda1;
-  // input_index0 = input_index.to(at::kLong);
-  // input_index1 = (input_index0 + 1).clamp(0, input_size - 1);
-
   for (index_t i=0; i<output_size; i++) {
     xf = std::max((float)((i + 0.5f) * scale - 0.5), 0.0f);
     xl = (long) xf;
@@ -212,6 +251,9 @@ std::vector<at::Tensor> ti_compute_indices_weights_linear(
 }
 
 
+// Upsampling linear interpolation kernel for N-d case.
+// Internally, it uses TensorIterator to optimize the computations.
+// Output is constructed inside the function and is a contiguous tensor.
 template <typename index_t, int out_ndims>
 at::Tensor ti_upsample_linearNd_kernel_impl(
     const at::Tensor& input,
@@ -229,6 +271,16 @@ at::Tensor ti_upsample_linearNd_kernel_impl(
   }
   auto restrided_input = input.as_strided(shape, strides);
 
+  // Compute indices and weights for each interpolated dimension
+  // indices_weights = {
+  //      {indices_0, weights_0, indices_1, weights_1},  // dim -n
+  //      {indices_0, weights_0, indices_1, weights_1},  // dim -(n-1)
+  //      ...
+  //      {indices_0, weights_0, indices_1, weights_1},  // dim -1
+  // }
+  // Indices and weights are reshaped as (1, 1, ..., N, ..., 1, 1) to
+  // fit input/output tensors.
+  // Indices are already containing the strides to optimize the computations
   std::vector<std::vector<at::Tensor>> indices_weights;
   for (int i=0; i<out_ndims; i++) {
     int64_t index_stride = input.stride(i + 2);
@@ -236,7 +288,7 @@ at::Tensor ti_upsample_linearNd_kernel_impl(
       ti_compute_indices_weights_linear<index_t>(input.size(i + 2), output_size[i], index_stride, input.dim(), i + 2)
     );
   }
-
+  
   at::TensorIteratorConfig config;
   config.check_all_same_dtype(false)
     .declare_static_dtype_and_device(input.scalar_type(), input.device())
