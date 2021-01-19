@@ -46,9 +46,9 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
   - how we access pointer while iteration a single dimension
   - strides are already to indices
   - Mention that output is constructed inside the function and contiguous
-- [ ] Change ti_compute_indices_weights_faster to output one or two TensorLists (to define depending on generalization)
-- [ ] Merge reshape (ti_reshape_indices_weights) into ti_compute_indices_weights_faster by passing new arg : dim
-- [ ] To see: revert order of added indices and weights -> x, y, z, ...
+- [x] Change ti_compute_indices_weights_faster to output one or two TensorLists (to define depending on generalization)
+- [x] Merge reshape (ti_reshape_indices_weights) into ti_compute_indices_weights_faster by passing new arg : dim
+- [ ] Optional: revert order of added indices and weights -> x, y, z, ...
 
 ## Questions
 
