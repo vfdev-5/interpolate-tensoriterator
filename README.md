@@ -50,6 +50,11 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 - [x] Merge reshape (ti_reshape_indices_weights) into ti_compute_indices_weights_faster by passing new arg : dim
 - [ ] ~~Optional: revert order of added indices and weights -> x, y, z, ...~~
 
+### Step 5: Nd simplified
+
+- [ ] Fix issue #3
+- [ ] Fix issue #4
+
 ## Questions
 
 - ~~Force parallelization on output size only (do not take into account input shape)~~
@@ -640,6 +645,35 @@ make
 ```bash
 make && ./bench
 ```
+
+
+### Step 5
+
+```bash
+cd step_five && mkdir -p build && cd $_
+export TORCH_PATH=/pytorch/torch
+cmake -DTORCH_DIR=$TORCH_PATH ..
+make
+```
+
+```bash
+make && ./bench
+```
+
+<details>
+
+<summary>
+Results
+</summary>
+
+
+#### Result 1:
+
+```
+```
+
+</details>
+
 
 
 ## Upsampling code inspection
