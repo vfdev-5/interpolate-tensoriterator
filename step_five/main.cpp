@@ -18,15 +18,54 @@
 #define NUM_THREADS 6
 
 
-void assert_consistency_bilinear2d(at::Tensor t_input, int isize, int osize) {
+void assert_consistency_bilinear2d(at::Tensor t_input, int isize, int osize, bool align_corners=false) {
 
     if (!t_input.defined()) {
         assert(isize > 0);
         t_input = at::rand({1, 3, isize, isize}, at::CPU(at::kFloat));
     }
 
-    auto ref_out = at::native::upsample_bilinear2d_cpu(t_input, {osize, osize}, false);
-    auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {osize, osize});
+    auto ref_out = at::native::upsample_bilinear2d_cpu(t_input, {osize, osize}, align_corners);
+    auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {osize, osize}, align_corners);
+
+    if (!ref_out.allclose(out)){
+        auto mse = (ref_out - out).pow(2.0).mean();
+        auto max_e = (ref_out - out).view(-1).abs().max();
+        std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
+        assert(false);
+    }
+}
+
+
+void assert_consistency_linear1d(at::Tensor t_input, int isize, int osize, bool align_corners=false) {
+
+    if (!t_input.defined()) {
+        assert(isize > 0);
+        t_input = at::rand({4, 512, isize}, at::CPU(at::kFloat));
+    }
+
+    auto ref_out = at::native::upsample_linear1d_cpu(t_input, {osize, }, align_corners);
+    auto out = ti_upsample_linear1d_kernel_impl(t_input, {osize, }, align_corners);
+
+    if (!ref_out.allclose(out)){
+        auto mse = (ref_out - out).pow(2.0).mean();
+        auto max_e = (ref_out - out).view(-1).abs().max();
+        std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
+        assert(false);
+    }
+}
+
+
+void assert_consistency_trilinear3d(at::Tensor t_input, int isize, int osize, bool align_corners=false) {
+
+    if (!t_input.defined()) {
+        assert(isize > 0);
+        t_input = at::rand({1, 3, 16, isize, isize}, at::CPU(at::kFloat));
+    }
+
+    int osize_2 = (float(t_input.size(3)) / osize > 1.0) ? t_input.size(2) / 2 : t_input.size(2) * 2;
+    auto ref_out = at::native::upsample_trilinear3d_cpu(t_input, {osize_2, osize, osize}, align_corners);
+    auto out = ti_upsample_trilinear3d_kernel_impl(t_input, {osize_2, osize, osize}, align_corners);
 
     if (!ref_out.allclose(out)){
         auto mse = (ref_out - out).pow(2.0).mean();
@@ -45,9 +84,10 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
     at::set_num_threads(NUM_THREADS);
     std::cout << "Num threads: " << at::get_num_threads() << std::endl;
 
-    // Check consistency:
     assert_consistency_bilinear2d(t_input, -1, dn_osize);
+    assert_consistency_bilinear2d(t_input, -1, dn_osize, true);
     assert_consistency_bilinear2d(t_input, -1, up_osize);
+    assert_consistency_bilinear2d(t_input, -1, up_osize, true);
 
     // Time benchmark
     {
@@ -68,7 +108,7 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {dn_osize, dn_osize});
+            auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {dn_osize, dn_osize}, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -97,7 +137,7 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {up_osize, up_osize});
+            auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {up_osize, up_osize}, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -135,7 +175,7 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128});
+                auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128}, false);
                 auto result = out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
@@ -170,7 +210,7 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128});
+                auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128}, false);
                 auto result = out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
@@ -190,31 +230,10 @@ int bench_1d(int n, bool full_bench) {
     at::set_num_threads(NUM_THREADS);
     std::cout << "Num threads: " << at::get_num_threads() << std::endl;
 
-    // Check consistency:
-    {
-        // std::cout << "\n- Check consistency (downsampling to 256): ";
-        auto ref_out = at::native::upsample_linear1d_cpu(t_input, {256, }, false);
-        auto out = ti_upsample_linear1d_kernel_impl(t_input, {256, });
-
-        if (!ref_out.allclose(out)){
-            auto mse = (ref_out - out).pow(2.0).mean();
-            auto max_e = (ref_out - out).view(-1).abs().max();
-            std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
-            return 1;
-        }
-        // std::cout << "OK" << std::endl;
-    }
-    {
-        // std::cout << "\n- Check consistency (upsampling to 512): ";
-        auto ref_out = at::native::upsample_linear1d_cpu(t_input, {512, }, false);
-        auto out = ti_upsample_linear1d_kernel_impl(t_input, {512, });
-
-        if (!ref_out.allclose(out)){
-            std::cout << "Error" << std::endl;
-            return 1;
-        }
-        // std::cout << "OK" << std::endl;
-    }
+    assert_consistency_linear1d(t_input, -1, 256);
+    assert_consistency_linear1d(t_input, -1, 256, true);
+    assert_consistency_linear1d(t_input, -1, 512);
+    assert_consistency_linear1d(t_input, -1, 512, true);
 
     // Time benchmark
     {
@@ -235,7 +254,7 @@ int bench_1d(int n, bool full_bench) {
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = ti_upsample_linear1d_kernel_impl(t_input, {256, });
+            auto out = ti_upsample_linear1d_kernel_impl(t_input, {256, }, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -264,7 +283,7 @@ int bench_1d(int n, bool full_bench) {
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = ti_upsample_linear1d_kernel_impl(t_input, {512, });
+            auto out = ti_upsample_linear1d_kernel_impl(t_input, {512, }, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -283,32 +302,10 @@ int bench_3d(int n, bool full_bench) {
     at::set_num_threads(NUM_THREADS);
     std::cout << "Num threads: " << at::get_num_threads() << std::endl;
 
-    // Check consistency:
-    {
-        // std::cout << "\n- Check consistency (downsampling to 256): ";
-        auto ref_out = at::native::upsample_trilinear3d_cpu(t_input, {8, 256, 256}, false);
-        auto out = ti_upsample_trilinear3d_kernel_impl(t_input, {8, 256, 256});
-
-        if (!ref_out.allclose(out)){
-            auto mse = (ref_out - out).pow(2.0).mean();
-            auto max_e = (ref_out - out).view(-1).abs().max();
-            std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
-            return 1;
-        }
-        // std::cout << "OK" << std::endl;
-    }
-    {
-        std::cout << "\n- Check consistency (upsampling to 512): ";
-        auto ref_out = at::native::upsample_trilinear3d_cpu(t_input, {32, 512, 512}, false);
-        auto out = ti_upsample_trilinear3d_kernel_impl(t_input, {32, 512, 512});
-
-        if (!ref_out.allclose(out)){
-            std::cout << "Error" << std::endl;
-            return 1;
-        }
-
-        // std::cout << "OK" << std::endl;
-    }
+    assert_consistency_trilinear3d(t_input, -1, 256);
+    assert_consistency_trilinear3d(t_input, -1, 256, true);
+    assert_consistency_trilinear3d(t_input, -1, 512);
+    assert_consistency_trilinear3d(t_input, -1, 512, true);
 
     // Time benchmark
     {
@@ -329,7 +326,7 @@ int bench_3d(int n, bool full_bench) {
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = ti_upsample_trilinear3d_kernel_impl(t_input, {8, 256, 256 });
+            auto out = ti_upsample_trilinear3d_kernel_impl(t_input, {8, 256, 256 }, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -358,7 +355,7 @@ int bench_3d(int n, bool full_bench) {
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = ti_upsample_trilinear3d_kernel_impl(t_input, {32, 512, 512});
+            auto out = ti_upsample_trilinear3d_kernel_impl(t_input, {32, 512, 512}, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
