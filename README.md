@@ -52,7 +52,7 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 
 ### Step 5: Nd simplified
 
-- [ ] Fix issue #3
+- [x] Fix issue #3
 - [ ] Fix issue #4
 
 ## Questions
@@ -670,6 +670,64 @@ Results
 #### Result 1:
 
 ```
+Torch config: PyTorch built with:                                       
+  - GCC 9.3
+  - C++ Version: 201402                                                
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibil
+ity-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-fiel
+d-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function
+-Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-ps
+abi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-m
+aybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1
+, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF
+, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON, 
+
+---- Benchmark 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.319176
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0604155
+
+Input tensor: [1, 3, 1024, 1024]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 512x512
+Elapsed time (ms): 1.28418
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 512x512
+Elapsed time (ms): 0.227481
+
+
+---- Benchmark 1D ----
+
+Input tensor: [4, 512, 320]
+Num threads: 6
+
+- Bench upsample_linear1d_cpu (7500 rounds) - downsampling to 256
+Elapsed time (ms): 0.287417
+
+- Bench ti_upsample_linear1d_cpu (7500 rounds) - downsampling to 256
+Elapsed time (ms): 0.107146
+
+
+---- Benchmark 3D ----
+
+Input tensor: [1, 3, 16, 320, 320]
+Num threads: 6
+
+- Check consistency (upsampling to 512):
+- Bench upsample_trilinear3d_cpu (750 rounds) - downsampling to 256
+Elapsed time (ms): 4.50262
+
+- Bench ti_upsample_trilinear3d_kernel_impl (750 rounds) - downsampling to 256
+Elapsed time (ms): 0.995911
 ```
 
 </details>
