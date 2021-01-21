@@ -18,6 +18,25 @@
 #define NUM_THREADS 6
 
 
+void assert_consistency_bilinear2d(at::Tensor t_input, int isize, int osize) {
+
+    if (!t_input.defined()) {
+        assert(isize > 0);
+        t_input = at::rand({1, 3, isize, isize}, at::CPU(at::kFloat));
+    }
+
+    auto ref_out = at::native::upsample_bilinear2d_cpu(t_input, {osize, osize}, false);
+    auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {osize, osize});
+
+    if (!ref_out.allclose(out)){
+        auto mse = (ref_out - out).pow(2.0).mean();
+        auto max_e = (ref_out - out).view(-1).abs().max();
+        std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
+        assert(false);
+    }
+}
+
+
 int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osize=512) {
 
     auto t_input = at::rand({1, 3, isize, isize}, at::CPU(at::kFloat));
@@ -27,31 +46,8 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
     std::cout << "Num threads: " << at::get_num_threads() << std::endl;
 
     // Check consistency:
-    {
-        
-        // std::cout << "\n- Check consistency (downsampling to " << dn_osize << "x" << dn_osize << "): ";
-        auto ref_out = at::native::upsample_bilinear2d_cpu(t_input, {dn_osize, dn_osize}, false);
-        auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {dn_osize, dn_osize});
-
-        if (!ref_out.allclose(out)){
-            auto mse = (ref_out - out).pow(2.0).mean();
-            auto max_e = (ref_out - out).view(-1).abs().max();
-            std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
-            return 1;
-        }
-        // std::cout << "OK" << std::endl;
-    }
-    {
-        // std::cout << "\n- Check consistency (upsampling to " << up_osize << "x" << up_osize << "): ";
-        auto ref_out = at::native::upsample_bilinear2d_cpu(t_input, {up_osize, up_osize}, false);
-        auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {up_osize, up_osize});
-
-        if (!ref_out.allclose(out)){
-            std::cout << "Error" << std::endl;
-            return 1;
-        }
-        // std::cout << "OK" << std::endl;
-    }
+    assert_consistency_bilinear2d(t_input, -1, dn_osize);
+    assert_consistency_bilinear2d(t_input, -1, up_osize);
 
     // Time benchmark
     {
@@ -120,21 +116,7 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
         std::cout << "Input is_contiguous memory_format torch.channels_last: " << t_input.is_contiguous(at::MemoryFormat::ChannelsLast) << std::endl;
         std::cout << "Input is_contiguous : " << t_input.is_contiguous() << std::endl;
 
-        // Check consistency:
-        {
-            // std::cout << "\n- Check consistency (upsampling to 128x128): ";
-            auto ref_out = at::native::upsample_bilinear2d_cpu(t_input, {128, 128}, false);
-            auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128});
-
-            if (!ref_out.allclose(out)){
-                auto mse = (ref_out - out).pow(2.0).mean();
-                auto max_e = (ref_out - out).view(-1).abs().max();
-                std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
-                return 1;
-            }
-            // std::cout << "OK" << std::endl;
-        }
-
+        assert_consistency_bilinear2d(t_input, -1, 128);
         {    
             std::cout << "\n- Bench upsample_bilinear2d_cpu (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
@@ -169,23 +151,7 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
         std::cout << "Input is_contiguous memory_format torch.channels_last: " << t_input.is_contiguous(at::MemoryFormat::ChannelsLast) << std::endl;
         std::cout << "Input is_contiguous : " << t_input.is_contiguous() << std::endl;
 
-
-        // Check consistency:
-        {
-            // std::cout << "\n- Check consistency (upsampling to 128x128): ";
-            auto ref_out = at::native::upsample_bilinear2d_cpu(t_input, {128, 128}, false);
-            auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128});
-
-            if (!ref_out.allclose(out)){
-                auto mse = (ref_out - out).pow(2.0).mean();
-                auto max_e = (ref_out - out).view(-1).abs().max();
-                std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
-                return 1;
-            }
-
-            // std::cout << "OK" << std::endl;
-        }
-
+        assert_consistency_bilinear2d(t_input, -1, 128);
         {    
             std::cout << "\n- Bench upsample_bilinear2d_cpu (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
@@ -198,8 +164,6 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
             std::chrono::duration<double> elapsed_seconds = end - start;
             std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
-
-        // auto out = ti_upsample_bilinear2d_kernel_impl(t_input, {128, 128});
 
         {
             std::cout << "\n- Bench ti_upsample_bilinear2d_cpu (" << n << " rounds) - upsampling to 128x128" << std::endl;
@@ -520,6 +484,7 @@ int main(int argc, char** argv)
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256);
     bench_2d(n, full_bench, 1024, 512);
+    assert_consistency_bilinear2d(at::Tensor(), 28000, 1200);
 
 #ifdef WITH_OPENCV
     std::cout << "\n\n---- Benchmark OpenCV 2D ----" << std::endl;
