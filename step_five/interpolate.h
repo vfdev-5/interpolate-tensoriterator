@@ -3,8 +3,7 @@
 #include <ATen/TypeDefault.h>
 #include <ATen/native/TensorIterator.h>
 #include <ATen/native/IndexingUtils.h>
-
-using scale_t = std::vector<c10::optional<double>>;
+#include <ATen/native/UpSample.h>
 
 
 template <typename scalar_t, typename index_t, int step>
@@ -227,7 +226,6 @@ std::vector<at::Tensor> ti_compute_indices_weights_linear(
     scale = (opt_scale.has_value() && opt_scale.value() > 0.)
       ? static_cast<scalar_t>(1.0 / opt_scale.value())
       : (static_cast<scalar_t>(input_size) / output_size);
-
   }
 
   std::vector<at::Tensor> output;
@@ -265,24 +263,34 @@ std::vector<at::Tensor> ti_compute_indices_weights_linear(
   return output;
 }
 
+using at::native::upsample::compute_output_size;
+using at::native::upsample::get_scale_value;
+
 
 // Upsampling linear interpolation kernel for N-d case.
 // Internally, it uses TensorIterator to optimize the computations.
 // Output is constructed inside the function and is a contiguous tensor.
-template <typename index_t, int out_ndims, typename scale_type>
+template <typename index_t, int out_ndims>
 at::Tensor ti_upsample_linearNd_kernel_impl(
     const at::Tensor& input,
-    at::IntArrayRef output_size,
+    c10::optional<at::IntArrayRef> output_size,
     bool align_corners,
-    const scale_type& scales) {
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt) {
+
+  if (output_size) {
+    TORCH_CHECK(out_ndims == output_size->size());
+  }  
+  if (scale_factors) {
+    TORCH_CHECK(out_ndims == scale_factors->size());
+  }  
+  auto osize = compute_output_size(input.sizes(), output_size, scale_factors);
+
   // input can be NCHW, NCL or NCKHW
   auto shape = input.sizes().vec();
   auto strides = input.strides().vec();
 
-  TORCH_CHECK(out_ndims == output_size.size());
-
   for (int i=0; i<out_ndims; i++) {
-    shape[i + 2] = output_size[i];
+    shape[i + 2] = osize[i];
     strides[i + 2] = 0;
   }
   auto restrided_input = input.as_strided(shape, strides);
@@ -303,14 +311,14 @@ at::Tensor ti_upsample_linearNd_kernel_impl(
     for (int i=0; i<out_ndims; i++) {
       indices_weights.emplace_back(
         ti_compute_indices_weights_linear<index_t, double>(
-          input.size(i + 2), output_size[i], input.stride(i + 2), input.dim(), i + 2, align_corners, scales[i])
+          input.size(i + 2), osize[i], input.stride(i + 2), input.dim(), i + 2, align_corners, get_scale_value(scale_factors, i))
        );
     }
   } else {
     for (int i=0; i<out_ndims; i++) {
       indices_weights.emplace_back(
         ti_compute_indices_weights_linear<index_t, float>(
-          input.size(i + 2), output_size[i], input.stride(i + 2), input.dim(), i + 2, align_corners, scales[i])
+          input.size(i + 2), osize[i], input.stride(i + 2), input.dim(), i + 2, align_corners, get_scale_value(scale_factors, i))
       );
     }
   }
@@ -340,44 +348,41 @@ at::Tensor ti_upsample_linearNd_kernel_impl(
 
 at::Tensor ti_upsample_bilinear2d_kernel_impl(
     const at::Tensor& input,
-    at::IntArrayRef output_size,
+    c10::optional<at::IntArrayRef> output_size,
     bool align_corners,
-    c10::optional<double> scales_h = {},
-    c10::optional<double> scales_w = {}) {
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt) {
   if (at::native::canUse32BitIndexMath(input))
-    return ti_upsample_linearNd_kernel_impl<int32_t, 2, scale_t>(
-      input, output_size, align_corners, {scales_h, scales_w});
+    return ti_upsample_linearNd_kernel_impl<int32_t, 2>(
+      input, output_size, align_corners, scale_factors);
   
-  return ti_upsample_linearNd_kernel_impl<int64_t, 2, scale_t>(
-    input, output_size, align_corners, {scales_h, scales_w});
+  return ti_upsample_linearNd_kernel_impl<int64_t, 2>(
+    input, output_size, align_corners, scale_factors);
 }
 
 
 at::Tensor ti_upsample_linear1d_kernel_impl(
     const at::Tensor& input,
-    at::IntArrayRef output_size,     
+    c10::optional<at::IntArrayRef> output_size,
     bool align_corners,
-    c10::optional<double> scales_w = {}) {
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt) {
   if (at::native::canUse32BitIndexMath(input))
-    return ti_upsample_linearNd_kernel_impl<int32_t, 1, scale_t>(
-      input, output_size, align_corners, {scales_w});
+    return ti_upsample_linearNd_kernel_impl<int32_t, 1>(
+      input, output_size, align_corners, scale_factors);
 
-  return ti_upsample_linearNd_kernel_impl<int64_t, 1, scale_t>(
-    input, output_size, align_corners, {scales_w});
+  return ti_upsample_linearNd_kernel_impl<int64_t, 1>(
+    input, output_size, align_corners, scale_factors);
 }
 
 
 at::Tensor ti_upsample_trilinear3d_kernel_impl(
     const at::Tensor& input,
-    at::IntArrayRef output_size, 
+    c10::optional<at::IntArrayRef> output_size,
     bool align_corners,
-    c10::optional<double> scales_d = {},
-    c10::optional<double> scales_h = {},
-    c10::optional<double> scales_w = {}) {
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt) {
   if (at::native::canUse32BitIndexMath(input))
-    return ti_upsample_linearNd_kernel_impl<int32_t, 3, scale_t>(
-      input, output_size, align_corners, {scales_d, scales_h, scales_w});
+    return ti_upsample_linearNd_kernel_impl<int32_t, 3>(
+      input, output_size, align_corners, scale_factors);
 
-  return ti_upsample_linearNd_kernel_impl<int64_t, 3, scale_t>(
-    input, output_size, align_corners, {scales_d, scales_h, scales_w});
+  return ti_upsample_linearNd_kernel_impl<int64_t, 3>(
+    input, output_size, align_corners, scale_factors);
 }
