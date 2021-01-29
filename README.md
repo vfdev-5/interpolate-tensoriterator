@@ -57,7 +57,8 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 - [x] Check if we can have 32-bit indices overflow with large input in `ti_compute_indices_weights_linear`
 - [x] Reuse compute_source_index_and_lambda and area_pixel_compute_scale
 - [x] Dispatch indices_weights creation with AT_DISPATCH_FLOATING_TYPES
-
+- [ ] Check index overflow with large output and upsampling
+- [x] Fix code with hard-coded float weights
 
 ### Ideas for the future
 

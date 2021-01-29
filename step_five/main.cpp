@@ -155,21 +155,25 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
     at::set_num_threads(NUM_THREADS);
     std::cout << "Num threads: " << at::get_num_threads() << std::endl;
 
-    assert_consistency_bilinear2d(t_input, -1, dn_osize);
-    assert_consistency_bilinear2d(t_input, -1, dn_osize, true);
-    assert_consistency_bilinear2d(t_input, -1, -1, false, 1.12, 1.23);
-    assert_consistency_bilinear2d(t_input, -1, -1, true, 1.12, 1.23);
-    assert_consistency_bilinear2d(t_input, -1, up_osize);
-    assert_consistency_bilinear2d(t_input, -1, up_osize, true);
-    assert_consistency_bilinear2d(t_input, -1, -1, false, 0.77, 0.88);
-    assert_consistency_bilinear2d(t_input, -1, -1, true, 0.77, 0.88);
+    for (auto dtype: {at::kFloat, at::kDouble}) {
+        auto t_input_double = at::rand({1, isize, isize, 3}, at::CPU(dtype));
+        assert_consistency_bilinear2d(t_input, -1, dn_osize);
+        assert_consistency_bilinear2d(t_input, -1, dn_osize, true);
+        assert_consistency_bilinear2d(t_input, -1, -1, false, 1.12, 1.23);
+        assert_consistency_bilinear2d(t_input, -1, -1, true, 1.12, 1.23);
+        assert_consistency_bilinear2d(t_input, -1, up_osize);
+        assert_consistency_bilinear2d(t_input, -1, up_osize, true);
+        assert_consistency_bilinear2d(t_input, -1, -1, false, 0.77, 0.88);
+        assert_consistency_bilinear2d(t_input, -1, -1, true, 0.77, 0.88);
 
-    auto t_input_channel_last = at::rand({1, isize, isize, 3}, at::CPU(at::kFloat));
-    t_input_channel_last = t_input_channel_last.permute({0, 3, 1, 2});
-    assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 0.77, 0.88);
-    assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 0.77, 0.88);
-    assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 1.23, 1.23);
-    assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 1.23, 1.23);
+        auto t_input_channel_last = at::rand({1, isize, isize, 3}, at::CPU(dtype));
+        t_input_channel_last = t_input_channel_last.permute({0, 3, 1, 2});
+        assert_consistency_bilinear2d(t_input_channel_last, -1, dn_osize, true);
+        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 0.77, 0.88);
+        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 0.77, 0.88);
+        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 1.23, 1.23);
+        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 1.23, 1.23);
+    }
 
     // Time benchmark
     {
