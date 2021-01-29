@@ -53,7 +53,7 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 ### Step 5: Nd simplified
 
 - [x] Fix issue #3
-- [ ] Fix issue #4 -> inspect the sources of precision error
+- [x] Fix issue #4 -> inspect the sources of precision error -> fixed by using compute_source_index_and_lambda/area_pixel_compute_scale
 - [x] Check if we can have 32-bit indices overflow with large input in `ti_compute_indices_weights_linear`
 - [x] Reuse compute_source_index_and_lambda and area_pixel_compute_scale
 - [x] Dispatch indices_weights creation with AT_DISPATCH_FLOATING_TYPES
@@ -693,7 +693,7 @@ o-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -W
 zed -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, US
 E_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON,
 
-        
+
 ---- Benchmark 2D ----    
 
 Input tensor: [1, 3, 320, 320]                                             

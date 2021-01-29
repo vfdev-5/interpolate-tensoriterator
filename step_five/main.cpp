@@ -157,19 +157,19 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
 
     assert_consistency_bilinear2d(t_input, -1, dn_osize);
     assert_consistency_bilinear2d(t_input, -1, dn_osize, true);
-    // BELOW FAILS WITH PRECISION ERROR:
-    // Error: mse=5.45085e-12, max e=2.14428e-05
-    // assert_consistency_bilinear2d(t_input, -1, dn_osize, false, 1.12, 1.23);
-    assert_consistency_bilinear2d(t_input, -1, dn_osize, true, 1.12, 1.23);
+    assert_consistency_bilinear2d(t_input, -1, -1, false, 1.12, 1.23);
+    assert_consistency_bilinear2d(t_input, -1, -1, true, 1.12, 1.23);
     assert_consistency_bilinear2d(t_input, -1, up_osize);
     assert_consistency_bilinear2d(t_input, -1, up_osize, true);
-    // BELOW FAILS WITH PRECISION ERROR:
-    // Error: mse=5.32594e-12, max e=2.05934e-05
-    // assert_consistency_bilinear2d(t_input, -1, up_osize, false, 0.77, 0.88);
-    assert_consistency_bilinear2d(t_input, -1, up_osize, true, 0.77, 0.88);
+    assert_consistency_bilinear2d(t_input, -1, -1, false, 0.77, 0.88);
+    assert_consistency_bilinear2d(t_input, -1, -1, true, 0.77, 0.88);
 
-    auto t_input_channel_last = at::rand({1, 3, isize, isize}, at::CPU(at::kFloat));
-    assert_consistency_bilinear2d(t_input, -1, up_osize, true, 0.77, 0.88);
+    auto t_input_channel_last = at::rand({1, isize, isize, 3}, at::CPU(at::kFloat));
+    t_input_channel_last = t_input_channel_last.permute({0, 3, 1, 2});
+    assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 0.77, 0.88);
+    assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 0.77, 0.88);
+    assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 1.23, 1.23);
+    assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 1.23, 1.23);
 
     // Time benchmark
     {
@@ -332,14 +332,20 @@ int bench_1d(int n, bool full_bench) {
 
     assert_consistency_linear1d(t_input, -1, 256);
     assert_consistency_linear1d(t_input, -1, 256, true);
-    // Error: mse=4.15286e-12, max e=1.49012e-05
-    // assert_consistency_linear1d(t_input, -1, 256, false, 1.12);
-    assert_consistency_linear1d(t_input, -1, 256, true, 1.12);
+    assert_consistency_linear1d(t_input, -1, -1, false, 1.12);
+    assert_consistency_linear1d(t_input, -1, -1, true, 1.12);
     assert_consistency_linear1d(t_input, -1, 512);
     assert_consistency_linear1d(t_input, -1, 512, true);
-    // Error: mse=3.9745e-12, max e=1.46627e-05
-    // assert_consistency_linear1d(t_input, -1, 512, false, 0.77);
-    assert_consistency_linear1d(t_input, -1, 512, true, 0.77);
+    assert_consistency_linear1d(t_input, -1, -1, false, 0.77);
+    assert_consistency_linear1d(t_input, -1, -1, true, 0.77);
+
+    auto t_input_channel_last = at::rand({1, 320, 512}, at::CPU(at::kFloat));
+    t_input_channel_last = t_input_channel_last.permute({0, 2, 1});
+    assert_consistency_linear1d(t_input_channel_last, -1, 256);
+    assert_consistency_linear1d(t_input_channel_last, -1, -1, true, 0.77);
+    assert_consistency_linear1d(t_input_channel_last, -1, -1, false, 0.77);
+    assert_consistency_linear1d(t_input_channel_last, -1, -1, true, 1.23);
+    assert_consistency_linear1d(t_input_channel_last, -1, -1, false, 1.23);
 
     // Time benchmark
     {
@@ -422,12 +428,20 @@ int bench_3d(int n, bool full_bench) {
 
     assert_consistency_trilinear3d(t_input, -1, 256);
     assert_consistency_trilinear3d(t_input, -1, 256, true);
-    assert_consistency_trilinear3d(t_input, -1, 256, false, 1.12);
-    assert_consistency_trilinear3d(t_input, -1, 256, true, 1.12);
+    assert_consistency_trilinear3d(t_input, -1, -1, false, 1.12, 1.12, 1.12);
+    assert_consistency_trilinear3d(t_input, -1, -1, true, 1.12, 1.12, 1.12);
     assert_consistency_trilinear3d(t_input, -1, 512);
     assert_consistency_trilinear3d(t_input, -1, 512, true);
-    assert_consistency_trilinear3d(t_input, -1, 512, false, 0.77);
-    assert_consistency_trilinear3d(t_input, -1, 512, true, 0.77);
+    assert_consistency_trilinear3d(t_input, -1, -1, false, 0.77, 0.77, 0.77);
+    assert_consistency_trilinear3d(t_input, -1, -1, true, 0.77, 0.77, 0.77);
+
+    auto t_input_channel_last = at::rand({1, 3, 16, 320, 320}, at::CPU(at::kFloat));
+    t_input_channel_last = t_input_channel_last.permute({0, 4, 1, 2, 3});
+    assert_consistency_trilinear3d(t_input_channel_last, -1, 256);
+    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 0.77, 0.77, 0.77);
+    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 0.77, 0.77, 0.77);
+    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 1.23, 1.23, 1.23);
+    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 1.23, 1.23, 1.23);
 
     // Time benchmark
     {
@@ -613,7 +627,7 @@ int main(int argc, char** argv)
     auto cv_build_info = cv::getBuildInformation();
     std::cout << cv_build_info.substr(0, 2280) << std::endl;
 #endif
-    
+
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256);
     bench_2d(n, full_bench, 1024, 512);
