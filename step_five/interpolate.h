@@ -6,6 +6,37 @@
 #include <ATen/native/UpSample.h>
 
 
+// Copied from aten/src/ATen/native/cpu/UpSampleMoreKernel.cpp
+// for reuse if goes as a PR in PyTorch
+template<typename scalar_t, typename index_t>
+static inline void compute_source_index_and_lambda(
+    index_t& input_index0,
+    index_t& input_index1,
+    scalar_t& lambda0,
+    scalar_t& lambda1,
+    scalar_t ratio,
+    int64_t output_index,
+    int64_t input_size,
+    int64_t output_size,
+    bool align_corners) {
+  if (output_size == input_size) {
+    // scale_factor = 1, simply copy
+    input_index0 = static_cast<index_t>(output_index);
+    input_index1 = static_cast<index_t>(output_index);
+    lambda0 = static_cast<scalar_t>(1);
+    lambda1 = static_cast<scalar_t>(0);
+  } else {
+    const scalar_t real_input_index = at::native::area_pixel_compute_source_index<scalar_t>(
+        ratio, output_index, align_corners, /*cubic=*/false);
+    input_index0 = static_cast<index_t>(real_input_index);
+    index_t offset = (input_index0 < input_size - 1) ? 1 : 0;
+    input_index1 = input_index0 + offset;
+    lambda1 = real_input_index - static_cast<scalar_t>(input_index0);
+    lambda0 = static_cast<scalar_t>(1.) - lambda1;
+  }
+}
+// End of copied ...
+
 template <typename scalar_t, typename index_t, int step>
 inline void load(scalar_t* dst, scalar_t *src, index_t * index) {
   for (int k = 0; k < step; k++) {
@@ -219,14 +250,7 @@ std::vector<at::Tensor> ti_compute_indices_weights_linear(
   bool align_corners, const c10::optional<double> opt_scale
 ) {
 
-  scalar_t scale;
-  if (align_corners) {
-    scale = static_cast<scalar_t>(input_size - 1) / (output_size - 1);
-  } else {
-    scale = (opt_scale.has_value() && opt_scale.value() > 0.)
-      ? static_cast<scalar_t>(1.0 / opt_scale.value())
-      : (static_cast<scalar_t>(input_size) / output_size);
-  }
+  scalar_t scale = at::native::area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
 
   std::vector<at::Tensor> output;
   auto new_shape = std::vector<int64_t>(ndims, 1);
@@ -247,18 +271,14 @@ std::vector<at::Tensor> ti_compute_indices_weights_linear(
 
   for (index_t i=0; i<output_size; i++) {
 
-    if (align_corners) {
-      xd = i * scale;
-    } else {
-      xd = std::max(((i + 0.5) * scale - 0.5), 0.0);
-    }
-  
-    xl = static_cast<int64_t>(xd);
-    xd -= static_cast<double>(xl);
-    input_index0_ptr[i] = static_cast<index_t>(xl * stride);
-    input_index1_ptr[i] = static_cast<index_t>(std::min(xl + 1, input_size - 1) * stride);
-    lambda1_ptr[i] = static_cast<scalar_t>(xd);
-    lambda0_ptr[i] = static_cast<scalar_t>(1.0 - xd);
+    compute_source_index_and_lambda<scalar_t, index_t>(
+      input_index0_ptr[i], input_index1_ptr[i],
+      lambda0_ptr[i], lambda1_ptr[i],
+      scale, i, input_size, output_size, align_corners
+    );
+    // put stride into indices
+    input_index0_ptr[i] *= stride;
+    input_index1_ptr[i] *= stride;
   }
   return output;
 }
@@ -305,23 +325,24 @@ at::Tensor ti_upsample_linearNd_kernel_impl(
   // Indices and weights are reshaped as (1, 1, ..., N, ..., 1, 1) to
   // fit input/output tensors.
   // Indices are already containing the strides to optimize the computations
+  //
+  // Indices dtype can be int32_t or int64_t depending on canUse32BitIndexMath(input)
+  // which should not overflow because maximum possible value that it could take is the 
+  // product of interpolated input strides: input_size[dim-1] * input_size[dim-2] * ...
+  // which is always smaller then the number of input elements checked by canUse32BitIndexMath
+  // 
+  // TODO: verify with Peter Bell about index overflowing
   std::vector<std::vector<at::Tensor>> indices_weights;
-  // Quick dispatch of weights type: double if input is double and float otherwise
-  if (input.scalar_type() == at::ScalarType::Double) {
-    for (int i=0; i<out_ndims; i++) {
-      indices_weights.emplace_back(
-        ti_compute_indices_weights_linear<index_t, double>(
-          input.size(i + 2), osize[i], input.stride(i + 2), input.dim(), i + 2, align_corners, get_scale_value(scale_factors, i))
-       );
+  AT_DISPATCH_FLOATING_TYPES(
+    input.scalar_type(), "compute_indices_weights_linear", [&] {
+      for (int i=0; i<out_ndims; i++) {
+        indices_weights.emplace_back(
+          ti_compute_indices_weights_linear<index_t, scalar_t>(
+            input.size(i + 2), osize[i], input.stride(i + 2), input.dim(), i + 2, align_corners, get_scale_value(scale_factors, i))
+        );
+      }
     }
-  } else {
-    for (int i=0; i<out_ndims; i++) {
-      indices_weights.emplace_back(
-        ti_compute_indices_weights_linear<index_t, float>(
-          input.size(i + 2), osize[i], input.stride(i + 2), input.dim(), i + 2, align_corners, get_scale_value(scale_factors, i))
-      );
-    }
-  }
+  );
 
   at::TensorIteratorConfig config;
   config.check_all_same_dtype(false)

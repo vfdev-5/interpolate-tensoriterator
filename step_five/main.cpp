@@ -52,6 +52,17 @@ void assert_consistency_bilinear2d(
             << (s_h.has_value() ? *s_h : 0.0) << " "
             << (s_w.has_value() ? *s_w : 0.0) << " "
             << std::endl;
+        auto mask = ref_out != out;
+        int n_err_vals = mask.sum().item<int>();
+        std::cout << "Number of different vals: " << n_err_vals << std::endl;
+        std::cout << "Ref output vs TI output (value and diff):" << std::endl;
+        auto r1 = ref_out.masked_select(mask);
+        auto diff = (ref_out - out).masked_select(mask);
+        auto argmax = diff.argmax();        
+        for (int i=0; i<int(std::min(5, n_err_vals)); i++) {
+            std::cout << "\t" << r1[i].item<double>() << ", diff=" << diff[i].item<double>() << std::endl;
+        }
+        std::cout << "\t" << r1[argmax].item<double>() << ", diff=" << diff[argmax].item<double>() << std::endl;
         assert(false);
     }
 }
@@ -155,6 +166,9 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
     // BELOW FAILS WITH PRECISION ERROR:
     // Error: mse=5.32594e-12, max e=2.05934e-05
     // assert_consistency_bilinear2d(t_input, -1, up_osize, false, 0.77, 0.88);
+    assert_consistency_bilinear2d(t_input, -1, up_osize, true, 0.77, 0.88);
+
+    auto t_input_channel_last = at::rand({1, 3, isize, isize}, at::CPU(at::kFloat));
     assert_consistency_bilinear2d(t_input, -1, up_osize, true, 0.77, 0.88);
 
     // Time benchmark
@@ -578,6 +592,8 @@ int main(int argc, char** argv)
     auto n = 7500;
     bool full_bench = false;
     bool test_all_dims = false;
+
+    at::manual_seed(10);
 
     if (argc >= 2)
     {        

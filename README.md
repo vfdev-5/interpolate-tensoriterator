@@ -53,8 +53,18 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 ### Step 5: Nd simplified
 
 - [x] Fix issue #3
-- [ ] Fix issue #4
-- [ ] Check if we can have 32-bit indices overflow with large input in `ti_compute_indices_weights_linear`
+- [ ] Fix issue #4 -> inspect the sources of precision error
+- [x] Check if we can have 32-bit indices overflow with large input in `ti_compute_indices_weights_linear`
+- [x] Reuse compute_source_index_and_lambda and area_pixel_compute_scale
+- [x] Dispatch indices_weights creation with AT_DISPATCH_FLOATING_TYPES
+
+
+### Ideas for the future
+
+- Add a structure to store (idx_ptrs, weights_ptrs, src_offset) to refactor the code and simplify things:
+  - interp<...>(..., structure); structre.next()
+- Make the code generic about nearest/linear/cubic interpolation by templating the mode by a number: e.g. 1, 2, 3
+
 
 ## Questions
 
@@ -668,100 +678,41 @@ Results
 </summary>
 
 
-#### Result 1:
-
-```
-Torch config: PyTorch built with:                                       
-  - GCC 9.3
-  - C++ Version: 201402                                                
-  - OpenMP 201511 (a.k.a. OpenMP 4.5)
-  - CPU capability usage: AVX2
-  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibil
-ity-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-fiel
-d-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function
--Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-ps
-abi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-m
-aybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1
-, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF
-, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON, 
-
----- Benchmark 2D ----
-
-Input tensor: [1, 3, 320, 320]
-Num threads: 6
-
-- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.319176
-
-- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0604155
-
-Input tensor: [1, 3, 1024, 1024]
-Num threads: 6
-
-- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 512x512
-Elapsed time (ms): 1.28418
-
-- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 512x512
-Elapsed time (ms): 0.227481
-
-
----- Benchmark 1D ----
-
-Input tensor: [4, 512, 320]
-Num threads: 6
-
-- Bench upsample_linear1d_cpu (7500 rounds) - downsampling to 256
-Elapsed time (ms): 0.287417
-
-- Bench ti_upsample_linear1d_cpu (7500 rounds) - downsampling to 256
-Elapsed time (ms): 0.107146
-
-
----- Benchmark 3D ----
-
-Input tensor: [1, 3, 16, 320, 320]
-Num threads: 6
-
-- Check consistency (upsampling to 512):
-- Bench upsample_trilinear3d_cpu (750 rounds) - downsampling to 256
-Elapsed time (ms): 4.50262
-
-- Bench ti_upsample_trilinear3d_kernel_impl (750 rounds) - downsampling to 256
-Elapsed time (ms): 0.995911
-```
-
-#### Result 2:
+#### Result:
 
 ```
 Torch config: PyTorch built with:
-  - GCC 9.3
+  - GCC 9.3                       
   - C++ Version: 201402
   - OpenMP 201511 (a.k.a. OpenMP 4.5)
-  - CPU capability usage: AVX2
-  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON, 
+  - CPU capability usage: AVX2                                               
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fope
+nmp -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-com
+pare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wn
+o-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitiali
+zed -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, US
+E_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON,
 
+        
+---- Benchmark 2D ----    
 
+Input tensor: [1, 3, 320, 320]                                             
+Num threads: 6             
 
----- Benchmark 2D ----
+- Bench upsample_bilinear2d_cpu (10000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.319714
 
-Input tensor: [1, 3, 320, 320]
-Num threads: 6
+- Bench ti_upsample_bilinear2d_cpu (10000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0637279
 
-- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.326288
+Input tensor: [1, 3, 1024, 1024]                                  
+Num threads: 6             
 
-- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0639761
+- Bench upsample_bilinear2d_cpu (10000 rounds) - downsampling to 512x512
+Elapsed time (ms): 1.28923 
 
-Input tensor: [1, 3, 1024, 1024]
-Num threads: 6
-
-- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 512x512
-Elapsed time (ms): 1.30753
-
-- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 512x512
-Elapsed time (ms): 0.237652
+- Bench ti_upsample_bilinear2d_cpu (10000 rounds) - downsampling to 512x512
+Elapsed time (ms): 0.231808
 
 
 ---- Benchmark 1D ----
@@ -769,11 +720,11 @@ Elapsed time (ms): 0.237652
 Input tensor: [4, 512, 320]
 Num threads: 6
 
-- Bench upsample_linear1d_cpu (7500 rounds) - downsampling to 256
-Elapsed time (ms): 0.297515
+- Bench upsample_linear1d_cpu (10000 rounds) - downsampling to 256
+Elapsed time (ms): 0.289338
 
-- Bench ti_upsample_linear1d_cpu (7500 rounds) - downsampling to 256
-Elapsed time (ms): 0.109508
+- Bench ti_upsample_linear1d_cpu (10000 rounds) - downsampling to 256
+Elapsed time (ms): 0.108713
 
 
 ---- Benchmark 3D ----
@@ -781,11 +732,11 @@ Elapsed time (ms): 0.109508
 Input tensor: [1, 3, 16, 320, 320]
 Num threads: 6
 
-- Bench upsample_trilinear3d_cpu (750 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 4.54055
+- Bench upsample_trilinear3d_cpu (1000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 4.70384
 
-- Bench ti_upsample_trilinear3d_kernel_impl (750 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 1.01995
+- Bench ti_upsample_trilinear3d_kernel_impl (1000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 1.10881
 ```
 
 </details>
