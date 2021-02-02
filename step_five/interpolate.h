@@ -221,8 +221,9 @@ void ti_cpu_upsample_linear(at::TensorIterator& iter) {
       }
     }
     
-    index_t i = 0;
-    for (; i < n - (n % step); i += step) {
+    int64_t i = 0;
+    int64_t n_step = n - (n % step);
+    for (; i < n_step; i += step) {
       interp<out_ndims, scalar_t, index_t, step>(dst + i, buffer, src_offset, idx_ptrs, weights_ptrs);
       // Here we advance only on the last dimension (i.e. dim -1)
       idx_ptrs[0] += step;
@@ -267,8 +268,8 @@ std::vector<at::Tensor> ti_compute_indices_weights_linear(
 
   double xd;
   int64_t xl;
-
-  for (index_t i=0; i<output_size; i++) {
+  
+  for (int64_t i=0; i<output_size; i++) {
 
     compute_source_index_and_lambda<scalar_t, index_t>(
       input_index0_ptr[i], input_index1_ptr[i],
@@ -276,6 +277,9 @@ std::vector<at::Tensor> ti_compute_indices_weights_linear(
       scale, i, input_size, output_size, align_corners
     );
     // put stride into indices
+    // index values correspond to input indices (0, 1, 2, 3, ...)
+    // when multiplied by input stride, maximum possible value
+    // input_size[dim-1] * input_size[dim-2] * ... for the given dimension.
     input_index0_ptr[i] *= stride;
     input_index1_ptr[i] *= stride;
   }

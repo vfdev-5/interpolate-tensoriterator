@@ -626,6 +626,29 @@ int main(int argc, char** argv)
 
     std::cout << "Torch config: " << at::show_config() << std::endl;
 
+#if 0
+    {
+        std::cout << "--- Test very large sizes: 32x32 -> 2**28 x 16 ---" << std::endl;
+        auto input = at::rand({1, 1, 32, 32});
+        int64_t osizes[2] = {int64_t(pow(2, 28)), 16};
+        c10::optional<at::IntArrayRef> output_size = osizes;
+        c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
+
+        std::cout << "- ti_upsample_bilinear2d_kernel_impl" << std::endl;
+        auto out = ti_upsample_bilinear2d_kernel_impl(input, output_size, false, scale_factors);
+        std::cout << "- at::native::upsample_bilinear2d_cpu" << std::endl;
+        auto ref_out = at::native::upsample_bilinear2d_cpu(input, output_size, false, scale_factors);
+
+        if (!ref_out.allclose(out)){
+            auto mse = (ref_out - out).pow(2.0).mean();
+            auto max_e = (ref_out - out).view(-1).abs().max();
+            std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
+            assert(false);
+        }
+        return 1;
+    }
+#endif
+
 #ifdef WITH_OPENCV
     cv::setNumThreads(NUM_THREADS);
     auto cv_build_info = cv::getBuildInformation();

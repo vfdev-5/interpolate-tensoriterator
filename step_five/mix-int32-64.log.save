@@ -1,0 +1,45 @@
+Input can be 32bit and use 32b indexing
+
+---- Benchmark 2D ----                                                                                                                                                                 
+                                                                                                                                                                                       
+Input tensor: [1, 3, 320, 320]                                                                                                                                                         
+Num threads: 6                                                                                                                                                                         
+                                                                                                                                                                                       
+- Bench upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256                                                                                                               
+Elapsed time (ms): 0.314732                                                                                                                                                            
+                                                                                                                                                                                       
+- Bench ti_upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256                                                                                                            
+Elapsed time (ms): 0.0596338                                                                                                                                                           
+                                                                                                                                                                                       
+Input tensor: [1, 3, 1024, 1024]                                                                                                                                                       
+Num threads: 6                                                                                                                                                                         
+                                                                                                                                                                                       
+- Bench upsample_bilinear2d_cpu (20000 rounds) - downsampling to 512x512                                                                                                               
+Elapsed time (ms): 1.27903                                                                                                                                                             
+                                                                                                                                                                                       
+- Bench ti_upsample_bilinear2d_cpu (20000 rounds) - downsampling to 512x512                                                                                                            
+Elapsed time (ms): 0.222866                                                                                                                                                            
+                                                                                                                                                                                       
+                                                                                                                                                                                       
+---- Benchmark 1D ----                                                                                                                                                                 
+                                             
+Input tensor: [4, 512, 320]
+Num threads: 6
+
+- Bench upsample_linear1d_cpu (20000 rounds) - downsampling to 256
+Elapsed time (ms): 0.283975
+                              
+- Bench ti_upsample_linear1d_cpu (20000 rounds) - downsampling to 256
+Elapsed time (ms): 0.10653
+                                                                        
+                           
+---- Benchmark 3D ----
+                                                                           
+Input tensor: [1, 3, 16, 320, 320]
+Num threads: 6
+                                
+- Bench upsample_trilinear3d_cpu (2000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 4.48612
+                                                                        
+- Bench ti_upsample_trilinear3d_kernel_impl (2000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 0.993763
