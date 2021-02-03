@@ -1,0 +1,114 @@
+######### PYTORCH BUILD VERSION:
+
+__version__ = '1.8.0a0+8c5b024'
+debug = False
+cuda = '11.1'
+git_version = '8c5b0247a571aa672f9070fcc9769f2c4bb19571'
+hip = None
+
+
+Torch config: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON, 
+
+
+######### THIS PR PYTORCH BUILD VERSION:
+
+__version__ = '1.8.0a0+02d5f06'
+debug = False
+cuda = '11.1'
+git_version = '02d5f0620ef1421de91ee58da2fed7f807c65fa3'
+hip = None
+
+Torch config: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=ON, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON, 
+
+#########
+
+
+---- Benchmark 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.315851
+
+- Bench PR upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0673334
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.24609
+
+- Bench PR upsample_bilinear2d_cpu (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.206797
+
+2 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 0
+Input is_contiguous : 1
+
+- Bench upsample_bilinear2d_cpu (2000 rounds) - upsampling to 128x128
+Elapsed time (ms): 84.1707
+
+- Bench PR upsample_bilinear2d_cpu (2000 rounds) - upsampling to 128x128
+Elapsed time (ms): 48.1223
+
+Input tensor: [1, 3, 500, 500]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.31511
+
+- Bench PR upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0681711
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - upsampling to 800x800
+Elapsed time (ms): 3.47092
+
+- Bench PR upsample_bilinear2d_cpu (20000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.470407
+
+
+---- Benchmark 1D ----
+
+Input tensor: [4, 512, 320]
+Num threads: 6
+
+- Bench upsample_linear1d_cpu (20000 rounds) - downsampling to 256
+Elapsed time (ms): 0.284004
+
+- Bench PR upsample_linear1d_cpu (20000 rounds) - downsampling to 256
+Elapsed time (ms): 0.107605
+
+- Bench upsample_linear1d_cpu (20000 rounds) - upsampling to 512
+Elapsed time (ms): 0.561069
+
+- Bench PR upsample_linear1d_cpu (20000 rounds) - upsampling to 512
+Elapsed time (ms): 0.200196
+
+
+---- Benchmark 3D ----
+
+Input tensor: [1, 3, 16, 320, 320]
+Num threads: 6
+
+- Bench upsample_trilinear3d_cpu (2000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 4.48558
+
+- Bench PR upsample_trilinear3d_kernel_impl (2000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 1.01207
+
+- Bench upsample_trilinear3d_cpu (2000 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 84.2958
+
+- Bench PR upsample_trilinear3d_kernel_impl (2000 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 24.2123

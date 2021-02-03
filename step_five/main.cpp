@@ -213,9 +213,6 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
         std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
-    if (!full_bench)
-        return 1;
-
     {
         int64_t osizes[2] = {up_osize, up_osize};
         IntArrayRef output_size(osizes);
@@ -247,6 +244,9 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
         std::chrono::duration<double> elapsed_seconds = end - start;
         std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
+
+    if (!full_bench)
+        return 1;
 
     // ---- benchmark test size as in https://github.com/mingfeima/op_bench-py
     n = n / 10;
@@ -664,15 +664,15 @@ int main(int argc, char** argv)
 #endif
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
-    bench_2d(n, full_bench, 320, 256);
-    bench_2d(n, full_bench, 1024, 512);
+    bench_2d(n, full_bench, 320, 256, 512);
+    bench_2d(n, false, 500, 256, 800);
 
 #ifdef WITH_OPENCV
     std::cout << "\n\n---- Benchmark OpenCV 2D ----" << std::endl;
-    bench_opencv_2d(n, full_bench, 320, 256);
-    bench_opencv_2d_uint8(n, full_bench, 320, 256);
-    bench_opencv_2d(n, full_bench, 1024, 512);
-    bench_opencv_2d_uint8(n, full_bench, 1024, 512);
+    bench_opencv_2d(n, full_bench, 320, 256, 512);
+    bench_opencv_2d_uint8(n, full_bench, 320, 256, 512);
+    bench_opencv_2d(n, full_bench, 500, 256, 800);
+    bench_opencv_2d_uint8(n, full_bench, 500, 256, 800);
 
 #endif
 
