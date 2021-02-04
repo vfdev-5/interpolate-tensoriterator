@@ -663,6 +663,8 @@ int main(int argc, char** argv)
     std::cout << cv_build_info.substr(0, 2280) << std::endl;
 #endif
 
+    assert_consistency_linear1d(at::ones({1, 1, 2, 2}), -1, 1);
+
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256, 512);
     bench_2d(n, false, 500, 256, 800);

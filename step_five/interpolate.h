@@ -163,7 +163,8 @@ inline void assert_strides_linear(const int64_t* strides) {
 // Linear upsampling computation method using TensorIterator for Nd case.
 // 
 // Assumptions:
-// - input and output are of shape (B, C, D1, D2, D3, ..., DN) and
+// - input and output are of shape (B, C, D1, D2, D3, ..., DN)
+// - channel first is the only supported memory format
 // - upsampling is computed on D_i axes.
 // - zero strides for construced indices and weights on dims D1, D2, ..., DN-1
 // - zero stride for input source (as it is restrided)
