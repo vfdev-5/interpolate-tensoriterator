@@ -255,6 +255,34 @@ void ti_cpu_upsample_linear(TensorIterator& iter) {
   iter.for_each(loop);
 }
 
+
+template <typename scalar_t, typename index_t>
+void ti_cpu_upsample_linear2(at::TensorIterator& iter)
+{
+  auto loop = [&](char** data, const int64_t* strides, int64_t n) {
+    char* dst = data[0];
+    char* src = data[1];
+
+    for (int64_t i = 0; i < n; i++) {
+      index_t iy0 = *(index_t*)&data[2][i * strides[2]]; // * sizeof(scalar_t);
+      index_t iy1 = *(index_t*)&data[4][i * strides[4]]; // * sizeof(scalar_t);
+      index_t ix0 = *(index_t*)&data[6][i * strides[6]]; // * sizeof(scalar_t);
+      index_t ix1 = *(index_t*)&data[8][i * strides[8]]; // * sizeof(scalar_t);
+      scalar_t wy0 = *(scalar_t *)&data[3][i * strides[3]];
+      scalar_t wy1 = *(scalar_t *)&data[5][i * strides[5]];
+      scalar_t wx0 = *(scalar_t *)&data[7][i * strides[7]];
+      scalar_t wx1 = *(scalar_t *)&data[9][i * strides[9]];
+      scalar_t x11 = *(scalar_t *)&src[i * strides[1] + ix0 + iy0];
+      scalar_t x12 = *(scalar_t *)&src[i * strides[1] + ix1 + iy0];
+      scalar_t x21 = *(scalar_t *)&src[i * strides[1] + ix0 + iy1];
+      scalar_t x22 = *(scalar_t *)&src[i * strides[1] + ix1 + iy1];
+      *(scalar_t*)&dst[i * strides[0]] = wy0 * (wx0 * x11 + wx1 * x12) + wy1 * (wx0 * x21 + wx1 * x22);
+    }
+  };
+  iter.for_each(loop);
+  //iter.serial_for_each(loop, {0, iter.numel()});
+}
+
 template<typename index_t, typename scalar_t>
 std::vector<Tensor> ti_compute_indices_weights_linear(
   int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
@@ -343,7 +371,8 @@ Tensor ti_upsample_linearNd_kernel_impl(
       for (int i=0; i<out_ndims; i++) {
         indices_weights.emplace_back(
           ti_compute_indices_weights_linear<index_t, scalar_t>(
-            input.size(i + 2), oshape[i + 2], input.stride(i + 2), input.dim(), i + 2, align_corners, scales[i])
+            input.size(i + 2), oshape[i + 2], input.stride(i + 2) * input.element_size(), input.dim(), i + 2, align_corners, scales[i])
+            //input.size(i + 2), oshape[i + 2], input.stride(i + 2), input.dim(), i + 2, align_corners, scales[i])
         );
       }
     }
@@ -365,7 +394,8 @@ Tensor ti_upsample_linearNd_kernel_impl(
 
   AT_DISPATCH_FLOATING_TYPES(
       iter.dtype(), "upsample_linearNd", [&] {
-      ti_cpu_upsample_linear<scalar_t, index_t, out_ndims>(iter);
+      //ti_cpu_upsample_linear<scalar_t, index_t, out_ndims>(iter);
+      ti_cpu_upsample_linear2<scalar_t, index_t>(iter);
   });
 
   return iter.output();
