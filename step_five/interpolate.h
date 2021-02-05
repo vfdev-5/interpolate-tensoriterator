@@ -86,7 +86,7 @@ inline void compute_linear(scalar_t* dst, scalar_t * src1, scalar_t* src2, scala
 // - use buffers (buf) to prefetch source data.
 // - recursively compute interpolated output for each dimension
 //
-// for example for 2d:
+// for example for 2D:
 // 
 // source[0, 0] -> buffer[0]
 // source[0, 1] -> buffer[1]
@@ -98,6 +98,10 @@ inline void compute_linear(scalar_t* dst, scalar_t * src1, scalar_t* src2, scala
 // 
 // interpolate(buffer[2], weight10, buffer[3], weight11) -> output
 //
+// We have 2^out_ndims of buffers, each buffer has size of step.
+// e.g. for 1D case: out_ndims=1 -> 2 buffers
+// e.g. for 2D case: out_ndims=2 -> 4 buffers
+// e.g. for 3D case: out_ndims=3 -> 8 buffers
 template <int n, typename scalar_t, typename index_t, int step>
 struct Interp {
     static inline void eval(scalar_t* out, scalar_t* buf, scalar_t* src[], index_t* idx[], scalar_t* w[]) {
@@ -106,8 +110,8 @@ struct Interp {
         constexpr int is = i * step;
         constexpr int js = j * step;
         constexpr int half = 1 << (n - 2);
-        Interp<n - 1, scalar_t, index_t, step>::eval(&buf[is], buf, &src[0], idx, &w[2]);        
-        Interp<n - 1, scalar_t, index_t, step>::eval(&buf[js], buf, &src[half], idx, &w[2]); 
+        Interp<n - 1, scalar_t, index_t, step>::eval(&buf[is], buf, &src[0], idx, &w[2]);
+        Interp<n - 1, scalar_t, index_t, step>::eval(&buf[js], buf, &src[half], idx, &w[2]);
         compute_linear<scalar_t, step>(out, &buf[is], &buf[js], w[0][0], w[1][0]);
     }
 };
@@ -127,6 +131,33 @@ template <int n, typename scalar_t, typename index_t, int step>
 static inline void interp(scalar_t* out, scalar_t* buf, scalar_t* src[], index_t* idx[], scalar_t* w[]) {
   Interp<n, scalar_t, index_t, step>::eval(out, buf, src, idx, w);
 }
+
+
+// template <typename scalar_t, typename index_t, int out_ndims, int step>
+// struct Interpolator {
+
+//   Interpolator(char * data) {
+
+//     scalar_t * src = (scalar_t *) data[0];
+
+
+//   }
+
+//   inline void interp(scalar_t* out) {
+
+//   }
+
+//   inline void next() {
+
+//   }
+
+//   static constexpr int p2_size = 1 << (out_ndims - 1);
+//   index_t * moving_idx_ptrs[2];
+//   scalar_t * weights_ptrs[2 * out_ndims];
+//   scalar_t * src_offset[p2_size];
+//   scalar_t buffer[p2_size * step];
+
+// };
 
 
 template <typename scalar_t, typename index_t, int out_ndims>
@@ -200,7 +231,7 @@ void ti_cpu_upsample_linear(TensorIterator& iter) {
     constexpr int p2_size = 1 << (out_ndims - 1);
 
     // temporary buffer for src values
-    scalar_t buffer[p2_size * step];
+    scalar_t buffer[2 * p2_size * step];
 
     // placeholder for pointers on indices for iterated dimension (e.g. -1)
     index_t * idx_ptrs[2];
@@ -209,7 +240,11 @@ void ti_cpu_upsample_linear(TensorIterator& iter) {
     // placeholder src pointer with all possible constant offsets added
     scalar_t * src_offset[p2_size];
     {
-      index_t * constval_idx_ptrs[2 * (out_ndims - 1)];
+      // if out_ndims == 1, we do not need to allocate constval_idx_ptrs
+      // however, it is reasonably impossible to allocate an array of constant size 0 on Windows
+      // let's add 1 additional unused entries.
+      constexpr int n = (out_ndims > 1) ? 2 * (out_ndims - 1) : 1;
+      index_t * constval_idx_ptrs[n];
       int i = 0;
       for (; i<out_ndims - 1; i++) {
         constval_idx_ptrs[2 * i + 0] = (index_t *) data[4 * i + 0 + 2];
@@ -243,7 +278,7 @@ void ti_cpu_upsample_linear(TensorIterator& iter) {
       weights_ptrs[2 * (out_ndims - 1) + 0] += step;
       weights_ptrs[2 * (out_ndims - 1) + 1] += step;
     }    
-    for (; i < n; i++) {            
+    for (; i < n; i++) {
       interp<out_ndims, scalar_t, index_t, 1>(dst + i, buffer, src_offset, idx_ptrs, weights_ptrs);
       idx_ptrs[0] += 1;
       idx_ptrs[1] += 1;

@@ -663,7 +663,14 @@ int main(int argc, char** argv)
     std::cout << cv_build_info.substr(0, 2280) << std::endl;
 #endif
 
-    assert_consistency_linear1d(at::ones({1, 1, 2, 2}), -1, 1);
+    // 1D, NCL, L == 1 | {1, 4, 32} -> {1, 4, 1}
+    // BELOW IS FAILING
+    // assert_consistency_linear1d(at::ones({1, 4, 32}), -1, 1);
+
+    // FOR ASAN QUICK CHECK
+    assert_consistency_linear1d(at::ones({1, 32, 320}), -1, 256);
+    assert_consistency_bilinear2d(at::ones({1, 3, 320, 320}), -1, 256);
+    assert_consistency_trilinear3d(at::ones({1, 3, 16, 320, 320}), -1, 256);
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256, 512);

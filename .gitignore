@@ -3,6 +3,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,python
 
 new_build
+asan_build
 
 ### C++ ###
 # Prerequisites
