@@ -295,12 +295,24 @@ void ti_cpu_upsample_linear2(at::TensorIterator& iter)
     char* dst = data[0];
     char* src = data[1];
 
-    for (int64_t i = 0; i < n; i++) {
-      *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(src + i * strides[1], &data[2], &strides[2], i);
+    if((strides[2] == 0) && (strides[3] == 0) && (strides[4] == 0) && (strides[5] == 0)) {
+      for (int64_t i = 0; i < n; i++) {
+        *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+            src + i * strides[1], &data[2], &strides[2], i);
+      }
+    } else if((strides[6] == 0) && (strides[7] == 0) && (strides[8] == 0) && (strides[9] == 0)) {
+      for (int64_t i = 0; i < n; i++) {
+        *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+            src + i * strides[1], &data[2], &strides[2], i);
+      }
+    } else {
+      for (int64_t i = 0; i < n; i++) {
+        *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+            src + i * strides[1], &data[2], &strides[2], i);
+      }
     }
   };
   iter.for_each(loop);
-  //iter.serial_for_each(loop, {0, iter.numel()});
 }
 
 
