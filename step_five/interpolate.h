@@ -292,24 +292,31 @@ static inline bool is_zero_stride(const int64_t* strides) {
   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
 }
 
+template <typename scalar_t, typename index_t>
+static inline bool is_contiguous_stride(const int64_t* strides) {
+  return (strides[0] == sizeof(index_t)) && (strides[1] == sizeof(scalar_t)) &&
+         (strides[2] == sizeof(index_t)) && (strides[3] == sizeof(scalar_t));
+}
+
 // TODO: semantics are a bit weird maybe?
-template <int N, int s=-1>
+template <int N, int s, typename scalar_t, typename index_t>
 struct IsAllZeroStride {
   static inline bool eval(const int64_t* strides) {
-    return (N == s ? true : is_zero_stride(strides)) && IsAllZeroStride<N - 1, s>::eval(&strides[4]);
+    return (N == s ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides)) &&
+            IsAllZeroStride<N - 1, s, scalar_t, index_t>::eval(&strides[4]);
   }
 };
 
-template <int s>
-struct IsAllZeroStride<1, s> {
+template <int s, typename scalar_t, typename index_t>
+struct IsAllZeroStride<1, s, scalar_t, index_t> {
   static inline bool eval(const int64_t* strides) {
-    return (s == 1 ? true : is_zero_stride(strides));
+    return (s == 1 ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides));
   }
 };
 
-template <int n, int s>
+template <int n, int s, typename scalar_t, typename index_t>
 static inline bool is_all_zero_stride(const int64_t* strides) {
-  return IsAllZeroStride<n, s>::eval(strides);
+  return IsAllZeroStride<n, s, scalar_t, index_t>::eval(strides);
 }
 
 template <size_t N, typename cb_t>
@@ -354,9 +361,11 @@ template <typename scalar_t, typename index_t, int out_ndims>
 void ti_cpu_upsample_linear2(at::TensorIterator& iter)
 {
   auto loop = [&](char** data, const int64_t* strides, int64_t n) {
-    if ((strides[1] == 0) && is_all_zero_stride<out_ndims, 1>(&strides[2])) {
+    if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
+        is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
-    } else if ((strides[1] == sizeof(scalar_t)) && is_all_zero_stride<out_ndims, -1>(&strides[2])) {
+    } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
+               is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     } else {
       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
