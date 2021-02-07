@@ -288,29 +288,88 @@ static inline scalar_t interp_linear(char* src, char** data, const int64_t* stri
   return InterpLinear<n, scalar_t, index_t>::eval(src, data, strides, i);
 }
 
+static inline bool is_zero_stride(const int64_t* strides) {
+  return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+}
+
+// TODO: semantics are a bit weird maybe?
+template <int N, int s=-1>
+struct IsAllZeroStride {
+  static inline bool eval(const int64_t* strides) {
+    return (N == s ? true : is_zero_stride(strides)) && IsAllZeroStride<N - 1, s>::eval(&strides[4]);
+  }
+};
+
+template <int s>
+struct IsAllZeroStride<1, s> {
+  static inline bool eval(const int64_t* strides) {
+    return (s == 1 ? true : is_zero_stride(strides));
+  }
+};
+
+template <int n, int s>
+static inline bool is_all_zero_stride(const int64_t* strides) {
+  return IsAllZeroStride<n, s>::eval(strides);
+}
+
+template <size_t N, typename cb_t>
+struct UnrollZeroStrideChecks {
+  static inline void eval(const int64_t* strides, cb_t&& cb) {
+    if (is_zero_stride(strides)) {
+      cb();
+    } else {
+      UnrollZeroStrideChecks<N - 1, cb_t>::eval(&strides[4], std::forward<cb_t>(cb));
+    }
+  }
+};
+
+template <typename cb_t>
+struct UnrollZeroStrideChecks<1, cb_t> {
+  static inline void eval(const int64_t* strides, cb_t&& cb) {
+    if (is_zero_stride(strides)) {
+      cb();
+    } else {
+      cb();
+    }
+  }
+};
+
+template <size_t N, typename cb_t>
+static inline void unroll_zero_stride_checks(const int64_t* strides, cb_t&& cb) {
+  UnrollZeroStrideChecks<N, cb_t>::eval(strides, std::forward<cb_t>(cb));
+}
+
+template <typename scalar_t, typename index_t, int out_ndims>
+static inline void
+basic_loop(char** data, const int64_t* strides, int64_t n) {
+  char* dst = data[0];
+  char* src = data[1];
+  for (int64_t i = 0; i < n; i++) {
+    *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+        src + i * strides[1], &data[2], &strides[2], i);
+  }
+}
+
 template <typename scalar_t, typename index_t, int out_ndims>
 void ti_cpu_upsample_linear2(at::TensorIterator& iter)
 {
   auto loop = [&](char** data, const int64_t* strides, int64_t n) {
-    char* dst = data[0];
-    char* src = data[1];
-
-    if((strides[2] == 0) && (strides[3] == 0) && (strides[4] == 0) && (strides[5] == 0)) {
-      for (int64_t i = 0; i < n; i++) {
-        *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
-            src + i * strides[1], &data[2], &strides[2], i);
-      }
-    } else if((strides[6] == 0) && (strides[7] == 0) && (strides[8] == 0) && (strides[9] == 0)) {
-      for (int64_t i = 0; i < n; i++) {
-        *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
-            src + i * strides[1], &data[2], &strides[2], i);
-      }
+    if ((strides[1] == 0) && is_all_zero_stride<out_ndims, 1>(&strides[2])) {
+      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+    } else if ((strides[1] == sizeof(scalar_t)) && is_all_zero_stride<out_ndims, -1>(&strides[2])) {
+      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     } else {
-      for (int64_t i = 0; i < n; i++) {
-        *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
-            src + i * strides[1], &data[2], &strides[2], i);
-      }
+      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     }
+#if 0
+    if (is_all_zero_stride(&strides[2], out_ndims)) {
+      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+    } else{
+      unroll_zero_stride_checks<out_ndims>(&strides[2], [&](){
+          basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+      });
+    }
+#endif
   };
   iter.for_each(loop);
 }
