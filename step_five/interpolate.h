@@ -298,7 +298,7 @@ static inline bool is_contiguous_stride(const int64_t* strides) {
          (strides[2] == sizeof(index_t)) && (strides[3] == sizeof(scalar_t));
 }
 
-// TODO: semantics are a bit weird maybe?
+// TODO: semantics of s are a bit weird maybe?
 template <int N, int s, typename scalar_t, typename index_t>
 struct IsAllZeroStride {
   static inline bool eval(const int64_t* strides) {
@@ -319,33 +319,6 @@ static inline bool is_all_zero_stride(const int64_t* strides) {
   return IsAllZeroStride<n, s, scalar_t, index_t>::eval(strides);
 }
 
-template <size_t N, typename cb_t>
-struct UnrollZeroStrideChecks {
-  static inline void eval(const int64_t* strides, cb_t&& cb) {
-    if (is_zero_stride(strides)) {
-      cb();
-    } else {
-      UnrollZeroStrideChecks<N - 1, cb_t>::eval(&strides[4], std::forward<cb_t>(cb));
-    }
-  }
-};
-
-template <typename cb_t>
-struct UnrollZeroStrideChecks<1, cb_t> {
-  static inline void eval(const int64_t* strides, cb_t&& cb) {
-    if (is_zero_stride(strides)) {
-      cb();
-    } else {
-      cb();
-    }
-  }
-};
-
-template <size_t N, typename cb_t>
-static inline void unroll_zero_stride_checks(const int64_t* strides, cb_t&& cb) {
-  UnrollZeroStrideChecks<N, cb_t>::eval(strides, std::forward<cb_t>(cb));
-}
-
 template <typename scalar_t, typename index_t, int out_ndims>
 static inline void
 basic_loop(char** data, const int64_t* strides, int64_t n) {
@@ -363,22 +336,16 @@ void ti_cpu_upsample_linear2(at::TensorIterator& iter)
   auto loop = [&](char** data, const int64_t* strides, int64_t n) {
     if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
         is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
+      // contiguous channels-first case
       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
                is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
+      // contiguous channels-last case
       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     } else {
+      // fallback
       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     }
-#if 0
-    if (is_all_zero_stride(&strides[2], out_ndims)) {
-      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
-    } else{
-      unroll_zero_stride_checks<out_ndims>(&strides[2], [&](){
-          basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
-      });
-    }
-#endif
   };
   iter.for_each(loop);
 }
@@ -473,7 +440,6 @@ Tensor ti_upsample_linearNd_kernel_impl(
         indices_weights.emplace_back(
           ti_compute_indices_weights_linear<index_t, scalar_t>(
             input.size(i + 2), oshape[i + 2], input.stride(i + 2) * input.element_size(), input.dim(), i + 2, align_corners, scales[i])
-            //input.size(i + 2), oshape[i + 2], input.stride(i + 2), input.dim(), i + 2, align_corners, scales[i])
         );
       }
     }
