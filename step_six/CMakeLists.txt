@@ -7,12 +7,7 @@ else()
   message("Found TORCH_DIR:${TORCH_DIR}")
 endif()
 
-if (WITH_ASAN)  
-  message("With ASAN support")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -static-libsan")
-else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mavx -mfma -mavx2")
-endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O3 -mavx -mfma -mavx2")
 
 include_directories(${TORCH_DIR}/include ${TORCH_DIR}/include/torch/csrc/api/include)
 set(TORCH_LIBRARIES 

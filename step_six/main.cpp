@@ -251,7 +251,7 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
     // ---- benchmark test size as in https://github.com/mingfeima/op_bench-py
     n = n / 10;
 
-#if 0 // DO NOT SUPPORT INPUT CHANNEL_LAST -> OUTPUT CHANNEL_LAST
+#if 1 // DO NOT SUPPORT INPUT CHANNEL_LAST -> OUTPUT CHANNEL_LAST
     {
         int64_t osizes[2] = {128, 128};
         IntArrayRef output_size(osizes);
@@ -662,15 +662,6 @@ int main(int argc, char** argv)
     auto cv_build_info = cv::getBuildInformation();
     std::cout << cv_build_info.substr(0, 2280) << std::endl;
 #endif
-
-    // 1D, NCL, L == 1 | {1, 4, 32} -> {1, 4, 1}
-    // BELOW IS FAILING
-    // assert_consistency_linear1d(at::ones({1, 4, 32}), -1, 1);
-
-    // FOR ASAN QUICK CHECK
-    assert_consistency_linear1d(at::ones({1, 32, 320}), -1, 256);
-    assert_consistency_bilinear2d(at::ones({1, 3, 320, 320}), -1, 256);
-    assert_consistency_trilinear3d(at::ones({1, 3, 16, 320, 320}), -1, 256);
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256, 512);
