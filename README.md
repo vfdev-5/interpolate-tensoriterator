@@ -63,7 +63,7 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 ### Ideas for the future
 
 - Add a structure to store (idx_ptrs, weights_ptrs, src_offset) to refactor the code and simplify things:
-  - interp<...>(..., structure); structre.next()
+  - interp<...>(..., structure); structure.next()
 - Make the code generic about nearest/linear/cubic interpolation by templating the mode by a number: e.g. 1, 2, 3
 
 
@@ -935,6 +935,41 @@ Click here for details
 ```
 
 </details>
+
+
+## [ASAN](https://github.com/google/sanitizers/wiki/AddressSanitizer)
+
+```bash
+docker run --rm -it \
+    --name=tv-interpolate-asan \
+    -v $PWD:/interpolate-tensoriterator \
+    -v $PWD/../:/workspace \
+    -w /interpolate-tensoriterator \
+    -v /home/user/Documents/ml/pytorch/:/pytorch \
+    --network=host --security-opt seccomp:unconfined --privileged --shm-size 16G \
+    nvidia/cuda:11.1-cudnn8-devel-ubuntu20.04 \
+    /bin/bash
+```
+```bash
+apt-get update && ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && \
+    apt-get install -y tzdata && \
+    dpkg-reconfigure --frontend noninteractive tzdata && \
+    apt-get install -y git cmake python3 python3-pip numactl && \
+    ln -s /usr/bin/python3 /usr/bin/python && \
+    ln -s /usr/bin/pip3 /usr/bin/pip && \
+    pip install numpy typing_extensions
+```
+
+### Step 5
+
+```bash
+cd step_five && mkdir -p asan_build && cd $_
+export TORCH_PATH=/pytorch/torch
+cmake -DTORCH_DIR=$TORCH_PATH -DWITH_ASAN=yes ..
+make
+
+```
+
 
 ## References:
 
