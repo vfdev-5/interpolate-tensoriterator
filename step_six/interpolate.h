@@ -106,8 +106,7 @@ static inline bool is_all_zero_stride(const int64_t* strides) {
 }
 
 template <typename scalar_t, typename index_t, int out_ndims>
-static inline void
-basic_loop(char** data, const int64_t* strides, int64_t n) {
+static inline void basic_loop(char** data, const int64_t* strides, int64_t n) {
   char* dst = data[0];
   char* src = data[1];
   for (int64_t i = 0; i < n; i++) {
@@ -187,7 +186,7 @@ std::vector<Tensor> ti_compute_indices_weights_linear(
 // - out_ndims is the number of interpolated dims: 1, 2, 3
 // - scale_type is template type for scales, typically c10::optional<double>
 template <typename index_t, int out_ndims, typename scale_type>
-Tensor ti_upsample_linearNd_kernel_impl(
+void ti_upsample_linearNd_kernel_impl(
     Tensor& output,
     const Tensor& input,
     bool align_corners,
@@ -249,8 +248,6 @@ Tensor ti_upsample_linearNd_kernel_impl(
       iter.dtype(), "upsample_linearNd", [&] {
       ti_cpu_upsample_linear<scalar_t, index_t, out_ndims>(iter);
   });
-
-  return iter.output();
 }
 
 

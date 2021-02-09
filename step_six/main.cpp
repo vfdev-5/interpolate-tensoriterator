@@ -56,6 +56,7 @@ void assert_consistency_bilinear2d(
             << align_corners << " "
             << (s_h.has_value() ? *s_h : 0.0) << " "
             << (s_w.has_value() ? *s_w : 0.0) << " "
+            << t_input.dtype() << " "
             << std::endl;
         auto mask = ref_out != out;
         int n_err_vals = mask.sum().item<int>();
@@ -105,6 +106,7 @@ void assert_consistency_linear1d(
             << osize << " "
             << align_corners << " "
             << (s_w.has_value() ? *s_w : 0.0) << " "
+            << t_input.dtype() << " "
             << std::endl;
         assert(false);
     }
@@ -146,6 +148,7 @@ void assert_consistency_trilinear3d(
             << (s_d.has_value() ? *s_d : 0.0) << " "
             << (s_h.has_value() ? *s_h : 0.0) << " "
             << (s_w.has_value() ? *s_w : 0.0) << " "
+            << t_input.dtype() << " "
             << std::endl;
         assert(false);
     }

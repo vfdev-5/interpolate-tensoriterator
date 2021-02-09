@@ -1,0 +1,107 @@
+__version__ = '1.8.0a0+ce3f1b4'
+debug = False
+cuda = '11.1'
+git_version = 'ce3f1b46d7a55d5ad0dd3057b1963385fe15e1ea'
+hip = None
+
+
+Torch config: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=ON, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON, 
+
+
+
+---- Benchmark 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.073735
+
+- Bench ti_upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0729232
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.23216
+
+- Bench ti_upsample_bilinear2d_cpu (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.236453
+
+1 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 1
+Input is_contiguous : 0
+
+- Bench upsample_bilinear2d_cpu (2000 rounds) - upsampling to 128x128
+Elapsed time (ms): 35.565
+
+- Bench ti_upsample_bilinear2d_cpu (2000 rounds) - upsampling to 128x128
+Elapsed time (ms): 47.8532
+
+2 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: 0
+Input is_contiguous : 1
+
+- Bench upsample_bilinear2d_cpu (2000 rounds) - upsampling to 128x128
+Elapsed time (ms): 51.3201
+
+- Bench ti_upsample_bilinear2d_cpu (2000 rounds) - upsampling to 128x128
+Elapsed time (ms): 51.6362
+
+Input tensor: [1, 3, 500, 500]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0747445
+
+- Bench ti_upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0744597
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.542426
+
+- Bench ti_upsample_bilinear2d_cpu (20000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.551677
+
+
+---- Benchmark 1D ----
+
+Input tensor: [4, 512, 320]
+Num threads: 6
+
+- Bench upsample_linear1d_cpu (20000 rounds) - downsampling to 256
+Elapsed time (ms): 0.104401
+
+- Bench ti_upsample_linear1d_cpu (20000 rounds) - downsampling to 256
+Elapsed time (ms): 0.102168
+
+- Bench upsample_linear1d_cpu (20000 rounds) - upsampling to 512
+Elapsed time (ms): 0.19267
+
+- Bench ti_upsample_linear1d_cpu (20000 rounds) - upsampling to 512
+Elapsed time (ms): 0.188752
+
+
+---- Benchmark 3D ----
+
+Input tensor: [1, 3, 16, 320, 320]
+Num threads: 6
+
+- Bench upsample_trilinear3d_cpu (2000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 2.11485
+
+- Bench ti_upsample_trilinear3d_kernel_impl (2000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 1.05858
+
+- Bench upsample_trilinear3d_cpu (2000 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 44.3299
+
+- Bench ti_upsample_trilinear3d_kernel_impl (2000 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 26.0051
