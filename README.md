@@ -69,7 +69,7 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 ### Step 6: Back to basics (#5 by Francisco)
 
 - [x] Test the code with older compiler like gcc 5.4
-- [ ] Inspect assembly code
+- [x] Inspect assembly code
 - [ ] Specialization tricks: https://github.com/pytorch/pytorch/blob/9cec8ae146c0b95b0f5dcd1c62ea4e83ee32f90c/aten/src/ATen/native/cpu/Loops.h#L387
 - [ ] Explore C10_RESTRICT
 

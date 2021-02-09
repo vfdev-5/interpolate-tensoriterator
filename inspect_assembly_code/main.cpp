@@ -108,7 +108,7 @@ void ti_cpu_upsample_linear(char** data, const int64_t* strides, int64_t n) {
 int main(int argc, char ** argv) {
 
     const int64_t in_size = 320;
-    const int64_t out_size = 4;
+    const int64_t out_size = 224;
     float scale = out_size / in_size;
 
     assert (argc == 1 + 2 + in_size);

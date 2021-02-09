@@ -152,16 +152,9 @@ void assert_consistency_trilinear3d(
 }
 
 
-int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osize=512) {
-
-    auto t_input = at::rand({1, 3, isize, isize}, at::CPU(at::kFloat));
-    std::cout << "\nInput tensor: " << t_input.sizes() << std::endl;
- 
-    set_num_threads(NUM_THREADS);
-    std::cout << "Num threads: " << get_num_threads() << std::endl;
-
+void assert_consistency_2d(int isize=320, int dn_osize=256, int up_osize=512) {
     for (auto dtype: {kFloat, kDouble}) {
-        auto t_input_double = at::rand({1, isize, isize, 3}, CPU(dtype));
+        auto t_input = at::rand({1, 3, isize, isize}, CPU(dtype));
         assert_consistency_bilinear2d(t_input, -1, dn_osize);
         assert_consistency_bilinear2d(t_input, -1, dn_osize, true);
         assert_consistency_bilinear2d(t_input, -1, -1, false, 1.12, 1.23);
@@ -179,6 +172,18 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
         assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 1.23, 1.23);
         assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 1.23, 1.23);
     }
+}
+
+
+int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osize=512) {
+
+    assert_consistency_2d(isize, dn_osize, up_osize);
+
+    auto t_input = at::rand({1, 3, isize, isize}, at::CPU(at::kFloat));
+    std::cout << "\nInput tensor: " << t_input.sizes() << std::endl;
+ 
+    set_num_threads(NUM_THREADS);
+    std::cout << "Num threads: " << get_num_threads() << std::endl;
 
     // Time benchmark
     {
@@ -331,30 +336,38 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
 }
 
 
+void assert_consistency_1d() {
+    for (auto dtype: {kFloat, kDouble}) {
+        auto t_input = at::rand({4, 512, 320}, at::CPU(dtype));
+        assert_consistency_linear1d(t_input, -1, 256);
+        assert_consistency_linear1d(t_input, -1, 256, true);
+        assert_consistency_linear1d(t_input, -1, -1, false, 1.12);
+        assert_consistency_linear1d(t_input, -1, -1, true, 1.12);
+        assert_consistency_linear1d(t_input, -1, 512);
+        assert_consistency_linear1d(t_input, -1, 512, true);
+        assert_consistency_linear1d(t_input, -1, -1, false, 0.77);
+        assert_consistency_linear1d(t_input, -1, -1, true, 0.77);
+
+        auto t_input_channel_last = at::rand({1, 320, 512}, at::CPU(dtype));
+        t_input_channel_last = t_input_channel_last.permute({0, 2, 1});
+        assert_consistency_linear1d(t_input_channel_last, -1, 256);
+        assert_consistency_linear1d(t_input_channel_last, -1, -1, true, 0.77);
+        assert_consistency_linear1d(t_input_channel_last, -1, -1, false, 0.77);
+        assert_consistency_linear1d(t_input_channel_last, -1, -1, true, 1.23);
+        assert_consistency_linear1d(t_input_channel_last, -1, -1, false, 1.23);
+    }    
+}
+
+
 int bench_1d(int n, bool full_bench) {
+
+    assert_consistency_1d();
 
     auto t_input = at::rand({4, 512, 320}, at::CPU(at::kFloat));
     std::cout << "\nInput tensor: " << t_input.sizes() << std::endl;
  
     set_num_threads(NUM_THREADS);
     std::cout << "Num threads: " << get_num_threads() << std::endl;
-
-    assert_consistency_linear1d(t_input, -1, 256);
-    assert_consistency_linear1d(t_input, -1, 256, true);
-    assert_consistency_linear1d(t_input, -1, -1, false, 1.12);
-    assert_consistency_linear1d(t_input, -1, -1, true, 1.12);
-    assert_consistency_linear1d(t_input, -1, 512);
-    assert_consistency_linear1d(t_input, -1, 512, true);
-    assert_consistency_linear1d(t_input, -1, -1, false, 0.77);
-    assert_consistency_linear1d(t_input, -1, -1, true, 0.77);
-
-    auto t_input_channel_last = at::rand({1, 320, 512}, at::CPU(at::kFloat));
-    t_input_channel_last = t_input_channel_last.permute({0, 2, 1});
-    assert_consistency_linear1d(t_input_channel_last, -1, 256);
-    assert_consistency_linear1d(t_input_channel_last, -1, -1, true, 0.77);
-    assert_consistency_linear1d(t_input_channel_last, -1, -1, false, 0.77);
-    assert_consistency_linear1d(t_input_channel_last, -1, -1, true, 1.23);
-    assert_consistency_linear1d(t_input_channel_last, -1, -1, false, 1.23);
 
     // Time benchmark
     {
@@ -428,29 +441,39 @@ int bench_1d(int n, bool full_bench) {
 }
 
 
+void assert_consistency_3d() {
+
+    for (auto dtype: {kFloat, kDouble}) {
+        auto t_input = at::rand({1, 3, 16, 320, 320}, at::CPU(dtype));
+        assert_consistency_trilinear3d(t_input, -1, 256);
+        assert_consistency_trilinear3d(t_input, -1, 256, true);
+        assert_consistency_trilinear3d(t_input, -1, -1, false, 1.12, 1.12, 1.12);
+        assert_consistency_trilinear3d(t_input, -1, -1, true, 1.12, 1.12, 1.12);
+        assert_consistency_trilinear3d(t_input, -1, 512);
+        assert_consistency_trilinear3d(t_input, -1, 512, true);
+        assert_consistency_trilinear3d(t_input, -1, -1, false, 0.77, 0.77, 0.77);
+        assert_consistency_trilinear3d(t_input, -1, -1, true, 0.77, 0.77, 0.77);
+
+        auto t_input_channel_last = at::rand({1, 16, 320, 320, 3}, at::CPU(dtype));
+        t_input_channel_last = t_input_channel_last.permute({0, 4, 1, 2, 3});
+        assert_consistency_trilinear3d(t_input_channel_last, -1, 256);
+        assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 0.77, 0.77, 0.77);
+        assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 0.77, 0.77, 0.77);
+        assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 1.23, 1.23, 1.23);
+        assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 1.23, 1.23, 1.23);
+    }
+}
+
+
 int bench_3d(int n, bool full_bench) {
+
+    assert_consistency_3d();
+
     auto t_input = at::rand({1, 3, 16, 320, 320}, at::CPU(at::kFloat));
     std::cout << "\nInput tensor: " << t_input.sizes() << std::endl;
  
     set_num_threads(NUM_THREADS);
     std::cout << "Num threads: " << get_num_threads() << std::endl;
-
-    assert_consistency_trilinear3d(t_input, -1, 256);
-    assert_consistency_trilinear3d(t_input, -1, 256, true);
-    assert_consistency_trilinear3d(t_input, -1, -1, false, 1.12, 1.12, 1.12);
-    assert_consistency_trilinear3d(t_input, -1, -1, true, 1.12, 1.12, 1.12);
-    assert_consistency_trilinear3d(t_input, -1, 512);
-    assert_consistency_trilinear3d(t_input, -1, 512, true);
-    assert_consistency_trilinear3d(t_input, -1, -1, false, 0.77, 0.77, 0.77);
-    assert_consistency_trilinear3d(t_input, -1, -1, true, 0.77, 0.77, 0.77);
-
-    auto t_input_channel_last = at::rand({1, 3, 16, 320, 320}, at::CPU(at::kFloat));
-    t_input_channel_last = t_input_channel_last.permute({0, 4, 1, 2, 3});
-    assert_consistency_trilinear3d(t_input_channel_last, -1, 256);
-    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 0.77, 0.77, 0.77);
-    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 0.77, 0.77, 0.77);
-    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 1.23, 1.23, 1.23);
-    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 1.23, 1.23, 1.23);
 
     // Time benchmark
     {
@@ -673,6 +696,20 @@ int main(int argc, char** argv)
     auto cv_build_info = cv::getBuildInformation();
     std::cout << cv_build_info.substr(0, 2280) << std::endl;
 #endif
+
+
+#ifdef WITH_ASAN
+
+    std::cout << "- Assert consistency 2D" << std::endl;
+    assert_consistency_2d(320, 256, 512);
+    assert_consistency_2d(500, 256, 800);
+    std::cout << "- Assert consistency 1D" << std::endl;
+    assert_consistency_1d();
+    std::cout << "- Assert consistency 3D" << std::endl;
+    assert_consistency_3d();
+
+#endif
+
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256, 512);
