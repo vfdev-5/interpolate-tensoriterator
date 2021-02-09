@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(step-one)
+project(step-six)
 
 if (NOT TORCH_DIR)
   message(FATAL_ERROR "Please setup TORCH_DIR")
@@ -7,7 +7,12 @@ else()
   message("Found TORCH_DIR:${TORCH_DIR}")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CUDA_FLAGS} -O3 -mavx -mfma -mavx2")
+if (WITH_ASAN)  
+  message("With ASAN support")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -static-libsan")
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mavx -mfma -mavx2")
+endif()
 
 include_directories(${TORCH_DIR}/include ${TORCH_DIR}/include/torch/csrc/api/include)
 set(TORCH_LIBRARIES 

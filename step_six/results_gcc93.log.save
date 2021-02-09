@@ -1,0 +1,45 @@
+Torch config: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenm
+p -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare
+ -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stri
+ngop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno
+-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=1,
+ USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON,
+
+
+
+---- Benchmark 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.318306
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0728442
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.25126
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.234252
+
+Input tensor: [1, 3, 500, 500]
+Num threads: 6
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.318372
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0751903
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - upsampling to 800x800
+Elapsed time (ms): 3.50619
+
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.54817

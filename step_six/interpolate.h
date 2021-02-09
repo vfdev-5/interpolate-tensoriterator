@@ -85,25 +85,24 @@ static inline bool is_contiguous_stride(const int64_t* strides) {
          (strides[2] == sizeof(index_t)) && (strides[3] == sizeof(scalar_t));
 }
 
-// TODO: semantics of s are a bit weird maybe?
-template <int N, int s, typename scalar_t, typename index_t>
-struct IsAllZeroStride {
+template <int N, int non_zero_stride_dim, typename scalar_t, typename index_t>
+struct CheckAlmostAllZeroStrides {
   static inline bool eval(const int64_t* strides) {
-    return (N == s ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides)) &&
-            IsAllZeroStride<N - 1, s, scalar_t, index_t>::eval(&strides[4]);
+    return (N == non_zero_stride_dim ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides)) &&
+            CheckAlmostAllZeroStrides<N - 1, non_zero_stride_dim, scalar_t, index_t>::eval(&strides[4]);
   }
 };
 
-template <int s, typename scalar_t, typename index_t>
-struct IsAllZeroStride<1, s, scalar_t, index_t> {
+template <int non_zero_stride_dim, typename scalar_t, typename index_t>
+struct CheckAlmostAllZeroStrides<0, non_zero_stride_dim, scalar_t, index_t> {
   static inline bool eval(const int64_t* strides) {
-    return (s == 1 ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides));
+    return true;
   }
 };
 
 template <int n, int s, typename scalar_t, typename index_t>
 static inline bool is_all_zero_stride(const int64_t* strides) {
-  return IsAllZeroStride<n, s, scalar_t, index_t>::eval(strides);
+  return CheckAlmostAllZeroStrides<n, s, scalar_t, index_t>::eval(strides);
 }
 
 template <typename scalar_t, typename index_t, int out_ndims>

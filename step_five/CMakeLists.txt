@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(step-one)
+project(step-five)
 
 if (NOT TORCH_DIR)
   message(FATAL_ERROR "Please setup TORCH_DIR")

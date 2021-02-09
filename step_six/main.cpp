@@ -16,6 +16,7 @@
 
 
 #define NUM_THREADS 6
+// #define INSPECT_ASSEMBLY_CODE
 
 
 using namespace at;
@@ -170,14 +171,13 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
         assert_consistency_bilinear2d(t_input, -1, -1, false, 0.77, 0.88);
         assert_consistency_bilinear2d(t_input, -1, -1, true, 0.77, 0.88);
 
-        // DO NOT SUPPORT INPUT CHANNEL_LAST -> OUTPUT CHANNEL_LAST
-        // auto t_input_channel_last = at::rand({1, isize, isize, 3}, CPU(dtype));
-        // t_input_channel_last = t_input_channel_last.permute({0, 3, 1, 2});
-        // assert_consistency_bilinear2d(t_input_channel_last, -1, dn_osize, true);
-        // assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 0.77, 0.88);
-        // assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 0.77, 0.88);
-        // assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 1.23, 1.23);
-        // assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 1.23, 1.23);
+        auto t_input_channel_last = at::rand({1, isize, isize, 3}, CPU(dtype));
+        t_input_channel_last = t_input_channel_last.permute({0, 3, 1, 2});
+        assert_consistency_bilinear2d(t_input_channel_last, -1, dn_osize, true);
+        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 0.77, 0.88);
+        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 0.77, 0.88);
+        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 1.23, 1.23);
+        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 1.23, 1.23);
     }
 
     // Time benchmark
@@ -251,7 +251,6 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
     // ---- benchmark test size as in https://github.com/mingfeima/op_bench-py
     n = n / 10;
 
-#if 1 // DO NOT SUPPORT INPUT CHANNEL_LAST -> OUTPUT CHANNEL_LAST
     {
         int64_t osizes[2] = {128, 128};
         IntArrayRef output_size(osizes);
@@ -290,7 +289,6 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
             std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
     }
-#endif
 
     {
         int64_t osizes[2] = {128, 128};
@@ -446,14 +444,13 @@ int bench_3d(int n, bool full_bench) {
     assert_consistency_trilinear3d(t_input, -1, -1, false, 0.77, 0.77, 0.77);
     assert_consistency_trilinear3d(t_input, -1, -1, true, 0.77, 0.77, 0.77);
 
-    // DO NOT SUPPORT INPUT CHANNEL_LAST -> OUTPUT CHANNEL_LAST
-    // auto t_input_channel_last = at::rand({1, 3, 16, 320, 320}, at::CPU(at::kFloat));
-    // t_input_channel_last = t_input_channel_last.permute({0, 4, 1, 2, 3});
-    // assert_consistency_trilinear3d(t_input_channel_last, -1, 256);
-    // assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 0.77, 0.77, 0.77);
-    // assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 0.77, 0.77, 0.77);
-    // assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 1.23, 1.23, 1.23);
-    // assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 1.23, 1.23, 1.23);
+    auto t_input_channel_last = at::rand({1, 3, 16, 320, 320}, at::CPU(at::kFloat));
+    t_input_channel_last = t_input_channel_last.permute({0, 4, 1, 2, 3});
+    assert_consistency_trilinear3d(t_input_channel_last, -1, 256);
+    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 0.77, 0.77, 0.77);
+    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 0.77, 0.77, 0.77);
+    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 1.23, 1.23, 1.23);
+    assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 1.23, 1.23, 1.23);
 
     // Time benchmark
     {
@@ -615,6 +612,20 @@ int bench_opencv_2d_uint8(int n, bool full_bench, int isize=320, int dn_osize=25
 
 int main(int argc, char** argv)
 {
+
+#ifdef INSPECT_ASSEMBLY_CODE
+    
+    auto input = at::rand({1, 3, 320, 320});
+    int64_t osizes[2] = {256, 256};
+    c10::optional<IntArrayRef> output_size = osizes;
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
+
+    auto out = ti_upsample_bilinear2d_kernel_impl(input, output_size, false, scale_factors);    
+
+    return 0;
+
+#endif
+
     auto n = 7500;
     bool full_bench = false;
     bool test_all_dims = false;

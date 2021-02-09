@@ -2,8 +2,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/c++,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,python
 
-new_build
-asan_build
+new_build*
+asan_build*
+build*
 
 ### C++ ###
 # Prerequisites

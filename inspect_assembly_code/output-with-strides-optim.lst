@@ -1,0 +1,834 @@
+   1              		.file	"main.cpp"
+   2              	# GNU C++14 (Ubuntu 9.3.0-17ubuntu1~20.04) version 9.3.0 (x86_64-linux-gnu)
+   3              	#	compiled by GNU C version 9.3.0, GMP version 6.2.0, MPFR version 4.0.2, MPC version 1.1.0, isl ve
+   4              	
+   5              	# GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+   6              	# options passed:  -imultiarch x86_64-linux-gnu -D_GNU_SOURCE main.cpp
+   7              	# -mavx -mfma -mavx2 -mtune=generic -march=x86-64 -auxbase-strip main.s -g
+   8              	# -O3 -fverbose-asm -fasynchronous-unwind-tables -fstack-protector-strong
+   9              	# -Wformat -Wformat-security -fstack-clash-protection -fcf-protection
+  10              	# options enabled:  -fPIC -fPIE -faggressive-loop-optimizations
+  11              	# -falign-functions -falign-jumps -falign-labels -falign-loops
+  12              	# -fassume-phsa -fasynchronous-unwind-tables -fauto-inc-dec
+  13              	# -fbranch-count-reg -fcaller-saves -fcode-hoisting
+  14              	# -fcombine-stack-adjustments -fcommon -fcompare-elim -fcprop-registers
+  15              	# -fcrossjumping -fcse-follow-jumps -fdefer-pop
+  16              	# -fdelete-null-pointer-checks -fdevirtualize -fdevirtualize-speculatively
+  17              	# -fdwarf2-cfi-asm -fearly-inlining -feliminate-unused-debug-types
+  18              	# -fexceptions -fexpensive-optimizations -fforward-propagate
+  19              	# -ffp-int-builtin-inexact -ffunction-cse -fgcse -fgcse-after-reload
+  20              	# -fgcse-lm -fgnu-runtime -fgnu-unique -fguess-branch-probability
+  21              	# -fhoist-adjacent-loads -fident -fif-conversion -fif-conversion2
+  22              	# -findirect-inlining -finline -finline-atomics -finline-functions
+  23              	# -finline-functions-called-once -finline-small-functions -fipa-bit-cp
+  24              	# -fipa-cp -fipa-cp-clone -fipa-icf -fipa-icf-functions -fipa-icf-variables
+  25              	# -fipa-profile -fipa-pure-const -fipa-ra -fipa-reference
+  26              	# -fipa-reference-addressable -fipa-sra -fipa-stack-alignment -fipa-vrp
+  27              	# -fira-hoist-pressure -fira-share-save-slots -fira-share-spill-slots
+  28              	# -fisolate-erroneous-paths-dereference -fivopts -fkeep-static-consts
+  29              	# -fleading-underscore -flifetime-dse -floop-interchange
+  30              	# -floop-unroll-and-jam -flra-remat -flto-odr-type-merging -fmath-errno
+  31              	# -fmerge-constants -fmerge-debug-strings -fmove-loop-invariants
+  32              	# -fomit-frame-pointer -foptimize-sibling-calls -foptimize-strlen
+  33              	# -fpartial-inlining -fpeel-loops -fpeephole -fpeephole2 -fplt
+  34              	# -fpredictive-commoning -fprefetch-loop-arrays -free -freg-struct-return
+  35              	# -freorder-blocks -freorder-blocks-and-partition -freorder-functions
+  36              	# -frerun-cse-after-loop -fsched-critical-path-heuristic
+  37              	# -fsched-dep-count-heuristic -fsched-group-heuristic -fsched-interblock
+  38              	# -fsched-last-insn-heuristic -fsched-rank-heuristic -fsched-spec
+  39              	# -fsched-spec-insn-heuristic -fsched-stalled-insns-dep -fschedule-fusion
+  40              	# -fschedule-insns2 -fsemantic-interposition -fshow-column -fshrink-wrap
+  41              	# -fshrink-wrap-separate -fsigned-zeros -fsplit-ivs-in-unroller
+  42              	# -fsplit-loops -fsplit-paths -fsplit-wide-types -fssa-backprop
+  43              	# -fssa-phiopt -fstack-clash-protection -fstack-protector-strong
+  44              	# -fstdarg-opt -fstore-merging -fstrict-aliasing
+  45              	# -fstrict-volatile-bitfields -fsync-libcalls -fthread-jumps
+  46              	# -ftoplevel-reorder -ftrapping-math -ftree-bit-ccp -ftree-builtin-call-dce
+  47              	# -ftree-ccp -ftree-ch -ftree-coalesce-vars -ftree-copy-prop -ftree-cselim
+  48              	# -ftree-dce -ftree-dominator-opts -ftree-dse -ftree-forwprop -ftree-fre
+  49              	# -ftree-loop-distribute-patterns -ftree-loop-distribution
+  50              	# -ftree-loop-if-convert -ftree-loop-im -ftree-loop-ivcanon
+  51              	# -ftree-loop-optimize -ftree-loop-vectorize -ftree-parallelize-loops=
+  52              	# -ftree-partial-pre -ftree-phiprop -ftree-pre -ftree-pta -ftree-reassoc
+  53              	# -ftree-scev-cprop -ftree-sink -ftree-slp-vectorize -ftree-slsr -ftree-sra
+  54              	# -ftree-switch-conversion -ftree-tail-merge -ftree-ter -ftree-vrp
+  55              	# -funit-at-a-time -funswitch-loops -funwind-tables -fvar-tracking
+  56              	# -fvar-tracking-assignments -fverbose-asm -fversion-loops-for-strides
+  57              	# -fzero-initialized-in-bss -m128bit-long-double -m64 -m80387
+  58              	# -malign-stringops -mavx -mavx2 -mavx256-split-unaligned-load
+  59              	# -mavx256-split-unaligned-store -mfancy-math-387 -mfma -mfp-ret-in-387
+  60              	# -mfxsr -mglibc -mieee-fp -mlong-double-80 -mmmx -mpopcnt -mpush-args
+  61              	# -mred-zone -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2 -mssse3 -mstv
+  62              	# -mtls-direct-seg-refs -mvzeroupper -mxsave
+  63              	
+  64              		.text
+  65              	.Ltext0:
+  66              		.section	.rodata.str1.1,"aMS",@progbits,1
+  67              	.LC0:
+  68 0000 696E7420 		.string	"int main(int, char**)"
+  68      6D61696E 
+  68      28696E74 
+  68      2C206368 
+  68      61722A2A 
+  69              	.LC1:
+  70 0016 6D61696E 		.string	"main.cpp"
+  70      2E637070 
+  70      00
+  71              	.LC2:
+  72 001f 61726763 		.string	"argc == 1 + 2 + in_size"
+  72      203D3D20 
+  72      31202B20 
+  72      32202B20 
+  72      696E5F73 
+  73              		.section	.text.startup,"ax",@progbits
+  74              		.p2align 4
+  75              		.globl	main
+  77              	main:
+  78              	.LVL0:
+  79              	.LFB35:
+  80              		.file 1 "main.cpp"
+   1:main.cpp      **** 
+   2:main.cpp      **** #define WITH_STRIDES_OPTIM
+   3:main.cpp      **** 
+   4:main.cpp      **** #include <stdlib.h>
+   5:main.cpp      **** #include <cassert>
+   6:main.cpp      **** 
+   7:main.cpp      **** 
+   8:main.cpp      **** template <int n, typename scalar_t, typename index_t>
+   9:main.cpp      **** struct InterpLinear {
+  10:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+  11:main.cpp      ****         index_t i0 = *(index_t*)&data[0][i * strides[0]];
+  12:main.cpp      ****         index_t i1 = *(index_t*)&data[2][i * strides[2]];
+  13:main.cpp      ****         scalar_t w0 = *(scalar_t *)&data[1][i * strides[1]];
+  14:main.cpp      ****         scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
+  15:main.cpp      **** 
+  16:main.cpp      ****         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4], &strides[4],
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+  18:main.cpp      **** 
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+  20:main.cpp      ****     }
+  21:main.cpp      **** };
+  22:main.cpp      **** 
+  23:main.cpp      **** template <typename scalar_t, typename index_t>
+  24:main.cpp      **** struct InterpLinear<1, scalar_t, index_t> {
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+  26:main.cpp      ****         index_t i0 = *(index_t*)&data[0][i * strides[0]];
+  27:main.cpp      ****         index_t i1 = *(index_t*)&data[2][i * strides[2]];
+  28:main.cpp      ****         scalar_t w0 = *(scalar_t *)&data[1][i * strides[1]];
+  29:main.cpp      ****         scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
+  30:main.cpp      ****         scalar_t t0 = *(scalar_t *)&src[i0];
+  31:main.cpp      ****         scalar_t t1 = *(scalar_t *)&src[i1];
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+  33:main.cpp      ****     }
+  34:main.cpp      **** };
+  35:main.cpp      **** 
+  36:main.cpp      **** template <int n, typename scalar_t, typename index_t>
+  37:main.cpp      **** static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
+  38:main.cpp      ****   return InterpLinear<n, scalar_t, index_t>::eval(src, data, strides, i);
+  39:main.cpp      **** }
+  40:main.cpp      **** 
+  41:main.cpp      **** static inline bool is_zero_stride(const int64_t* strides) {
+  42:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+  43:main.cpp      **** }
+  44:main.cpp      **** 
+  45:main.cpp      **** template <typename scalar_t, typename index_t>
+  46:main.cpp      **** static inline bool is_contiguous_stride(const int64_t* strides) {
+  47:main.cpp      ****   return (strides[0] == sizeof(index_t)) && (strides[1] == sizeof(scalar_t)) &&
+  48:main.cpp      ****          (strides[2] == sizeof(index_t)) && (strides[3] == sizeof(scalar_t));
+  49:main.cpp      **** }
+  50:main.cpp      **** 
+  51:main.cpp      **** // TODO: semantics of s are a bit weird maybe?
+  52:main.cpp      **** template <int N, int s, typename scalar_t, typename index_t>
+  53:main.cpp      **** struct IsAllZeroStride {
+  54:main.cpp      ****   static inline bool eval(const int64_t* strides) {
+  55:main.cpp      ****     return (N == s ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides)) &&
+  56:main.cpp      ****             IsAllZeroStride<N - 1, s, scalar_t, index_t>::eval(&strides[4]);
+  57:main.cpp      ****   }
+  58:main.cpp      **** };
+  59:main.cpp      **** 
+  60:main.cpp      **** template <int s, typename scalar_t, typename index_t>
+  61:main.cpp      **** struct IsAllZeroStride<1, s, scalar_t, index_t> {
+  62:main.cpp      ****   static inline bool eval(const int64_t* strides) {
+  63:main.cpp      ****     return (s == 1 ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides));
+  64:main.cpp      ****   }
+  65:main.cpp      **** };
+  66:main.cpp      **** 
+  67:main.cpp      **** template <int n, int s, typename scalar_t, typename index_t>
+  68:main.cpp      **** static inline bool is_all_zero_stride(const int64_t* strides) {
+  69:main.cpp      ****   return IsAllZeroStride<n, s, scalar_t, index_t>::eval(strides);
+  70:main.cpp      **** }
+  71:main.cpp      **** 
+  72:main.cpp      **** template <typename scalar_t, typename index_t, int out_ndims>
+  73:main.cpp      **** static inline void
+  74:main.cpp      **** basic_loop(char** data, const int64_t* strides, int64_t n) {
+  75:main.cpp      ****   char* dst = data[0];
+  76:main.cpp      ****   char* src = data[1];
+  77:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+  78:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  79:main.cpp      ****         src + i * strides[1], &data[2], &strides[2], i);
+  80:main.cpp      ****   }
+  81:main.cpp      **** }
+  82:main.cpp      **** 
+  83:main.cpp      **** template <typename scalar_t, typename index_t, int out_ndims>
+  84:main.cpp      **** void ti_cpu_upsample_linear(char** data, const int64_t* strides, int64_t n) {
+  85:main.cpp      **** #ifdef WITH_STRIDES_OPTIM
+  86:main.cpp      ****     // special-cases to let the compiler apply compile-time input-specific optimizations
+  87:main.cpp      ****     if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
+  88:main.cpp      ****         is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
+  89:main.cpp      ****       // contiguous channels-first case
+  90:main.cpp      ****       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+  91:main.cpp      ****     } 
+  92:main.cpp      ****     else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
+  93:main.cpp      ****                is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
+  94:main.cpp      ****       // contiguous channels-last case
+  95:main.cpp      ****       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+  96:main.cpp      ****     } 
+  97:main.cpp      ****     else 
+  98:main.cpp      ****     {
+  99:main.cpp      ****       // fallback
+ 100:main.cpp      ****       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+ 101:main.cpp      ****     }
+ 102:main.cpp      **** #else
+ 103:main.cpp      ****     basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+ 104:main.cpp      **** #endif
+ 105:main.cpp      **** }
+ 106:main.cpp      **** 
+ 107:main.cpp      **** 
+ 108:main.cpp      **** int main(int argc, char ** argv) {
+  81              		.loc 1 108 34 view -0
+  82              		.cfi_startproc
+  83              		.loc 1 108 34 is_stmt 0 view .LVU1
+  84 0000 F30F1EFA 		endbr64	
+  85 0004 4157     		pushq	%r15	#
+  86              		.cfi_def_cfa_offset 16
+  87              		.cfi_offset 15, -16
+  88 0006 4156     		pushq	%r14	#
+  89              		.cfi_def_cfa_offset 24
+  90              		.cfi_offset 14, -24
+  91 0008 4155     		pushq	%r13	#
+  92              		.cfi_def_cfa_offset 32
+  93              		.cfi_offset 13, -32
+  94 000a 4154     		pushq	%r12	#
+  95              		.cfi_def_cfa_offset 40
+  96              		.cfi_offset 12, -40
+  97 000c 55       		pushq	%rbp	#
+  98              		.cfi_def_cfa_offset 48
+  99              		.cfi_offset 6, -48
+ 100 000d 53       		pushq	%rbx	#
+ 101              		.cfi_def_cfa_offset 56
+ 102              		.cfi_offset 3, -56
+ 103 000e 4881EC00 		subq	$4096, %rsp	#,
+ 103      100000
+ 104              		.cfi_def_cfa_offset 4152
+ 105 0015 48830C24 		orq	$0, (%rsp)	#,
+ 105      00
+ 106 001a 4881EC00 		subq	$4096, %rsp	#,
+ 106      100000
+ 107              		.cfi_def_cfa_offset 8248
+ 108 0021 48830C24 		orq	$0, (%rsp)	#,
+ 108      00
+ 109 0026 4881EC58 		subq	$3416, %rsp	#,
+ 109      0D0000
+ 110              		.cfi_def_cfa_offset 11664
+ 111              	# main.cpp:108: int main(int argc, char ** argv) {
+ 112              		.loc 1 108 34 view .LVU2
+ 113 002d 64488B04 		movq	%fs:40, %rax	# MEM[(<address-space-1> long unsigned int *)40B], tmp192
+ 113      25280000 
+ 113      00
+ 114 0036 48898424 		movq	%rax, 11592(%rsp)	# tmp192, D.4479
+ 114      482D0000 
+ 115 003e 31C0     		xorl	%eax, %eax	# tmp192
+ 109:main.cpp      **** 
+ 110:main.cpp      ****     const int64_t in_size = 320;
+ 116              		.loc 1 110 5 is_stmt 1 view .LVU3
+ 117              	.LVL1:
+ 111:main.cpp      ****     const int64_t out_size = 4;
+ 118              		.loc 1 111 5 view .LVU4
+ 112:main.cpp      ****     float scale = out_size / in_size;
+ 119              		.loc 1 112 5 view .LVU5
+ 113:main.cpp      **** 
+ 114:main.cpp      ****     assert (argc == 1 + 2 + in_size);
+ 120              		.loc 1 114 5 view .LVU6
+ 121 0040 81FF4301 		cmpl	$323, %edi	#, tmp186
+ 121      0000
+ 122 0046 0F85BA01 		jne	.L2	#,
+ 122      0000
+ 123 004c C5E857D2 		vxorps	%xmm2, %xmm2, %xmm2	# tmp189
+ 124 0050 4889F5   		movq	%rsi, %rbp	# tmp187, argv
+ 125              	.LVL2:
+ 126              	.LBB110:
+ 115:main.cpp      **** 
+ 116:main.cpp      ****     float output[out_size];
+ 117:main.cpp      ****     for (int i=0; i<out_size; i++) {
+ 127              		.loc 1 117 20 view .LVU7
+ 118:main.cpp      ****         output[i] = 0.0;
+ 128              		.loc 1 118 9 view .LVU8
+ 117:main.cpp      ****         output[i] = 0.0;
+ 129              		.loc 1 117 5 view .LVU9
+ 117:main.cpp      ****         output[i] = 0.0;
+ 130              		.loc 1 117 20 view .LVU10
+ 131              		.loc 1 118 9 view .LVU11
+ 117:main.cpp      ****         output[i] = 0.0;
+ 132              		.loc 1 117 5 view .LVU12
+ 117:main.cpp      ****         output[i] = 0.0;
+ 133              		.loc 1 117 20 view .LVU13
+ 134              		.loc 1 118 9 view .LVU14
+ 117:main.cpp      ****         output[i] = 0.0;
+ 135              		.loc 1 117 5 view .LVU15
+ 117:main.cpp      ****         output[i] = 0.0;
+ 136              		.loc 1 117 20 view .LVU16
+ 137              		.loc 1 118 9 view .LVU17
+ 138 0053 488D5C24 		leaq	64(%rsp), %rbx	#, tmp181
+ 138      40
+ 139              	# main.cpp:118:         output[i] = 0.0;
+ 140              		.loc 1 118 19 is_stmt 0 view .LVU18
+ 141 0058 4531FF   		xorl	%r15d, %r15d	# ivtmp.41
+ 142 005b 488D8424 		leaq	1344(%rsp), %rax	#, tmp174
+ 142      40050000 
+ 143 0063 C5F82954 		vmovaps	%xmm2, 48(%rsp)	# tmp133, MEM[(float *)&output]
+ 143      2430
+ 117:main.cpp      ****         output[i] = 0.0;
+ 144              		.loc 1 117 5 is_stmt 1 view .LVU19
+ 145              	.LVL3:
+ 117:main.cpp      ****         output[i] = 0.0;
+ 146              		.loc 1 117 20 view .LVU20
+ 117:main.cpp      ****         output[i] = 0.0;
+ 147              		.loc 1 117 20 is_stmt 0 view .LVU21
+ 148              	.LBE110:
+ 149              	.LBB111:
+ 119:main.cpp      ****     }
+ 120:main.cpp      **** 
+ 121:main.cpp      ****     float input[in_size];
+ 122:main.cpp      ****     int32_t ix0[in_size], ix1[in_size], iy0[in_size], iy1[in_size];
+ 123:main.cpp      ****     float wx0[in_size], wx1[in_size], wy0[in_size], wy1[in_size];
+ 124:main.cpp      **** 
+ 125:main.cpp      ****     for (int i=0; i<in_size; i++) {
+ 150              		.loc 1 125 20 is_stmt 1 view .LVU22
+ 151 0069 4C8DAC24 		leaq	2624(%rsp), %r13	#, tmp176
+ 151      400A0000 
+ 152 0071 48894424 		movq	%rax, 8(%rsp)	# tmp174, %sfp
+ 152      08
+ 153 0076 488D8424 		leaq	3904(%rsp), %rax	#, tmp179
+ 153      400F0000 
+ 154 007e 4C8DA424 		leaq	6464(%rsp), %r12	#, tmp175
+ 154      40190000 
+ 155 0086 48894424 		movq	%rax, 24(%rsp)	# tmp179, %sfp
+ 155      18
+ 156 008b 488D8424 		leaq	5184(%rsp), %rax	#, tmp184
+ 156      40140000 
+ 157 0093 4C8DB424 		leaq	7744(%rsp), %r14	#, tmp178
+ 157      401E0000 
+ 158 009b 48894424 		movq	%rax, 40(%rsp)	# tmp184, %sfp
+ 158      28
+ 159 00a0 488D8424 		leaq	9024(%rsp), %rax	#, tmp180
+ 159      40230000 
+ 160 00a8 48894424 		movq	%rax, 32(%rsp)	# tmp180, %sfp
+ 160      20
+ 161 00ad 488D8424 		leaq	10304(%rsp), %rax	#, tmp173
+ 161      40280000 
+ 162 00b5 48894424 		movq	%rax, 16(%rsp)	# tmp173, %sfp
+ 162      10
+ 163              	.LVL4:
+ 164 00ba 660F1F44 		.p2align 4,,10
+ 164      0000
+ 165              		.p2align 3
+ 166              	.L3:
+ 126:main.cpp      ****         input[i] = atof(argv[1 + i]) * 1.0 / in_size;
+ 167              		.loc 1 126 9 discriminator 2 view .LVU23
+ 168              	.LBB112:
+ 169              	.LBI112:
+ 170              		.file 2 "/usr/include/x86_64-linux-gnu/bits/stdlib-float.h"
+   1:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** /* Floating-point inline functions for stdlib.h.
+   2:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    Copyright (C) 2012-2020 Free Software Foundation, Inc.
+   3:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    This file is part of the GNU C Library.
+   4:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** 
+   5:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    The GNU C Library is free software; you can redistribute it and/or
+   6:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    modify it under the terms of the GNU Lesser General Public
+   7:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    License as published by the Free Software Foundation; either
+   8:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    version 2.1 of the License, or (at your option) any later version.
+   9:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** 
+  10:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    The GNU C Library is distributed in the hope that it will be useful,
+  11:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    but WITHOUT ANY WARRANTY; without even the implied warranty of
+  12:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  13:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    Lesser General Public License for more details.
+  14:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** 
+  15:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    You should have received a copy of the GNU Lesser General Public
+  16:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    License along with the GNU C Library; if not, see
+  17:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    <https://www.gnu.org/licenses/>.  */
+  18:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** 
+  19:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** #ifndef _STDLIB_H
+  20:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** # error "Never use <bits/stdlib-float.h> directly; include <stdlib.h> instead."
+  21:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** #endif
+  22:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** 
+  23:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** #ifdef __USE_EXTERN_INLINES
+  24:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** __extern_inline double
+  25:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** __NTH (atof (const char *__nptr))
+ 171              		.loc 2 25 1 discriminator 2 view .LVU24
+ 172              	.LBB113:
+  26:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** {
+  27:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****   return strtod (__nptr, (char **) NULL);
+ 173              		.loc 2 27 3 discriminator 2 view .LVU25
+ 174              	# /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:27:   return strtod (__nptr, (char **) NULL);
+ 175              		.loc 2 27 17 is_stmt 0 discriminator 2 view .LVU26
+ 176 00c0 4A8B7CFD 		movq	8(%rbp,%r15,8), %rdi	# MEM[base: argv_29(D), index: ivtmp.41_447, step: 8, offset: 8B], MEM[b
+ 176      08
+ 177 00c5 31F6     		xorl	%esi, %esi	#
+ 178 00c7 E8000000 		call	strtod@PLT	#
+ 178      00
+ 179              	.LVL5:
+ 180              		.loc 2 27 17 discriminator 2 view .LVU27
+ 181              	.LBE113:
+ 182              	.LBE112:
+ 183              	# main.cpp:127:         ix0[i] = int32_t(i * scale);
+ 127:main.cpp      ****         ix0[i] = int32_t(i * scale);
+ 184              		.loc 1 127 28 discriminator 2 view .LVU28
+ 185 00cc C5E857D2 		vxorps	%xmm2, %xmm2, %xmm2	# tmp189
+ 186 00d0 C5D057ED 		vxorps	%xmm5, %xmm5, %xmm5	# tmp199
+ 187              	# main.cpp:126:         input[i] = atof(argv[1 + i]) * 1.0 / in_size;
+ 126:main.cpp      ****         ix0[i] = int32_t(i * scale);
+ 188              		.loc 1 126 44 discriminator 2 view .LVU29
+ 189 00d4 C5FB5E05 		vdivsd	.LC3(%rip), %xmm0, %xmm0	#, tmp188, tmp136
+ 189      00000000 
+ 190 00dc C5FB5AC0 		vcvtsd2ss	%xmm0, %xmm0, %xmm0	# tmp136, tmp140
+ 191 00e0 C4A17A11 		vmovss	%xmm0, (%rbx,%r15,4)	# tmp140, MEM[symbol: input, index: ivtmp.41_447, step: 4, offset: 0B]
+ 191      04BB
+ 192              		.loc 1 127 9 is_stmt 1 discriminator 2 view .LVU30
+ 193              	# main.cpp:127:         ix0[i] = int32_t(i * scale);
+ 194              		.loc 1 127 28 is_stmt 0 discriminator 2 view .LVU31
+ 195 00e6 C4C16A2A 		vcvtsi2ssl	%r15d, %xmm2, %xmm0	# ivtmp.41, tmp189, tmp190
+ 195      C7
+ 196              	# main.cpp:127:         ix0[i] = int32_t(i * scale);
+ 197              		.loc 1 127 16 discriminator 2 view .LVU32
+ 198 00eb 488B4424 		movq	8(%rsp), %rax	# %sfp, tmp174
+ 198      08
+ 199              	# main.cpp:130:         wx1[i] = 1.0 - wx0[i];
+ 128:main.cpp      ****         ix1[i] = ix0[i] + 1;
+ 129:main.cpp      ****         wx0[i] = i * scale - ix0[i];
+ 130:main.cpp      ****         wx1[i] = 1.0 - wx0[i];
+ 200              		.loc 1 130 16 discriminator 2 view .LVU33
+ 201 00f0 C5FA1035 		vmovss	.LC5(%rip), %xmm6	#, tmp201
+ 201      00000000 
+ 202              	# main.cpp:127:         ix0[i] = int32_t(i * scale);
+ 127:main.cpp      ****         ix1[i] = ix0[i] + 1;
+ 203              		.loc 1 127 28 discriminator 2 view .LVU34
+ 204 00f8 C5FA59CD 		vmulss	%xmm5, %xmm0, %xmm1	# tmp199, tmp141, _9
+ 205              	# main.cpp:127:         ix0[i] = int32_t(i * scale);
+ 127:main.cpp      ****         ix1[i] = ix0[i] + 1;
+ 206              		.loc 1 127 18 discriminator 2 view .LVU35
+ 207 00fc C5FA2CD1 		vcvttss2sil	%xmm1, %edx	# _9, _10
+ 208              	# main.cpp:129:         wx0[i] = i * scale - ix0[i];
+ 129:main.cpp      ****         wx1[i] = 1.0 - wx0[i];
+ 209              		.loc 1 129 28 discriminator 2 view .LVU36
+ 210 0100 C5EA2AC2 		vcvtsi2ssl	%edx, %xmm2, %xmm0	# _10, tmp189, tmp191
+ 211              	# main.cpp:127:         ix0[i] = int32_t(i * scale);
+ 127:main.cpp      ****         ix1[i] = ix0[i] + 1;
+ 212              		.loc 1 127 16 discriminator 2 view .LVU37
+ 213 0104 428914B8 		movl	%edx, (%rax,%r15,4)	# _10, MEM[symbol: ix0, index: ivtmp.41_447, step: 4, offset: 0B]
+ 128:main.cpp      ****         ix1[i] = ix0[i] + 1;
+ 214              		.loc 1 128 9 is_stmt 1 discriminator 2 view .LVU38
+ 215              	# main.cpp:132:         iy0[i] = int32_t(i * scale);
+ 131:main.cpp      **** 
+ 132:main.cpp      ****         iy0[i] = int32_t(i * scale);
+ 216              		.loc 1 132 16 is_stmt 0 discriminator 2 view .LVU39
+ 217 0108 488B4424 		movq	24(%rsp), %rax	# %sfp, tmp179
+ 217      18
+ 218              	# main.cpp:128:         ix1[i] = ix0[i] + 1;
+ 128:main.cpp      ****         wx0[i] = i * scale - ix0[i];
+ 219              		.loc 1 128 25 discriminator 2 view .LVU40
+ 220 010d 8D4A01   		leal	1(%rdx), %ecx	#, _11
+ 221              	# main.cpp:128:         ix1[i] = ix0[i] + 1;
+ 128:main.cpp      ****         wx0[i] = i * scale - ix0[i];
+ 222              		.loc 1 128 16 discriminator 2 view .LVU41
+ 223 0110 43894CBD 		movl	%ecx, 0(%r13,%r15,4)	# _11, MEM[symbol: ix1, index: ivtmp.41_447, step: 4, offset: 0B]
+ 223      00
+ 129:main.cpp      ****         wx1[i] = 1.0 - wx0[i];
+ 224              		.loc 1 129 9 is_stmt 1 discriminator 2 view .LVU42
+ 225              	# main.cpp:132:         iy0[i] = int32_t(i * scale);
+ 226              		.loc 1 132 16 is_stmt 0 discriminator 2 view .LVU43
+ 227 0115 428914B8 		movl	%edx, (%rax,%r15,4)	# _10, MEM[symbol: iy0, index: ivtmp.41_447, step: 4, offset: 0B]
+ 228              	# main.cpp:133:         iy1[i] = iy0[i] + 1;
+ 133:main.cpp      ****         iy1[i] = iy0[i] + 1;
+ 229              		.loc 1 133 16 discriminator 2 view .LVU44
+ 230 0119 488B4424 		movq	40(%rsp), %rax	# %sfp, tmp184
+ 230      28
+ 231              	# main.cpp:129:         wx0[i] = i * scale - ix0[i];
+ 129:main.cpp      ****         wx1[i] = 1.0 - wx0[i];
+ 232              		.loc 1 129 28 discriminator 2 view .LVU45
+ 233 011e C5F25CC0 		vsubss	%xmm0, %xmm1, %xmm0	# tmp145, _9, _13
+ 234              	# main.cpp:133:         iy1[i] = iy0[i] + 1;
+ 235              		.loc 1 133 16 discriminator 2 view .LVU46
+ 236 0122 42890CB8 		movl	%ecx, (%rax,%r15,4)	# _11, MEM[symbol: iy1, index: ivtmp.41_447, step: 4, offset: 0B]
+ 237              	# main.cpp:134:         wy0[i] = i * scale - iy0[i];
+ 134:main.cpp      ****         wy0[i] = i * scale - iy0[i];
+ 238              		.loc 1 134 16 discriminator 2 view .LVU47
+ 239 0126 488B4424 		movq	32(%rsp), %rax	# %sfp, tmp180
+ 239      20
+ 240              	# main.cpp:130:         wx1[i] = 1.0 - wx0[i];
+ 130:main.cpp      **** 
+ 241              		.loc 1 130 16 discriminator 2 view .LVU48
+ 242 012b C5CA5CC8 		vsubss	%xmm0, %xmm6, %xmm1	# _13, tmp201, _14
+ 243              	# main.cpp:134:         wy0[i] = i * scale - iy0[i];
+ 244              		.loc 1 134 16 discriminator 2 view .LVU49
+ 245 012f C4A17A11 		vmovss	%xmm0, (%rax,%r15,4)	# _13, MEM[symbol: wy0, index: ivtmp.41_447, step: 4, offset: 0B]
+ 245      04B8
+ 246              	# main.cpp:135:         wy1[i] = 1.0 - wy0[i];
+ 135:main.cpp      ****         wy1[i] = 1.0 - wy0[i];
+ 247              		.loc 1 135 16 discriminator 2 view .LVU50
+ 248 0135 488B4424 		movq	16(%rsp), %rax	# %sfp, tmp173
+ 248      10
+ 249              	# main.cpp:129:         wx0[i] = i * scale - ix0[i];
+ 129:main.cpp      ****         wx1[i] = 1.0 - wx0[i];
+ 250              		.loc 1 129 16 discriminator 2 view .LVU51
+ 251 013a C4817A11 		vmovss	%xmm0, (%r12,%r15,4)	# _13, MEM[symbol: wx0, index: ivtmp.41_447, step: 4, offset: 0B]
+ 251      04BC
+ 130:main.cpp      **** 
+ 252              		.loc 1 130 9 is_stmt 1 discriminator 2 view .LVU52
+ 253              	# main.cpp:130:         wx1[i] = 1.0 - wx0[i];
+ 130:main.cpp      **** 
+ 254              		.loc 1 130 16 is_stmt 0 discriminator 2 view .LVU53
+ 255 0140 C4817A11 		vmovss	%xmm1, (%r14,%r15,4)	# _14, MEM[symbol: wx1, index: ivtmp.41_447, step: 4, offset: 0B]
+ 255      0CBE
+ 132:main.cpp      ****         iy1[i] = iy0[i] + 1;
+ 256              		.loc 1 132 9 is_stmt 1 discriminator 2 view .LVU54
+ 133:main.cpp      ****         wy0[i] = i * scale - iy0[i];
+ 257              		.loc 1 133 9 discriminator 2 view .LVU55
+ 134:main.cpp      ****         wy1[i] = 1.0 - wy0[i];
+ 258              		.loc 1 134 9 discriminator 2 view .LVU56
+ 259              		.loc 1 135 9 discriminator 2 view .LVU57
+ 260              	# main.cpp:135:         wy1[i] = 1.0 - wy0[i];
+ 261              		.loc 1 135 16 is_stmt 0 discriminator 2 view .LVU58
+ 262 0146 C4A17A11 		vmovss	%xmm1, (%rax,%r15,4)	# _14, MEM[symbol: wy1, index: ivtmp.41_447, step: 4, offset: 0B]
+ 262      0CB8
+ 125:main.cpp      ****         input[i] = atof(argv[1 + i]) * 1.0 / in_size;
+ 263              		.loc 1 125 5 is_stmt 1 discriminator 2 view .LVU59
+ 264              	.LVL6:
+ 125:main.cpp      ****         input[i] = atof(argv[1 + i]) * 1.0 / in_size;
+ 265              		.loc 1 125 20 discriminator 2 view .LVU60
+ 266 014c 4983C701 		addq	$1, %r15	#, ivtmp.41
+ 267              	.LVL7:
+ 125:main.cpp      ****         input[i] = atof(argv[1 + i]) * 1.0 / in_size;
+ 268              		.loc 1 125 20 is_stmt 0 discriminator 2 view .LVU61
+ 269 0150 4981FF40 		cmpq	$320, %r15	#, ivtmp.41
+ 269      010000
+ 270 0157 0F8563FF 		jne	.L3	#,
+ 270      FFFF
+ 271              	.LBE111:
+ 272              	.LBB114:
+ 273              	.LBB115:
+ 274              	.LBB116:
+ 275              	.LBB117:
+ 276              	.LBB118:
+ 277              	.LBB119:
+ 278              	.LBB120:
+ 279              	# main.cpp:16:         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4
+  16:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 280              		.loc 1 16 74 view .LVU62
+ 281 015d 48638424 		movslq	3904(%rsp), %rax	# MEM[(int *)&iy0], MEM[(int *)&iy0]
+ 281      400F0000 
+ 282 0165 488D4C24 		leaq	48(%rsp), %rcx	#, tmp177
+ 282      30
+ 283              	# main.cpp:13:         scalar_t w0 = *(scalar_t *)&data[1][i * strides[1]];
+  13:main.cpp      ****         scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
+ 284              		.loc 1 13 18 view .LVU63
+ 285 016a C5FA10A4 		vmovss	9024(%rsp), %xmm4	# MEM[(float *)&wy0], w0
+ 285      24402300 
+ 285      00
+ 286              	# main.cpp:14:         scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
+  14:main.cpp      **** 
+ 287              		.loc 1 14 18 view .LVU64
+ 288 0173 C5FA109C 		vmovss	10304(%rsp), %xmm3	# MEM[(float *)&wy1], w1
+ 288      24402800 
+ 288      00
+ 289              	# main.cpp:16:         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4
+  16:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 290              		.loc 1 16 67 view .LVU65
+ 291 017c 488D1403 		leaq	(%rbx,%rax), %rdx	#, _135
+ 292              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      **** 
+ 293              		.loc 1 17 74 view .LVU66
+ 294 0180 48638424 		movslq	5184(%rsp), %rax	# MEM[(int *)&iy1], MEM[(int *)&iy1]
+ 294      40140000 
+ 295              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      **** 
+ 296              		.loc 1 17 67 view .LVU67
+ 297 0188 4801C3   		addq	%rax, %rbx	# MEM[(int *)&iy1], _138
+ 298              	.LBE120:
+ 299              	.LBE119:
+ 300              	.LBE118:
+ 301              	# main.cpp:77:   for (int64_t i = 0; i < n; i++) {
+  77:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 302              		.loc 1 77 16 view .LVU68
+ 303 018b 31C0     		xorl	%eax, %eax	# i
+ 304              	.L4:
+ 305              	.LVL8:
+ 306              	.LBB131:
+ 307              	.LBI118:
+  37:main.cpp      ****   return InterpLinear<n, scalar_t, index_t>::eval(src, data, strides, i);
+ 308              		.loc 1 37 24 is_stmt 1 view .LVU69
+ 309              	.LBB130:
+ 310              	.LBI119:
+  10:main.cpp      ****         index_t i0 = *(index_t*)&data[0][i * strides[0]];
+ 311              		.loc 1 10 28 view .LVU70
+ 312              	.LBB129:
+ 313              	.LBB121:
+ 314              	.LBI121:
+  25:main.cpp      ****         index_t i0 = *(index_t*)&data[0][i * strides[0]];
+ 315              		.loc 1 25 28 view .LVU71
+ 316              	.LBB122:
+ 317              	# main.cpp:30:         scalar_t t0 = *(scalar_t *)&src[i0];
+  30:main.cpp      ****         scalar_t t1 = *(scalar_t *)&src[i1];
+ 318              		.loc 1 30 41 is_stmt 0 view .LVU72
+ 319 018d 488B7424 		movq	8(%rsp), %rsi	# %sfp, tmp174
+ 319      08
+ 320              	# main.cpp:31:         scalar_t t1 = *(scalar_t *)&src[i1];
+  31:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 321              		.loc 1 31 41 view .LVU73
+ 322 0192 49637C85 		movslq	0(%r13,%rax,4), %rdi	# MEM[symbol: ix1, index: _106, step: 4, offset: 0B], _203
+ 322      00
+ 323              	# main.cpp:29:         scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
+  29:main.cpp      ****         scalar_t t0 = *(scalar_t *)&src[i0];
+ 324              		.loc 1 29 18 view .LVU74
+ 325 0197 C4C17A10 		vmovss	(%r14,%rax,4), %xmm2	# MEM[symbol: wx1, index: _106, step: 4, offset: 0B], w1
+ 325      1486
+ 326              	# main.cpp:28:         scalar_t w0 = *(scalar_t *)&data[1][i * strides[1]];
+  28:main.cpp      ****         scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
+ 327              		.loc 1 28 18 view .LVU75
+ 328 019d C4C17A10 		vmovss	(%r12,%rax,4), %xmm0	# MEM[symbol: wx0, index: _106, step: 4, offset: 0B], w0
+ 328      0484
+ 329              	.LVL9:
+ 330              	# main.cpp:30:         scalar_t t0 = *(scalar_t *)&src[i0];
+  30:main.cpp      ****         scalar_t t1 = *(scalar_t *)&src[i1];
+ 331              		.loc 1 30 41 view .LVU76
+ 332 01a3 48633486 		movslq	(%rsi,%rax,4), %rsi	# MEM[symbol: ix0, index: _106, step: 4, offset: 0B], _200
+ 333              	.LVL10:
+ 334              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****     }
+ 335              		.loc 1 32 29 view .LVU77
+ 336 01a7 C5EA590C 		vmulss	(%rdx,%rdi), %xmm2, %xmm1	# MEM[(float *)_204], w1, tmp165
+ 336      3A
+ 337              	.LBE122:
+ 338              	.LBE121:
+ 339              	.LBB124:
+ 340              	.LBB125:
+ 341 01ac C5EA5914 		vmulss	(%rbx,%rdi), %xmm2, %xmm2	# MEM[(float *)_171], w1, tmp166
+ 341      3B
+ 342              	.LVL11:
+  32:main.cpp      ****     }
+ 343              		.loc 1 32 29 view .LVU78
+ 344              	.LBE125:
+ 345              	.LBE124:
+ 346              	.LBB127:
+ 347              	.LBB123:
+ 348              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****     }
+ 349              		.loc 1 32 31 view .LVU79
+ 350 01b1 C4E279B9 		vfmadd231ss	(%rdx,%rsi), %xmm0, %xmm1	# MEM[(float *)_201], w0, _208
+ 350      0C32
+ 351              	.LVL12:
+  32:main.cpp      ****     }
+ 352              		.loc 1 32 31 view .LVU80
+ 353              	.LBE123:
+ 354              	.LBE127:
+ 355              	.LBB128:
+ 356              	.LBI124:
+  25:main.cpp      ****         index_t i0 = *(index_t*)&data[0][i * strides[0]];
+ 357              		.loc 1 25 28 is_stmt 1 view .LVU81
+ 358              	.LBB126:
+ 359              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****     }
+ 360              		.loc 1 32 31 is_stmt 0 view .LVU82
+ 361 01b7 C4E26999 		vfmadd132ss	(%rbx,%rsi), %xmm2, %xmm0	# MEM[(float *)_168], tmp166, _175
+ 361      0433
+ 362              	.LVL13:
+  32:main.cpp      ****     }
+ 363              		.loc 1 32 31 view .LVU83
+ 364              	.LBE126:
+ 365              	.LBE128:
+ 366              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****     }
+ 367              		.loc 1 19 29 view .LVU84
+ 368 01bd C5E259C0 		vmulss	%xmm0, %xmm3, %xmm0	# _175, w1, tmp167
+ 369              	.LVL14:
+ 370              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****     }
+ 371              		.loc 1 19 31 view .LVU85
+ 372 01c1 C4E259B9 		vfmadd231ss	%xmm1, %xmm4, %xmm0	# _208, w0, _142
+ 372      C1
+ 373              	.LVL15:
+  19:main.cpp      ****     }
+ 374              		.loc 1 19 31 view .LVU86
+ 375              	.LBE129:
+ 376              	.LBE130:
+ 377              	.LBE131:
+ 378              	# main.cpp:78:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  78:main.cpp      ****         src + i * strides[1], &data[2], &strides[2], i);
+ 379              		.loc 1 78 5 view .LVU87
+ 380 01c6 C5FA1104 		vmovss	%xmm0, (%rcx,%rax,4)	# _142, MEM[symbol: output, index: _106, step: 4, offset: 0B]
+ 380      81
+  77:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 381              		.loc 1 77 3 is_stmt 1 view .LVU88
+ 382 01cb 4883C001 		addq	$1, %rax	#, i
+ 383              	.LVL16:
+  77:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 384              		.loc 1 77 25 view .LVU89
+ 385 01cf 4883F804 		cmpq	$4, %rax	#, i
+ 386 01d3 75B8     		jne	.L4	#,
+ 387              	.LVL17:
+  77:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 388              		.loc 1 77 25 is_stmt 0 view .LVU90
+ 389              	.LBE117:
+ 390              	.LBE116:
+ 391              	.LBE115:
+ 392              	.LBE114:
+ 136:main.cpp      ****     }
+ 137:main.cpp      **** 
+ 138:main.cpp      ****     char * data[] = {
+ 139:main.cpp      ****         (char *) output,
+ 140:main.cpp      ****         (char *) input,
+ 141:main.cpp      ****         (char *) iy0,
+ 142:main.cpp      ****         (char *) wy0,
+ 143:main.cpp      ****         (char *) iy1,
+ 144:main.cpp      ****         (char *) wy1,
+ 145:main.cpp      ****         (char *) ix0,
+ 146:main.cpp      ****         (char *) wx0,
+ 147:main.cpp      ****         (char *) ix1,
+ 148:main.cpp      ****         (char *) wx1,
+ 149:main.cpp      ****     };
+ 150:main.cpp      **** 
+ 151:main.cpp      ****     int64_t strides[] = {
+ 152:main.cpp      ****         sizeof(float),
+ 153:main.cpp      ****         0,
+ 154:main.cpp      **** 
+ 155:main.cpp      ****         0,  // iy0
+ 156:main.cpp      ****         0,  // wy0
+ 157:main.cpp      ****         0,  // iy1
+ 158:main.cpp      ****         0,  // wy1
+ 159:main.cpp      ****         sizeof(int32_t),  // ix0
+ 160:main.cpp      ****         sizeof(int32_t),  // wx0
+ 161:main.cpp      ****         sizeof(int32_t),  // ix1
+ 162:main.cpp      ****         sizeof(int32_t),  // wx1
+ 163:main.cpp      **** 
+ 164:main.cpp      ****         // sizeof(int32_t),  // iy0
+ 165:main.cpp      ****         // sizeof(int32_t),  // wy0
+ 166:main.cpp      ****         // sizeof(int32_t),  // iy1
+ 167:main.cpp      ****         // sizeof(int32_t),  // wy1
+ 168:main.cpp      ****         // 0,  // ix0
+ 169:main.cpp      ****         // 0,  // wx0
+ 170:main.cpp      ****         // 0,  // ix1
+ 171:main.cpp      ****         // 0,  // wx1
+ 172:main.cpp      **** 
+ 173:main.cpp      ****     };
+ 174:main.cpp      **** 
+ 175:main.cpp      ****     ti_cpu_upsample_linear<float, int32_t, 2>(data, strides, out_size);
+ 176:main.cpp      **** 
+ 177:main.cpp      ****     return int(data[0][0] + data[0][1]);
+ 393              		.loc 1 177 5 is_stmt 1 view .LVU91
+ 394              	# main.cpp:177:     return int(data[0][0] + data[0][1]);
+ 395              		.loc 1 177 25 is_stmt 0 view .LVU92
+ 396 01d5 0FBE4424 		movsbl	48(%rsp), %eax	# MEM[(char *)&output], MEM[(char *)&output]
+ 396      30
+ 397              	# main.cpp:177:     return int(data[0][0] + data[0][1]);
+ 398              		.loc 1 177 38 view .LVU93
+ 399 01da 0FBE5424 		movsbl	49(%rsp), %edx	# MEM[(char *)&output + 1B], MEM[(char *)&output + 1B]
+ 399      31
+ 400              	# main.cpp:177:     return int(data[0][0] + data[0][1]);
+ 401              		.loc 1 177 39 view .LVU94
+ 402 01df 01D0     		addl	%edx, %eax	# MEM[(char *)&output + 1B], <retval>
+ 403              	# main.cpp:178: }
+ 178:main.cpp      **** }...
+ 404              		.loc 1 178 1 view .LVU95
+ 405 01e1 488BB424 		movq	11592(%rsp), %rsi	# D.4479, tmp193
+ 405      482D0000 
+ 406 01e9 64483334 		xorq	%fs:40, %rsi	# MEM[(<address-space-1> long unsigned int *)40B], tmp193
+ 406      25280000 
+ 406      00
+ 407 01f2 7531     		jne	.L11	#,
+ 408 01f4 4881C458 		addq	$11608, %rsp	#,
+ 408      2D0000
+ 409              		.cfi_remember_state
+ 410              		.cfi_def_cfa_offset 56
+ 411 01fb 5B       		popq	%rbx	#
+ 412              		.cfi_def_cfa_offset 48
+ 413 01fc 5D       		popq	%rbp	#
+ 414              		.cfi_def_cfa_offset 40
+ 415              	.LVL18:
+ 416              		.loc 1 178 1 view .LVU96
+ 417 01fd 415C     		popq	%r12	#
+ 418              		.cfi_def_cfa_offset 32
+ 419 01ff 415D     		popq	%r13	#
+ 420              		.cfi_def_cfa_offset 24
+ 421 0201 415E     		popq	%r14	#
+ 422              		.cfi_def_cfa_offset 16
+ 423 0203 415F     		popq	%r15	#
+ 424              		.cfi_def_cfa_offset 8
+ 425 0205 C3       		ret	
+ 426              	.LVL19:
+ 427              	.L2:
+ 428              		.cfi_restore_state
+ 429              	# main.cpp:114:     assert (argc == 1 + 2 + in_size);
+ 114:main.cpp      ****     assert (argc == 1 + 2 + in_size);
+ 430              		.loc 1 114 5 discriminator 1 view .LVU97
+ 431 0206 488D0D00 		leaq	.LC0(%rip), %rcx	#,
+ 431      000000
+ 432 020d BA720000 		movl	$114, %edx	#,
+ 432      00
+ 433 0212 488D3500 		leaq	.LC1(%rip), %rsi	#,
+ 433      000000
+ 434              	.LVL20:
+ 114:main.cpp      ****     assert (argc == 1 + 2 + in_size);
+ 435              		.loc 1 114 5 discriminator 1 view .LVU98
+ 436 0219 488D3D00 		leaq	.LC2(%rip), %rdi	#,
+ 436      000000
+ 437              	.LVL21:
+ 114:main.cpp      ****     assert (argc == 1 + 2 + in_size);
+ 438              		.loc 1 114 5 discriminator 1 view .LVU99
+ 439 0220 E8000000 		call	__assert_fail@PLT	#
+ 439      00
+ 440              	.LVL22:
+ 441              	.L11:
+ 442              	# main.cpp:178: }
+ 443              		.loc 1 178 1 view .LVU100
+ 444 0225 E8000000 		call	__stack_chk_fail@PLT	#
+ 444      00
+ 445              	.LVL23:
+ 446              		.cfi_endproc
+ 447              	.LFE35:
+ 449              		.section	.rodata.cst8,"aM",@progbits,8
+ 450              		.align 8
+ 451              	.LC3:
+ 452 0000 00000000 		.long	0
+ 453 0004 00007440 		.long	1081344000
+ 454              		.section	.rodata.cst4,"aM",@progbits,4
+ 455              		.align 4
+ 456              	.LC5:
+ 457 0000 0000803F 		.long	1065353216
+ 458              		.text
+ 459              	.Letext0:
+ 460              		.file 3 "/usr/include/c++/9/cstdlib"
+ 461              		.file 4 "/usr/include/c++/9/bits/std_abs.h"
+ 462              		.file 5 "/usr/include/x86_64-linux-gnu/c++/9/bits/c++config.h"
+ 463              		.file 6 "/usr/lib/gcc/x86_64-linux-gnu/9/include/stddef.h"
+ 464              		.file 7 "/usr/include/stdlib.h"
+ 465              		.file 8 "/usr/include/x86_64-linux-gnu/bits/types.h"
+ 466              		.file 9 "/usr/include/x86_64-linux-gnu/bits/stdint-intn.h"
+ 467              		.file 10 "/usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h"
+ 468              		.file 11 "/usr/include/x86_64-linux-gnu/bits/stdlib.h"
+ 469              		.file 12 "/usr/include/c++/9/stdlib.h"
+ 470              		.file 13 "<built-in>"
+ 471              		.file 14 "/usr/include/assert.h"
+ 4682              		.section	.note.gnu.property,"a"
+ 4683              		.align 8
+ 4684 0000 04000000 		.long	 1f - 0f
+ 4685 0004 10000000 		.long	 4f - 1f
+ 4686 0008 05000000 		.long	 5
+ 4687              	0:
+ 4688 000c 474E5500 		.string	 "GNU"
+ 4689              	1:
+ 4690              		.align 8
+ 4691 0010 020000C0 		.long	 0xc0000002
+ 4692 0014 04000000 		.long	 3f - 2f
+ 4693              	2:
+ 4694 0018 03000000 		.long	 0x3
+ 4695              	3:
+ 4696 001c 00000000 		.align 8
+ 4697              	4:

@@ -66,6 +66,13 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
   - interp<...>(..., structure); structure.next()
 - Make the code generic about nearest/linear/cubic interpolation by templating the mode by a number: e.g. 1, 2, 3
 
+### Step 6: Back to basics (#5 by Francisco)
+
+- [x] Test the code with older compiler like gcc 5.4
+- [ ] Inspect assembly code
+- [ ] Specialization tricks: https://github.com/pytorch/pytorch/blob/9cec8ae146c0b95b0f5dcd1c62ea4e83ee32f90c/aten/src/ATen/native/cpu/Loops.h#L387
+- [ ] Explore C10_RESTRICT
+
 
 ## Questions
 
@@ -744,6 +751,71 @@ Elapsed time (ms): 1.10881
 
 
 
+### Step 6
+
+
+```bash
+cd step_six && mkdir -p build && cd $_
+export TORCH_PATH=/pytorch/torch
+cmake -DTORCH_DIR=$TORCH_PATH ..
+make
+```
+
+```bash
+make && ./bench 20000
+```
+
+#### With GCC 5.4
+
+- Use libtorch
+
+```bash
+apt-get update && apt-get install -y wget p7zip-full
+cd /tmp
+wget https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared-with-deps-latest.zip
+7z x libtorch-cxx11-abi-shared-with-deps-latest.zip
+```
+
+- Install GCC 5.4
+
+```bash
+echo "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main\n" >> /etc/apt/sources.list
+echo "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe\n" >> /etc/apt/sources.list
+apt-get update
+
+apt-get install -y g++-5 gcc-5
+```
+
+- Build
+
+```bash
+cd step_six && mkdir -p build_gcc_54 && cd $_
+export CC=/usr/bin/gcc-5
+export CXX=/usr/bin/g++-5
+export TORCH_PATH=/tmp/libtorch
+cmake -DTORCH_DIR=$TORCH_PATH ..
+make
+```
+
+```bash
+make && ./bench
+```
+
+
+#### Assembly code generation
+
+```bash
+g++ -O3 -mavx -mfma -mavx2 -Wa,-aslh -g ../main.cpp -Iinterpolate.h -I${TORCH_PATH}/include -I${TORCH_PATH}/include/torch/csrc/api/include -L${TORCH_PATH}/lib/ -ltorch -ltorch_cpu -lc10  > assembly.txt
+```
+or 
+```bash
+g++ -O3 -mavx -mfma -mavx2 -S -fverbose-asm -g ../main.cpp -Iinterpolate.h -I${TORCH_PATH}/include -I${TORCH_PATH}/include/torch/csrc/api/include -L${TORCH_PATH}/lib/ -ltorch -ltorch_cpu -lc10 -o main.s
+
+as -alhnd main.s > main.lst
+```
+
+
+
 ## Upsampling code inspection
 
 <details>
@@ -966,8 +1038,16 @@ apt-get update && ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && 
 cd step_five && mkdir -p asan_build && cd $_
 export TORCH_PATH=/pytorch/torch
 cmake -DTORCH_DIR=$TORCH_PATH -DWITH_ASAN=yes ..
-make
+make && ./bench
+```
 
+### Step 6
+
+```bash
+cd step_six && mkdir -p asan_build && cd $_
+export TORCH_PATH=/pytorch/torch
+cmake -DTORCH_DIR=$TORCH_PATH -DWITH_ASAN=yes ..
+make && ./bench
 ```
 
 

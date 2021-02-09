@@ -1,0 +1,48 @@
+Torch config: PyTorch built with:      
+  - GCC 5.4                    
+  - C++ Version: 201402                                              
+  - Intel(R) Math Kernel Library Version 2020.0.0 Product Build 20191122 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v1.7.0 (Git Hash 7aed236906b1f7a05c0917e5257a1af05e9ff683)
+  - OpenMP 201307 (a.k.a. OpenMP 4.0)                                   
+  - NNPACK is enabled                    
+  - CPU capability usage: AVX2   
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, CXX_COMPILER=/usr/bin/c++, CXX_FLAGS= -D_GLIBCXX_USE_CXX11_ABI=1 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEB
+UG -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-
+unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=
+deprecated-declarations -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-mat
+h-errno -fno-trapping-math -Werror=format, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=0, USE_CUDNN=OFF, USE_EXCEPTION_PTR=1, USE_GFLAGS=OF
+F, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=ON, USE_OPENMP=ON,
+                                                                          
+                                                                                      
+                                                                 
+---- Benchmark 2D ----                                               
+                                                          
+Input tensor: [1, 3, 320, 320]     
+Num threads: 6                                                          
+                                                            
+- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.324091                                 
+                                                                            
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0739117     
+           
+- Bench upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.26262                                                                                        
+                                                                               
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.24564
+                              
+Input tensor: [1, 3, 500, 500]                                                                                                                                                                       
+Num threads: 6                                                                                                                                                                                       
+                                                                                                                                                                                                     
+- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256                                                                                                                              
+Elapsed time (ms): 0.322241                                                                                                                                                                          
+                                                                                                    
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0782732
+
+- Bench upsample_bilinear2d_cpu (7500 rounds) - upsampling to 800x800
+Elapsed time (ms): 3.27636
+                              
+- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.572197
