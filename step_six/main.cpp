@@ -18,6 +18,7 @@
 
 #define NUM_THREADS 6
 // #define INSPECT_ASSEMBLY_CODE
+// #define BENCH_3D_ONLY
 
 
 using namespace at;
@@ -574,22 +575,6 @@ int bench_3d(int n, bool full_bench) {
         std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
-    // {
-    //     int64_t osizes[3] = {8, 256, 256};
-    //     IntArrayRef output_size(osizes);
-
-    //     std::cout << "\n- Bench my_internal_upsample::pth_ti_upsample_trilinear3d_kernel_impl (" << n << " rounds) - downsampling to " << output_size << std::endl;
-    //     auto start = std::chrono::steady_clock::now();
-    //     for (int i=0; i<n; i++)
-    //     {
-    //         auto ref_out = my_internal_upsample::pth_ti_upsample_trilinear3d_kernel_impl(t_input, output_size, false);
-    //         auto result = ref_out.size(0);
-    //     }
-    //     auto end = std::chrono::steady_clock::now();
-    //     std::chrono::duration<double> elapsed_seconds = end - start;
-    //     std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    // }
-
     {
         int64_t osizes[3] = {8, 256, 256};
         IntArrayRef output_size(osizes);
@@ -808,9 +793,13 @@ int main(int argc, char** argv)
 
 #endif
 
+
+#ifdef BENCH_3D_ONLY
     std::cout << "\n\n---- Benchmark 3D ----" << std::endl;
     bench_3d(n / 10, full_bench);
     return 1;
+#endif
+
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256, 512);
