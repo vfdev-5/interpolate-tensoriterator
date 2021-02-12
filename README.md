@@ -806,10 +806,6 @@ make && ./bench
 #### Assembly code generation
 
 ```bash
-g++ -O3 -mavx -mfma -mavx2 -Wa,-aslh -g ../main.cpp -Iinterpolate.h -I${TORCH_PATH}/include -I${TORCH_PATH}/include/torch/csrc/api/include -L${TORCH_PATH}/lib/ -ltorch -ltorch_cpu -lc10  > assembly.txt
-```
-or 
-```bash
 g++ -O3 -mavx -mfma -mavx2 -S -fverbose-asm -g ../main.cpp -Iinterpolate.h -I${TORCH_PATH}/include -I${TORCH_PATH}/include/torch/csrc/api/include -L${TORCH_PATH}/lib/ -ltorch -ltorch_cpu -lc10 -o main.s
 
 as -alhnd main.s > main.lst

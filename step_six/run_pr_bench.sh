@@ -8,26 +8,26 @@ export PR_TORCH_PATH=/workspace/pth-linear-interp/torch
 
 
 # Build and run benchmark PTH vs This Repo
-filepath=../pth_vs_this_full_results.log.save
-mkdir -p build && cd build
+# filepath=../pth_vs_this_full_results.log.save
+# mkdir -p build && cd build
 
-cmake -DTORCH_DIR=$TORCH_PATH ..
-make
-cat $TORCH_PATH/version.py > $filepath
-echo "\n" >> $filepath
-./bench 20000 1 1 >> $filepath
+# cmake -DTORCH_DIR=$TORCH_PATH ..
+# make
+# cat $TORCH_PATH/version.py > $filepath
+# echo "\n" >> $filepath
+# ./bench 20000 1 1 >> $filepath
 
-cd ../
+# cd ../
 
 # Build and run benchmark PR vs This Repo
-filepath=../PR_vs_this_full_results.log.save
+filepath=../PR_vs_this_full_results.log2.save
 mkdir -p new_build && cd new_build
 
 cmake -DTORCH_DIR=$PR_TORCH_PATH ..
 make
 cat $PR_TORCH_PATH/version.py > $filepath
 echo "\n" >> $filepath
-./bench 20000 1 1 >> $filepath
+./bench 10000 1 1 >> $filepath
 
 cd ../
 
