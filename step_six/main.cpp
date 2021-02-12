@@ -5,6 +5,7 @@
 // Torch
 #include <ATen/ATen.h>
 #include <ATen/Parallel.h>
+#include <ATen/native/UpSample.h>
 
 #ifdef WITH_OPENCV
 #include <opencv2/core.hpp>
@@ -17,10 +18,12 @@
 
 #define NUM_THREADS 6
 // #define INSPECT_ASSEMBLY_CODE
+// #define BENCH_3D_ONLY
 
 
 using namespace at;
 using namespace at::native;
+using namespace at::indexing;
 
 
 void assert_consistency_bilinear2d(
@@ -156,24 +159,29 @@ void assert_consistency_trilinear3d(
 
 
 void assert_consistency_2d(int isize=320, int dn_osize=256, int up_osize=512) {
+
+    auto check = [](const at::Tensor & t, int osize1, int osize2){
+        assert_consistency_bilinear2d(t, -1, osize1);
+        assert_consistency_bilinear2d(t, -1, osize1, true);
+        assert_consistency_bilinear2d(t, -1, -1, false, 1.12, 1.23);
+        assert_consistency_bilinear2d(t, -1, -1, true, 1.12, 1.23);
+        assert_consistency_bilinear2d(t, -1, osize2);
+        assert_consistency_bilinear2d(t, -1, osize2, true);
+        assert_consistency_bilinear2d(t, -1, -1, false, 0.77, 0.88);
+        assert_consistency_bilinear2d(t, -1, -1, true, 0.77, 0.88);        
+    };
+
     for (auto dtype: {kFloat, kDouble}) {
         auto t_input = at::rand({1, 3, isize, isize}, CPU(dtype));
-        assert_consistency_bilinear2d(t_input, -1, dn_osize);
-        assert_consistency_bilinear2d(t_input, -1, dn_osize, true);
-        assert_consistency_bilinear2d(t_input, -1, -1, false, 1.12, 1.23);
-        assert_consistency_bilinear2d(t_input, -1, -1, true, 1.12, 1.23);
-        assert_consistency_bilinear2d(t_input, -1, up_osize);
-        assert_consistency_bilinear2d(t_input, -1, up_osize, true);
-        assert_consistency_bilinear2d(t_input, -1, -1, false, 0.77, 0.88);
-        assert_consistency_bilinear2d(t_input, -1, -1, true, 0.77, 0.88);
+        check(t_input, dn_osize, up_osize);
 
-        auto t_input_channel_last = at::rand({1, isize, isize, 3}, CPU(dtype));
-        t_input_channel_last = t_input_channel_last.permute({0, 3, 1, 2});
-        assert_consistency_bilinear2d(t_input_channel_last, -1, dn_osize, true);
-        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 0.77, 0.88);
-        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 0.77, 0.88);
-        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, true, 1.23, 1.23);
-        assert_consistency_bilinear2d(t_input_channel_last, -1, -1, false, 1.23, 1.23);
+        t_input = at::rand({1, isize, isize, 3}, CPU(dtype));
+        t_input = t_input.permute({0, 3, 1, 2});
+        check(t_input, dn_osize, up_osize);
+
+        t_input = at::rand({1, 3, isize + 100, isize + 100}, CPU(dtype));
+        t_input = t_input.index({"...", Slice(None, isize), Slice(None, isize)});
+        check(t_input, dn_osize, up_osize);
     }
 }
 
@@ -184,11 +192,83 @@ int bench_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osi
 
     auto t_input = at::rand({1, 3, isize, isize}, at::CPU(at::kFloat));
     std::cout << "\nInput tensor: " << t_input.sizes() << std::endl;
+    std::cout << "Input is_contiguous : " << t_input.is_contiguous() << std::endl;
  
     set_num_threads(NUM_THREADS);
     std::cout << "Num threads: " << get_num_threads() << std::endl;
 
     // Time benchmark
+    {
+        int64_t osizes[2] = {dn_osize, dn_osize};
+        IntArrayRef output_size(osizes);
+
+        std::cout << "\n- Bench upsample_bilinear2d_cpu (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto ref_out = upsample_bilinear2d_cpu(t_input, output_size, false);
+            auto result = ref_out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    {
+        int64_t osizes[2] = {dn_osize, dn_osize};
+        IntArrayRef output_size(osizes);
+
+        std::cout << "\n- Bench ti_upsample_bilinear2d_cpu (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto out = ti_upsample_bilinear2d_kernel_impl(t_input, output_size, false);
+            auto result = out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    {
+        int64_t osizes[2] = {up_osize, up_osize};
+        IntArrayRef output_size(osizes);
+
+        std::cout << "\n- Bench upsample_bilinear2d_cpu (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto ref_out = upsample_bilinear2d_cpu(t_input, output_size, false);
+            auto result = ref_out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    {
+        int64_t osizes[2] = {up_osize, up_osize};
+        IntArrayRef output_size(osizes);
+
+        std::cout << "\n- Bench ti_upsample_bilinear2d_cpu (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto out = ti_upsample_bilinear2d_kernel_impl(t_input, output_size, false);
+            auto result = out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
+    // Non-contiguous case:
+    t_input = at::rand({1, 3, isize + 100, isize + 100}, at::CPU(at::kFloat));
+    t_input = t_input.index({"...", Slice(None, isize), Slice(None, isize)});
+    std::cout << "\nInput tensor: " << t_input.sizes() << std::endl;
+    std::cout << "Input is_contiguous memory_format torch.channels_last: " << t_input.is_contiguous(at::MemoryFormat::ChannelsLast) << std::endl;
+    std::cout << "Input is_contiguous : " << t_input.is_contiguous() << std::endl;
+
     {
         int64_t osizes[2] = {dn_osize, dn_osize};
         IntArrayRef output_size(osizes);
@@ -711,6 +791,13 @@ int main(int argc, char** argv)
     std::cout << "- Assert consistency 3D" << std::endl;
     assert_consistency_3d();
 
+#endif
+
+
+#ifdef BENCH_3D_ONLY
+    std::cout << "\n\n---- Benchmark 3D ----" << std::endl;
+    bench_3d(n / 10, full_bench);
+    return 1;
 #endif
 
 
