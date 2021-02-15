@@ -11,6 +11,7 @@ export PR_TORCH_PATH=/workspace/pth-linear-interp/torch
 filepath=../pth_vs_this_full_results.log.save
 mkdir -p build && cd build
 
+rm -rf *
 cmake -DTORCH_DIR=$TORCH_PATH ..
 make
 cat $TORCH_PATH/version.py > $filepath
@@ -23,6 +24,7 @@ cd ../
 filepath=../PR_vs_this_full_results.log.save
 mkdir -p new_build && cd new_build
 
+rm -rf *
 cmake -DTORCH_DIR=$PR_TORCH_PATH ..
 make
 cat $PR_TORCH_PATH/version.py > $filepath

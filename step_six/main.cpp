@@ -5,7 +5,8 @@
 // Torch
 #include <ATen/ATen.h>
 #include <ATen/Parallel.h>
-#include <ATen/native/UpSample.h>
+// Fails with original pytorch as UpSample.h is missing #pragma once
+// #include <ATen/native/UpSample.h>
 
 #ifdef WITH_OPENCV
 #include <opencv2/core.hpp>

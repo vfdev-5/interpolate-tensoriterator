@@ -1,7 +1,7 @@
-__version__ = '1.8.0a0+ce3f1b4'
+__version__ = '1.8.0a0+ee32a0c'
 debug = False
 cuda = '11.1'
-git_version = 'ce3f1b46d7a55d5ad0dd3057b1963385fe15e1ea'
+git_version = 'ee32a0cc61e388a9730f0ee3530ce7f900dcbae9'
 hip = None
 
 
@@ -17,19 +17,36 @@ Torch config: PyTorch built with:
 ---- Benchmark 2D ----
 
 Input tensor: [1, 3, 320, 320]
+Input is_contiguous : 1
 Num threads: 6
 
 - Bench upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.073735
+Elapsed time (ms): 0.0744872
 
 - Bench ti_upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0729232
+Elapsed time (ms): 0.0725806
 
 - Bench upsample_bilinear2d_cpu (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.23216
+Elapsed time (ms): 0.232471
 
 - Bench ti_upsample_bilinear2d_cpu (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.236453
+Elapsed time (ms): 0.235997
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: 0
+Input is_contiguous : 0
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0718029
+
+- Bench ti_upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0723332
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.233698
+
+- Bench ti_upsample_bilinear2d_cpu (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.235611
 
 1 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
 
@@ -38,10 +55,10 @@ Input is_contiguous memory_format torch.channels_last: 1
 Input is_contiguous : 0
 
 - Bench upsample_bilinear2d_cpu (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 35.565
+Elapsed time (ms): 35.4973
 
 - Bench ti_upsample_bilinear2d_cpu (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 47.8532
+Elapsed time (ms): 47.6582
 
 2 - Benchmark test size as in https://github.com/mingfeima/op_bench-py
 
@@ -50,25 +67,42 @@ Input is_contiguous memory_format torch.channels_last: 0
 Input is_contiguous : 1
 
 - Bench upsample_bilinear2d_cpu (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 51.3201
+Elapsed time (ms): 51.5923
 
 - Bench ti_upsample_bilinear2d_cpu (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 51.6362
+Elapsed time (ms): 51.6982
 
 Input tensor: [1, 3, 500, 500]
+Input is_contiguous : 1
 Num threads: 6
 
 - Bench upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0747445
+Elapsed time (ms): 0.0743984
 
 - Bench ti_upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0744597
+Elapsed time (ms): 0.073482
 
 - Bench upsample_bilinear2d_cpu (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 0.542426
+Elapsed time (ms): 0.54185
 
 - Bench ti_upsample_bilinear2d_cpu (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 0.551677
+Elapsed time (ms): 0.549869
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: 0
+Input is_contiguous : 0
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0746859
+
+- Bench ti_upsample_bilinear2d_cpu (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0737499
+
+- Bench upsample_bilinear2d_cpu (20000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.543188
+
+- Bench ti_upsample_bilinear2d_cpu (20000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.549813
 
 
 ---- Benchmark 1D ----
@@ -77,16 +111,16 @@ Input tensor: [4, 512, 320]
 Num threads: 6
 
 - Bench upsample_linear1d_cpu (20000 rounds) - downsampling to 256
-Elapsed time (ms): 0.104401
+Elapsed time (ms): 0.103999
 
 - Bench ti_upsample_linear1d_cpu (20000 rounds) - downsampling to 256
-Elapsed time (ms): 0.102168
+Elapsed time (ms): 0.101855
 
 - Bench upsample_linear1d_cpu (20000 rounds) - upsampling to 512
-Elapsed time (ms): 0.19267
+Elapsed time (ms): 0.193131
 
 - Bench ti_upsample_linear1d_cpu (20000 rounds) - upsampling to 512
-Elapsed time (ms): 0.188752
+Elapsed time (ms): 0.187282
 
 
 ---- Benchmark 3D ----
@@ -95,13 +129,13 @@ Input tensor: [1, 3, 16, 320, 320]
 Num threads: 6
 
 - Bench upsample_trilinear3d_cpu (2000 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 2.11485
+Elapsed time (ms): 2.10854
 
 - Bench ti_upsample_trilinear3d_kernel_impl (2000 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 1.05858
+Elapsed time (ms): 1.05316
 
 - Bench upsample_trilinear3d_cpu (2000 rounds) - upsampling to [32, 512, 512]
-Elapsed time (ms): 44.3299
+Elapsed time (ms): 43.1917
 
 - Bench ti_upsample_trilinear3d_kernel_impl (2000 rounds) - upsampling to [32, 512, 512]
-Elapsed time (ms): 26.0051
+Elapsed time (ms): 25.9618
