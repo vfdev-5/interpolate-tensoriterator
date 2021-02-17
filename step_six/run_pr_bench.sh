@@ -16,8 +16,9 @@ cmake -DTORCH_DIR=$TORCH_PATH ..
 make
 cat $TORCH_PATH/version.py > $filepath
 echo "\n" >> $filepath
-./bench 20000 1 1 >> $filepath
-
+./bench 20000 1 1 6 >> $filepath
+echo "\n\n" >> $filepath
+./bench 20000 1 1 1 >> $filepath
 cd ../
 
 # Build and run benchmark PR vs This Repo
@@ -29,8 +30,9 @@ cmake -DTORCH_DIR=$PR_TORCH_PATH ..
 make
 cat $PR_TORCH_PATH/version.py > $filepath
 echo "\n" >> $filepath
-./bench 20000 1 1 >> $filepath
-
+./bench 20000 1 1 6 >> $filepath
+echo "\n\n" >> $filepath
+./bench 20000 1 1 1 >> $filepath
 cd ../
 
 
