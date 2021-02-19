@@ -38,6 +38,18 @@ static inline scalar_t interp_linear(char* src, char** data, const int64_t* stri
   return InterpLinear<n, scalar_t, index_t>::eval(src, data, strides, i);
 }
 
+template <typename scalar_t, typename index_t, int out_ndims>
+static inline void
+basic_loop(char** data, const int64_t* strides, const int64_t n) {
+  char* dst = data[0];
+  char* src = data[1];
+
+  for (int64_t i = 0; i < n; i++) {
+    *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+        src + i * strides[1], &data[2], &strides[2], i);
+  }
+}
+
 static inline bool is_zero_stride(const int64_t* strides) {
   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
 }
@@ -70,35 +82,28 @@ static inline bool is_all_zero_stride(const int64_t* strides) {
 }
 
 template <typename scalar_t, typename index_t, int out_ndims>
-static inline void
-basic_loop(char** data, const int64_t* strides, int64_t n) {
-  char* dst = data[0];
-  char* src = data[1];
-  for (int64_t i = 0; i < n; i++) {
-    *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
-        src + i * strides[1], &data[2], &strides[2], i);
-  }
-}
-
-template <typename scalar_t, typename index_t, int out_ndims>
-void ti_cpu_upsample_linear(char** data, const int64_t* strides, int64_t n) {
+void ti_cpu_upsample_linear(char** data, int64_t* strides, const int64_t n) {
 #ifdef WITH_STRIDES_OPTIM
     // special-cases to let the compiler apply compile-time input-specific optimizations
-    if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
-        is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
-      // contiguous channels-first case
-      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
-    } 
-    else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
+    // if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
+    //     is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
+    //   // contiguous channels-first case
+    //   basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+    // } 
+    // else 
+    if ((strides[0] == sizeof(scalar_t) && strides[1] == sizeof(scalar_t) &&
                is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
+    // if (strides[0] == sizeof(scalar_t) && strides[1] == sizeof(scalar_t) && n > 128) {
       // contiguous channels-last case
+
       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+    //   // simplified_basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     } 
-    else 
-    {
-      // fallback
-      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
-    }
+    // else 
+    // {
+    //   // fallback
+    //   basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+    // }
 #else
     basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
 #endif
@@ -107,23 +112,28 @@ void ti_cpu_upsample_linear(char** data, const int64_t* strides, int64_t n) {
 
 int main(int argc, char ** argv) {
 
-    const int64_t in_size = 320;
-    const int64_t out_size = 224;
+    int64_t in_size = atoi(argv[1]);
+    int64_t out_size = atoi(argv[2]);
     float scale = out_size / in_size;
 
-    assert (argc == 1 + 2 + in_size);
-
-    float output[out_size];
+    float * output = new float[out_size];
     for (int i=0; i<out_size; i++) {
         output[i] = 0.0;
     }
 
-    float input[in_size];
-    int32_t ix0[in_size], ix1[in_size], iy0[in_size], iy1[in_size];
-    float wx0[in_size], wx1[in_size], wy0[in_size], wy1[in_size];
+    float * input = new float[in_size];
+    int32_t * ix0 = new int32_t[in_size];
+    int32_t * ix1 = new int32_t[in_size];
+    int32_t * iy0 = new int32_t[in_size];
+    int32_t * iy1 = new int32_t[in_size];
+
+    float * wx0 = new float[in_size];
+    float * wx1 = new float[in_size];
+    float * wy0 = new float[in_size];
+    float * wy1 = new float[in_size];
 
     for (int i=0; i<in_size; i++) {
-        input[i] = atof(argv[1 + i]) * 1.0 / in_size;
+        input[i] = i + (i > 0) ? input[i - 1] : atof(argv[3]);
         ix0[i] = int32_t(i * scale);
         ix1[i] = ix0[i] + 1;
         wx0[i] = i * scale - ix0[i];
@@ -135,44 +145,40 @@ int main(int argc, char ** argv) {
         wy1[i] = 1.0 - wy0[i];
     }
 
-    char * data[] = {
-        (char *) output,
-        (char *) input,
-        (char *) iy0,
-        (char *) wy0,
-        (char *) iy1,
-        (char *) wy1,
-        (char *) ix0,
-        (char *) wx0,
-        (char *) ix1,
-        (char *) wx1,
-    };
+    char ** data = new char*[10];
+    data[0] = (char *) output;
+    data[1] = (char *) input;
+    data[2] = (char *) iy0;
+    data[3] = (char *) wy0;
+    data[4] = (char *) iy1;
+    data[5] = (char *) wy1;
+    data[6] = (char *) ix0;
+    data[7] = (char *) wx0;
+    data[8] = (char *) ix1;
+    data[9] = (char *) wx1;
 
-    int64_t strides[] = {
-        sizeof(float),
-        0,
+    int64_t * strides = new int64_t[10];
+    for (int i=0; i<10; i++) {
+        strides[i] = atoi(argv[4 + i]);
+    }
+    strides[0] = sizeof(float);
+    // strides[1] = sizeof(float);
 
-        0,  // iy0
-        0,  // wy0
-        0,  // iy1
-        0,  // wy1
-        sizeof(int32_t),  // ix0
-        sizeof(int32_t),  // wx0
-        sizeof(int32_t),  // ix1
-        sizeof(int32_t),  // wx1
+    // strides[2] = 0;  // iy0
+    // strides[3] = 0;  // wy0
+    // strides[4] = 0;  // iy1
+    // strides[5] = 0;  // wy1
 
-        // sizeof(int32_t),  // iy0
-        // sizeof(int32_t),  // wy0
-        // sizeof(int32_t),  // iy1
-        // sizeof(int32_t),  // wy1
-        // 0,  // ix0
-        // 0,  // wx0
-        // 0,  // ix1
-        // 0,  // wx1
+    // strides[6] = 0;  // ix0
+    // strides[7] = 0;  // wx0
+    // strides[8] = 0;  // ix1
+    // strides[9] = 0;  // wx1
 
-    };
+    // const int n = atoi(argv[4 + 10 + 1]);
+    const int n = argc;
+    // int n = 224;
 
-    ti_cpu_upsample_linear<float, int32_t, 2>(data, strides, out_size);
+    ti_cpu_upsample_linear<float, int32_t, 2>(data, strides, n);
 
     return int(data[0][0] + data[0][1]);
 }

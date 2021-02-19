@@ -114,15 +114,8 @@ int main(int argc, char** argv)
 
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
-    assert_consistency_2d(320, 256, 512);
-    sub_bench_2d_non_contiguous_channel_last(n, 320, 256, 512, 3);
-    sub_bench_2d_non_contiguous_channel_last(n, 320, 256, 512, 12);
-    sub_bench_2d_non_contiguous_channel_last(n, 320, 256, 512, 24);
-    sub_bench_2d_mingfeima_channel_last(n);
-    // bench_2d(n, full_bench, 320, 256, 512);
-    // if (full_bench) {
-    //     bench_2d(n, false, 500, 256, 800);
-    // }
+    bench_2d(n, full_bench, 320, 256, 512);
+    bench_2d(n, false, 500, 256, 800);
     std::cout << "\n---- END Benchmark 2D ----" << std::endl;
 
 #ifdef WITH_OPENCV
@@ -137,13 +130,13 @@ int main(int argc, char** argv)
 
     if (!test_all_dims) return 0;
 
-    // std::cout << "\n\n---- Benchmark 1D ----" << std::endl;
-    // bench_1d(n, full_bench);
-    // std::cout << "\n---- END Benchmark 1D ----" << std::endl;
+    std::cout << "\n\n---- Benchmark 1D ----" << std::endl;
+    bench_1d(n, full_bench);
+    std::cout << "\n---- END Benchmark 1D ----" << std::endl;
 
-    // std::cout << "\n\n---- Benchmark 3D ----" << std::endl;
-    // bench_3d(n / 10, full_bench);
-    // std::cout << "\n---- END Benchmark 3D ----" << std::endl;
+    std::cout << "\n\n---- Benchmark 3D ----" << std::endl;
+    bench_3d(n / 10, full_bench);
+    std::cout << "\n---- END Benchmark 3D ----" << std::endl;
 
     return 0;
 }

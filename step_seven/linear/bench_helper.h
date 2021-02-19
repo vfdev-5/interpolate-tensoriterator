@@ -269,7 +269,7 @@ inline void sub_bench_2d_contiguous_channel_first(int n, int isize, int dn_osize
 }
 
 
-inline void sub_bench_2d_mingfeima_channel_last(int n) {
+inline void sub_bench_2d_mingfeima_channel_last(int n, int isize, int dn_osize, int up_osize) {
     // ---- Test size as in https://github.com/mingfeima/op_bench-py
     n = n / 10;
 
@@ -352,8 +352,8 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
 } 
 
 
-inline void sub_bench_2d_non_contiguous_channel_last(int n, int isize, int dn_osize, int up_osize, int n_channels=3) {
-    auto t_input = at::rand({1, isize, isize, n_channels}, at::CPU(at::kFloat));
+inline void sub_bench_2d_non_contiguous_channel_last(int n, int isize, int dn_osize, int up_osize) {
+    auto t_input = at::rand({1, isize, isize, 3}, at::CPU(at::kFloat));
     t_input = t_input.permute({0, 3, 1, 2});  
     sub_bench_2d(n, t_input, dn_osize, up_osize);
 } 
@@ -364,13 +364,14 @@ inline void bench_2d(int n, bool full_bench, int isize, int dn_osize, int up_osi
     assert_consistency_2d(isize, dn_osize, up_osize);
 
     sub_bench_2d_contiguous_channel_first(n, isize, dn_osize, up_osize);
-    sub_bench_2d_non_contiguous_channel_last(n, isize, dn_osize, up_osize);
+    sub_bench_2d_non_contiguous_channel_first(n, isize, dn_osize, up_osize);
 
     if (!full_bench)
         return;
 
-    sub_bench_2d_non_contiguous_channel_first(n, isize, dn_osize, up_osize);
-    sub_bench_2d_mingfeima_channel_last(n);
+    sub_bench_2d_non_contiguous_channel_last(n, isize, dn_osize, up_osize);
+
+    sub_bench_2d_mingfeima_channel_last(n, isize, dn_osize, up_osize);
 }
 
 

@@ -806,7 +806,7 @@ make && ./bench
 #### Assembly code generation
 
 ```bash
-g++ -O3 -mavx -mfma -mavx2 -mno-avx256-split-unaligned-load -mno-avx256-split-unaligned-store -S -fverbose-asm -g ../main.cpp -Iinterpolate.h -I${TORCH_PATH}/include -I${TORCH_PATH}/include/torch/csrc/api/include -L${TORCH_PATH}/lib/ -ltorch -ltorch_cpu -lc10 -o main.s
+g++ -O3 -mavx -mfma -mavx2 -mno-avx256-split-unaligned-load -mno-avx256-split-unaligned-store -S -fverbose-asm -fopt-info-vec-missed -fopt-info-vec -g ../main.cpp -I.. -I${TORCH_PATH}/include -I${TORCH_PATH}/include/torch/csrc/api/include -L${TORCH_PATH}/lib/ -ltorch -ltorch_cpu -lc10 -o main.s
 
 as -alhnd main.s > main.lst
 ```
@@ -1059,3 +1059,7 @@ make && ./bench
 - https://dirtyhandscoding.wordpress.com/2017/08/02/vectorizing-stdmerge-with-vpermd-from-avx2-and-lookup-table/
 
 - https://chryswoods.com/vector_c++/
+
+- http://hpac.cs.umu.se/teaching/sem-accg-16/slides/08.Schmitz-GGC_Autovec.pdf
+
+- https://indico.cern.ch/event/771113/contributions/3203712/attachments/1746730/3022094/PracticalVectorization.pres.pdf

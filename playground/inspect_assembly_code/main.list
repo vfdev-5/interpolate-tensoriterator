@@ -1,0 +1,2523 @@
+   1              		.file	"main.cpp"
+   2              	# GNU C++14 (Ubuntu 9.3.0-17ubuntu1~20.04) version 9.3.0 (x86_64-linux-gnu)
+   3              	#	compiled by GNU C version 9.3.0, GMP version 6.2.0, MPFR version 4.0.2, MPC version 1.1.0, isl ve
+   4              	
+   5              	# GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+   6              	# options passed:  -imultiarch x86_64-linux-gnu -D_GNU_SOURCE main.cpp
+   7              	# -mavx -mfma -mavx2 -mtune=generic -march=x86-64 -auxbase-strip main.s -g
+   8              	# -O3 -fverbose-asm -fopt-info-vec-missed -fopt-info-vec
+   9              	# -fasynchronous-unwind-tables -fstack-protector-strong -Wformat
+  10              	# -Wformat-security -fstack-clash-protection -fcf-protection
+  11              	# options enabled:  -fPIC -fPIE -faggressive-loop-optimizations
+  12              	# -falign-functions -falign-jumps -falign-labels -falign-loops
+  13              	# -fassume-phsa -fasynchronous-unwind-tables -fauto-inc-dec
+  14              	# -fbranch-count-reg -fcaller-saves -fcode-hoisting
+  15              	# -fcombine-stack-adjustments -fcommon -fcompare-elim -fcprop-registers
+  16              	# -fcrossjumping -fcse-follow-jumps -fdefer-pop
+  17              	# -fdelete-null-pointer-checks -fdevirtualize -fdevirtualize-speculatively
+  18              	# -fdwarf2-cfi-asm -fearly-inlining -feliminate-unused-debug-types
+  19              	# -fexceptions -fexpensive-optimizations -fforward-propagate
+  20              	# -ffp-int-builtin-inexact -ffunction-cse -fgcse -fgcse-after-reload
+  21              	# -fgcse-lm -fgnu-runtime -fgnu-unique -fguess-branch-probability
+  22              	# -fhoist-adjacent-loads -fident -fif-conversion -fif-conversion2
+  23              	# -findirect-inlining -finline -finline-atomics -finline-functions
+  24              	# -finline-functions-called-once -finline-small-functions -fipa-bit-cp
+  25              	# -fipa-cp -fipa-cp-clone -fipa-icf -fipa-icf-functions -fipa-icf-variables
+  26              	# -fipa-profile -fipa-pure-const -fipa-ra -fipa-reference
+  27              	# -fipa-reference-addressable -fipa-sra -fipa-stack-alignment -fipa-vrp
+  28              	# -fira-hoist-pressure -fira-share-save-slots -fira-share-spill-slots
+  29              	# -fisolate-erroneous-paths-dereference -fivopts -fkeep-static-consts
+  30              	# -fleading-underscore -flifetime-dse -floop-interchange
+  31              	# -floop-unroll-and-jam -flra-remat -flto-odr-type-merging -fmath-errno
+  32              	# -fmerge-constants -fmerge-debug-strings -fmove-loop-invariants
+  33              	# -fomit-frame-pointer -foptimize-sibling-calls -foptimize-strlen
+  34              	# -fpartial-inlining -fpeel-loops -fpeephole -fpeephole2 -fplt
+  35              	# -fpredictive-commoning -fprefetch-loop-arrays -free -freg-struct-return
+  36              	# -freorder-blocks -freorder-blocks-and-partition -freorder-functions
+  37              	# -frerun-cse-after-loop -fsched-critical-path-heuristic
+  38              	# -fsched-dep-count-heuristic -fsched-group-heuristic -fsched-interblock
+  39              	# -fsched-last-insn-heuristic -fsched-rank-heuristic -fsched-spec
+  40              	# -fsched-spec-insn-heuristic -fsched-stalled-insns-dep -fschedule-fusion
+  41              	# -fschedule-insns2 -fsemantic-interposition -fshow-column -fshrink-wrap
+  42              	# -fshrink-wrap-separate -fsigned-zeros -fsplit-ivs-in-unroller
+  43              	# -fsplit-loops -fsplit-paths -fsplit-wide-types -fssa-backprop
+  44              	# -fssa-phiopt -fstack-clash-protection -fstack-protector-strong
+  45              	# -fstdarg-opt -fstore-merging -fstrict-aliasing
+  46              	# -fstrict-volatile-bitfields -fsync-libcalls -fthread-jumps
+  47              	# -ftoplevel-reorder -ftrapping-math -ftree-bit-ccp -ftree-builtin-call-dce
+  48              	# -ftree-ccp -ftree-ch -ftree-coalesce-vars -ftree-copy-prop -ftree-cselim
+  49              	# -ftree-dce -ftree-dominator-opts -ftree-dse -ftree-forwprop -ftree-fre
+  50              	# -ftree-loop-distribute-patterns -ftree-loop-distribution
+  51              	# -ftree-loop-if-convert -ftree-loop-im -ftree-loop-ivcanon
+  52              	# -ftree-loop-optimize -ftree-loop-vectorize -ftree-parallelize-loops=
+  53              	# -ftree-partial-pre -ftree-phiprop -ftree-pre -ftree-pta -ftree-reassoc
+  54              	# -ftree-scev-cprop -ftree-sink -ftree-slp-vectorize -ftree-slsr -ftree-sra
+  55              	# -ftree-switch-conversion -ftree-tail-merge -ftree-ter -ftree-vrp
+  56              	# -funit-at-a-time -funswitch-loops -funwind-tables -fvar-tracking
+  57              	# -fvar-tracking-assignments -fverbose-asm -fversion-loops-for-strides
+  58              	# -fzero-initialized-in-bss -m128bit-long-double -m64 -m80387
+  59              	# -malign-stringops -mavx -mavx2 -mavx256-split-unaligned-load
+  60              	# -mavx256-split-unaligned-store -mfancy-math-387 -mfma -mfp-ret-in-387
+  61              	# -mfxsr -mglibc -mieee-fp -mlong-double-80 -mmmx -mpopcnt -mpush-args
+  62              	# -mred-zone -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2 -mssse3 -mstv
+  63              	# -mtls-direct-seg-refs -mvzeroupper -mxsave
+  64              	
+  65              		.text
+  66              	.Ltext0:
+  67              		.section	.text.unlikely,"ax",@progbits
+  68              	.LCOLDB1:
+  69              		.section	.text.startup,"ax",@progbits
+  70              	.LHOTB1:
+  71              		.p2align 4
+  72              		.section	.text.unlikely
+  73              	.Ltext_cold0:
+  74              		.section	.text.startup
+  75              		.globl	main
+  77              	main:
+  78              	.LVL0:
+  79              	.LFB35:
+  80              		.file 1 "main.cpp"
+   1:main.cpp      **** 
+   2:main.cpp      **** #define WITH_STRIDES_OPTIM
+   3:main.cpp      **** 
+   4:main.cpp      **** #include <stdlib.h>
+   5:main.cpp      **** #include <cassert>
+   6:main.cpp      **** 
+   7:main.cpp      **** 
+   8:main.cpp      **** template <int n, typename scalar_t, typename index_t>
+   9:main.cpp      **** struct InterpLinear {
+  10:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+  11:main.cpp      ****         index_t i0 = *(index_t*)&data[0][i * strides[0]];
+  12:main.cpp      ****         index_t i1 = *(index_t*)&data[2][i * strides[2]];
+  13:main.cpp      ****         scalar_t w0 = *(scalar_t *)&data[1][i * strides[1]];
+  14:main.cpp      ****         scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
+  15:main.cpp      **** 
+  16:main.cpp      ****         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4], &strides[4],
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+  18:main.cpp      **** 
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+  20:main.cpp      ****     }
+  21:main.cpp      **** };
+  22:main.cpp      **** 
+  23:main.cpp      **** template <typename scalar_t, typename index_t>
+  24:main.cpp      **** struct InterpLinear<1, scalar_t, index_t> {
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+  26:main.cpp      ****         index_t i0 = *(index_t*)&data[0][i * strides[0]];
+  27:main.cpp      ****         index_t i1 = *(index_t*)&data[2][i * strides[2]];
+  28:main.cpp      ****         scalar_t w0 = *(scalar_t *)&data[1][i * strides[1]];
+  29:main.cpp      ****         scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
+  30:main.cpp      ****         scalar_t t0 = *(scalar_t *)&src[i0];
+  31:main.cpp      ****         scalar_t t1 = *(scalar_t *)&src[i1];
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+  33:main.cpp      ****     }
+  34:main.cpp      **** };
+  35:main.cpp      **** 
+  36:main.cpp      **** template <int n, typename scalar_t, typename index_t>
+  37:main.cpp      **** static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
+  38:main.cpp      ****   return InterpLinear<n, scalar_t, index_t>::eval(src, data, strides, i);
+  39:main.cpp      **** }
+  40:main.cpp      **** 
+  41:main.cpp      **** template <typename scalar_t, typename index_t, int out_ndims>
+  42:main.cpp      **** static inline void
+  43:main.cpp      **** basic_loop(char** data, const int64_t* strides, const int64_t n) {
+  44:main.cpp      ****   char* dst = data[0];
+  45:main.cpp      ****   char* src = data[1];
+  46:main.cpp      **** 
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  49:main.cpp      ****         src + i * strides[1], &data[2], &strides[2], i);
+  50:main.cpp      ****   }
+  51:main.cpp      **** }
+  52:main.cpp      **** 
+  53:main.cpp      **** static inline bool is_zero_stride(const int64_t* strides) {
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+  55:main.cpp      **** }
+  56:main.cpp      **** 
+  57:main.cpp      **** template <typename scalar_t, typename index_t>
+  58:main.cpp      **** static inline bool is_contiguous_stride(const int64_t* strides) {
+  59:main.cpp      ****   return (strides[0] == sizeof(index_t)) && (strides[1] == sizeof(scalar_t)) &&
+  60:main.cpp      ****          (strides[2] == sizeof(index_t)) && (strides[3] == sizeof(scalar_t));
+  61:main.cpp      **** }
+  62:main.cpp      **** 
+  63:main.cpp      **** // TODO: semantics of s are a bit weird maybe?
+  64:main.cpp      **** template <int N, int s, typename scalar_t, typename index_t>
+  65:main.cpp      **** struct IsAllZeroStride {
+  66:main.cpp      ****   static inline bool eval(const int64_t* strides) {
+  67:main.cpp      ****     return (N == s ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides)) &&
+  68:main.cpp      ****             IsAllZeroStride<N - 1, s, scalar_t, index_t>::eval(&strides[4]);
+  69:main.cpp      ****   }
+  70:main.cpp      **** };
+  71:main.cpp      **** 
+  72:main.cpp      **** template <int s, typename scalar_t, typename index_t>
+  73:main.cpp      **** struct IsAllZeroStride<1, s, scalar_t, index_t> {
+  74:main.cpp      ****   static inline bool eval(const int64_t* strides) {
+  75:main.cpp      ****     return (s == 1 ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides));
+  76:main.cpp      ****   }
+  77:main.cpp      **** };
+  78:main.cpp      **** 
+  79:main.cpp      **** template <int n, int s, typename scalar_t, typename index_t>
+  80:main.cpp      **** static inline bool is_all_zero_stride(const int64_t* strides) {
+  81:main.cpp      ****   return IsAllZeroStride<n, s, scalar_t, index_t>::eval(strides);
+  82:main.cpp      **** }
+  83:main.cpp      **** 
+  84:main.cpp      **** template <typename scalar_t, typename index_t, int out_ndims>
+  85:main.cpp      **** void ti_cpu_upsample_linear(char** data, int64_t* strides, const int64_t n) {
+  86:main.cpp      **** #ifdef WITH_STRIDES_OPTIM
+  87:main.cpp      ****     // special-cases to let the compiler apply compile-time input-specific optimizations
+  88:main.cpp      ****     // if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
+  89:main.cpp      ****     //     is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
+  90:main.cpp      ****     //   // contiguous channels-first case
+  91:main.cpp      ****     //   basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+  92:main.cpp      ****     // } 
+  93:main.cpp      ****     // else 
+  94:main.cpp      ****     if ((strides[0] == sizeof(scalar_t) && strides[1] == sizeof(scalar_t) &&
+  95:main.cpp      ****                is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
+  96:main.cpp      ****     // if (strides[0] == sizeof(scalar_t) && strides[1] == sizeof(scalar_t) && n > 128) {
+  97:main.cpp      ****       // contiguous channels-last case
+  98:main.cpp      **** 
+  99:main.cpp      ****       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+ 100:main.cpp      ****     //   // simplified_basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+ 101:main.cpp      ****     } 
+ 102:main.cpp      ****     // else 
+ 103:main.cpp      ****     // {
+ 104:main.cpp      ****     //   // fallback
+ 105:main.cpp      ****     //   basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+ 106:main.cpp      ****     // }
+ 107:main.cpp      **** #else
+ 108:main.cpp      ****     basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+ 109:main.cpp      **** #endif
+ 110:main.cpp      **** }
+ 111:main.cpp      **** 
+ 112:main.cpp      **** 
+ 113:main.cpp      **** int main(int argc, char ** argv) {
+  81              		.loc 1 113 34 view -0
+  82              		.cfi_startproc
+  83              		.loc 1 113 34 is_stmt 0 view .LVU1
+  84 0000 F30F1EFA 		endbr64	
+ 114:main.cpp      **** 
+ 115:main.cpp      ****     int64_t in_size = atoi(argv[1]);
+  85              		.loc 1 115 5 is_stmt 1 view .LVU2
+  86              	.LVL1:
+  87              	.LBB88:
+  88              	.LBI88:
+  89              		.file 2 "/usr/include/stdlib.h"
+   1:/usr/include/stdlib.h **** /* Copyright (C) 1991-2020 Free Software Foundation, Inc.
+   2:/usr/include/stdlib.h ****    This file is part of the GNU C Library.
+   3:/usr/include/stdlib.h **** 
+   4:/usr/include/stdlib.h ****    The GNU C Library is free software; you can redistribute it and/or
+   5:/usr/include/stdlib.h ****    modify it under the terms of the GNU Lesser General Public
+   6:/usr/include/stdlib.h ****    License as published by the Free Software Foundation; either
+   7:/usr/include/stdlib.h ****    version 2.1 of the License, or (at your option) any later version.
+   8:/usr/include/stdlib.h **** 
+   9:/usr/include/stdlib.h ****    The GNU C Library is distributed in the hope that it will be useful,
+  10:/usr/include/stdlib.h ****    but WITHOUT ANY WARRANTY; without even the implied warranty of
+  11:/usr/include/stdlib.h ****    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  12:/usr/include/stdlib.h ****    Lesser General Public License for more details.
+  13:/usr/include/stdlib.h **** 
+  14:/usr/include/stdlib.h ****    You should have received a copy of the GNU Lesser General Public
+  15:/usr/include/stdlib.h ****    License along with the GNU C Library; if not, see
+  16:/usr/include/stdlib.h ****    <https://www.gnu.org/licenses/>.  */
+  17:/usr/include/stdlib.h **** 
+  18:/usr/include/stdlib.h **** /*
+  19:/usr/include/stdlib.h ****  *	ISO C99 Standard: 7.20 General utilities	<stdlib.h>
+  20:/usr/include/stdlib.h ****  */
+  21:/usr/include/stdlib.h **** 
+  22:/usr/include/stdlib.h **** #ifndef	_STDLIB_H
+  23:/usr/include/stdlib.h **** 
+  24:/usr/include/stdlib.h **** #define __GLIBC_INTERNAL_STARTING_HEADER_IMPLEMENTATION
+  25:/usr/include/stdlib.h **** #include <bits/libc-header-start.h>
+  26:/usr/include/stdlib.h **** 
+  27:/usr/include/stdlib.h **** /* Get size_t, wchar_t and NULL from <stddef.h>.  */
+  28:/usr/include/stdlib.h **** #define __need_size_t
+  29:/usr/include/stdlib.h **** #define __need_wchar_t
+  30:/usr/include/stdlib.h **** #define __need_NULL
+  31:/usr/include/stdlib.h **** #include <stddef.h>
+  32:/usr/include/stdlib.h **** 
+  33:/usr/include/stdlib.h **** __BEGIN_DECLS
+  34:/usr/include/stdlib.h **** 
+  35:/usr/include/stdlib.h **** #define	_STDLIB_H	1
+  36:/usr/include/stdlib.h **** 
+  37:/usr/include/stdlib.h **** #if (defined __USE_XOPEN || defined __USE_XOPEN2K8) && !defined _SYS_WAIT_H
+  38:/usr/include/stdlib.h **** /* XPG requires a few symbols from <sys/wait.h> being defined.  */
+  39:/usr/include/stdlib.h **** # include <bits/waitflags.h>
+  40:/usr/include/stdlib.h **** # include <bits/waitstatus.h>
+  41:/usr/include/stdlib.h **** 
+  42:/usr/include/stdlib.h **** /* Define the macros <sys/wait.h> also would define this way.  */
+  43:/usr/include/stdlib.h **** # define WEXITSTATUS(status)	__WEXITSTATUS (status)
+  44:/usr/include/stdlib.h **** # define WTERMSIG(status)	__WTERMSIG (status)
+  45:/usr/include/stdlib.h **** # define WSTOPSIG(status)	__WSTOPSIG (status)
+  46:/usr/include/stdlib.h **** # define WIFEXITED(status)	__WIFEXITED (status)
+  47:/usr/include/stdlib.h **** # define WIFSIGNALED(status)	__WIFSIGNALED (status)
+  48:/usr/include/stdlib.h **** # define WIFSTOPPED(status)	__WIFSTOPPED (status)
+  49:/usr/include/stdlib.h **** # ifdef __WIFCONTINUED
+  50:/usr/include/stdlib.h **** #  define WIFCONTINUED(status)	__WIFCONTINUED (status)
+  51:/usr/include/stdlib.h **** # endif
+  52:/usr/include/stdlib.h **** #endif	/* X/Open or XPG7 and <sys/wait.h> not included.  */
+  53:/usr/include/stdlib.h **** 
+  54:/usr/include/stdlib.h **** /* _FloatN API tests for enablement.  */
+  55:/usr/include/stdlib.h **** #include <bits/floatn.h>
+  56:/usr/include/stdlib.h **** 
+  57:/usr/include/stdlib.h **** /* Returned by `div'.  */
+  58:/usr/include/stdlib.h **** typedef struct
+  59:/usr/include/stdlib.h ****   {
+  60:/usr/include/stdlib.h ****     int quot;			/* Quotient.  */
+  61:/usr/include/stdlib.h ****     int rem;			/* Remainder.  */
+  62:/usr/include/stdlib.h ****   } div_t;
+  63:/usr/include/stdlib.h **** 
+  64:/usr/include/stdlib.h **** /* Returned by `ldiv'.  */
+  65:/usr/include/stdlib.h **** #ifndef __ldiv_t_defined
+  66:/usr/include/stdlib.h **** typedef struct
+  67:/usr/include/stdlib.h ****   {
+  68:/usr/include/stdlib.h ****     long int quot;		/* Quotient.  */
+  69:/usr/include/stdlib.h ****     long int rem;		/* Remainder.  */
+  70:/usr/include/stdlib.h ****   } ldiv_t;
+  71:/usr/include/stdlib.h **** # define __ldiv_t_defined	1
+  72:/usr/include/stdlib.h **** #endif
+  73:/usr/include/stdlib.h **** 
+  74:/usr/include/stdlib.h **** #if defined __USE_ISOC99 && !defined __lldiv_t_defined
+  75:/usr/include/stdlib.h **** /* Returned by `lldiv'.  */
+  76:/usr/include/stdlib.h **** __extension__ typedef struct
+  77:/usr/include/stdlib.h ****   {
+  78:/usr/include/stdlib.h ****     long long int quot;		/* Quotient.  */
+  79:/usr/include/stdlib.h ****     long long int rem;		/* Remainder.  */
+  80:/usr/include/stdlib.h ****   } lldiv_t;
+  81:/usr/include/stdlib.h **** # define __lldiv_t_defined	1
+  82:/usr/include/stdlib.h **** #endif
+  83:/usr/include/stdlib.h **** 
+  84:/usr/include/stdlib.h **** 
+  85:/usr/include/stdlib.h **** /* The largest number rand will return (same as INT_MAX).  */
+  86:/usr/include/stdlib.h **** #define	RAND_MAX	2147483647
+  87:/usr/include/stdlib.h **** 
+  88:/usr/include/stdlib.h **** 
+  89:/usr/include/stdlib.h **** /* We define these the same for all machines.
+  90:/usr/include/stdlib.h ****    Changes from this to the outside world should be done in `_exit'.  */
+  91:/usr/include/stdlib.h **** #define	EXIT_FAILURE	1	/* Failing exit status.  */
+  92:/usr/include/stdlib.h **** #define	EXIT_SUCCESS	0	/* Successful exit status.  */
+  93:/usr/include/stdlib.h **** 
+  94:/usr/include/stdlib.h **** 
+  95:/usr/include/stdlib.h **** /* Maximum length of a multibyte character in the current locale.  */
+  96:/usr/include/stdlib.h **** #define	MB_CUR_MAX	(__ctype_get_mb_cur_max ())
+  97:/usr/include/stdlib.h **** extern size_t __ctype_get_mb_cur_max (void) __THROW __wur;
+  98:/usr/include/stdlib.h **** 
+  99:/usr/include/stdlib.h **** 
+ 100:/usr/include/stdlib.h **** /* Convert a string to a floating-point number.  */
+ 101:/usr/include/stdlib.h **** extern double atof (const char *__nptr)
+ 102:/usr/include/stdlib.h ****      __THROW __attribute_pure__ __nonnull ((1)) __wur;
+ 103:/usr/include/stdlib.h **** /* Convert a string to an integer.  */
+ 104:/usr/include/stdlib.h **** extern int atoi (const char *__nptr)
+ 105:/usr/include/stdlib.h ****      __THROW __attribute_pure__ __nonnull ((1)) __wur;
+ 106:/usr/include/stdlib.h **** /* Convert a string to a long integer.  */
+ 107:/usr/include/stdlib.h **** extern long int atol (const char *__nptr)
+ 108:/usr/include/stdlib.h ****      __THROW __attribute_pure__ __nonnull ((1)) __wur;
+ 109:/usr/include/stdlib.h **** 
+ 110:/usr/include/stdlib.h **** #ifdef __USE_ISOC99
+ 111:/usr/include/stdlib.h **** /* Convert a string to a long long integer.  */
+ 112:/usr/include/stdlib.h **** __extension__ extern long long int atoll (const char *__nptr)
+ 113:/usr/include/stdlib.h ****      __THROW __attribute_pure__ __nonnull ((1)) __wur;
+ 114:/usr/include/stdlib.h **** #endif
+ 115:/usr/include/stdlib.h **** 
+ 116:/usr/include/stdlib.h **** /* Convert a string to a floating-point number.  */
+ 117:/usr/include/stdlib.h **** extern double strtod (const char *__restrict __nptr,
+ 118:/usr/include/stdlib.h **** 		      char **__restrict __endptr)
+ 119:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 120:/usr/include/stdlib.h **** 
+ 121:/usr/include/stdlib.h **** #ifdef	__USE_ISOC99
+ 122:/usr/include/stdlib.h **** /* Likewise for `float' and `long double' sizes of floating-point numbers.  */
+ 123:/usr/include/stdlib.h **** extern float strtof (const char *__restrict __nptr,
+ 124:/usr/include/stdlib.h **** 		     char **__restrict __endptr) __THROW __nonnull ((1));
+ 125:/usr/include/stdlib.h **** 
+ 126:/usr/include/stdlib.h **** extern long double strtold (const char *__restrict __nptr,
+ 127:/usr/include/stdlib.h **** 			    char **__restrict __endptr)
+ 128:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 129:/usr/include/stdlib.h **** #endif
+ 130:/usr/include/stdlib.h **** 
+ 131:/usr/include/stdlib.h **** /* Likewise for '_FloatN' and '_FloatNx'.  */
+ 132:/usr/include/stdlib.h **** 
+ 133:/usr/include/stdlib.h **** #if __HAVE_FLOAT16 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 134:/usr/include/stdlib.h **** extern _Float16 strtof16 (const char *__restrict __nptr,
+ 135:/usr/include/stdlib.h **** 			  char **__restrict __endptr)
+ 136:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 137:/usr/include/stdlib.h **** #endif
+ 138:/usr/include/stdlib.h **** 
+ 139:/usr/include/stdlib.h **** #if __HAVE_FLOAT32 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 140:/usr/include/stdlib.h **** extern _Float32 strtof32 (const char *__restrict __nptr,
+ 141:/usr/include/stdlib.h **** 			  char **__restrict __endptr)
+ 142:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 143:/usr/include/stdlib.h **** #endif
+ 144:/usr/include/stdlib.h **** 
+ 145:/usr/include/stdlib.h **** #if __HAVE_FLOAT64 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 146:/usr/include/stdlib.h **** extern _Float64 strtof64 (const char *__restrict __nptr,
+ 147:/usr/include/stdlib.h **** 			  char **__restrict __endptr)
+ 148:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 149:/usr/include/stdlib.h **** #endif
+ 150:/usr/include/stdlib.h **** 
+ 151:/usr/include/stdlib.h **** #if __HAVE_FLOAT128 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 152:/usr/include/stdlib.h **** extern _Float128 strtof128 (const char *__restrict __nptr,
+ 153:/usr/include/stdlib.h **** 			    char **__restrict __endptr)
+ 154:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 155:/usr/include/stdlib.h **** #endif
+ 156:/usr/include/stdlib.h **** 
+ 157:/usr/include/stdlib.h **** #if __HAVE_FLOAT32X && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 158:/usr/include/stdlib.h **** extern _Float32x strtof32x (const char *__restrict __nptr,
+ 159:/usr/include/stdlib.h **** 			    char **__restrict __endptr)
+ 160:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 161:/usr/include/stdlib.h **** #endif
+ 162:/usr/include/stdlib.h **** 
+ 163:/usr/include/stdlib.h **** #if __HAVE_FLOAT64X && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 164:/usr/include/stdlib.h **** extern _Float64x strtof64x (const char *__restrict __nptr,
+ 165:/usr/include/stdlib.h **** 			    char **__restrict __endptr)
+ 166:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 167:/usr/include/stdlib.h **** #endif
+ 168:/usr/include/stdlib.h **** 
+ 169:/usr/include/stdlib.h **** #if __HAVE_FLOAT128X && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 170:/usr/include/stdlib.h **** extern _Float128x strtof128x (const char *__restrict __nptr,
+ 171:/usr/include/stdlib.h **** 			      char **__restrict __endptr)
+ 172:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 173:/usr/include/stdlib.h **** #endif
+ 174:/usr/include/stdlib.h **** 
+ 175:/usr/include/stdlib.h **** /* Convert a string to a long integer.  */
+ 176:/usr/include/stdlib.h **** extern long int strtol (const char *__restrict __nptr,
+ 177:/usr/include/stdlib.h **** 			char **__restrict __endptr, int __base)
+ 178:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 179:/usr/include/stdlib.h **** /* Convert a string to an unsigned long integer.  */
+ 180:/usr/include/stdlib.h **** extern unsigned long int strtoul (const char *__restrict __nptr,
+ 181:/usr/include/stdlib.h **** 				  char **__restrict __endptr, int __base)
+ 182:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 183:/usr/include/stdlib.h **** 
+ 184:/usr/include/stdlib.h **** #ifdef __USE_MISC
+ 185:/usr/include/stdlib.h **** /* Convert a string to a quadword integer.  */
+ 186:/usr/include/stdlib.h **** __extension__
+ 187:/usr/include/stdlib.h **** extern long long int strtoq (const char *__restrict __nptr,
+ 188:/usr/include/stdlib.h **** 			     char **__restrict __endptr, int __base)
+ 189:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 190:/usr/include/stdlib.h **** /* Convert a string to an unsigned quadword integer.  */
+ 191:/usr/include/stdlib.h **** __extension__
+ 192:/usr/include/stdlib.h **** extern unsigned long long int strtouq (const char *__restrict __nptr,
+ 193:/usr/include/stdlib.h **** 				       char **__restrict __endptr, int __base)
+ 194:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 195:/usr/include/stdlib.h **** #endif /* Use misc.  */
+ 196:/usr/include/stdlib.h **** 
+ 197:/usr/include/stdlib.h **** #ifdef __USE_ISOC99
+ 198:/usr/include/stdlib.h **** /* Convert a string to a quadword integer.  */
+ 199:/usr/include/stdlib.h **** __extension__
+ 200:/usr/include/stdlib.h **** extern long long int strtoll (const char *__restrict __nptr,
+ 201:/usr/include/stdlib.h **** 			      char **__restrict __endptr, int __base)
+ 202:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 203:/usr/include/stdlib.h **** /* Convert a string to an unsigned quadword integer.  */
+ 204:/usr/include/stdlib.h **** __extension__
+ 205:/usr/include/stdlib.h **** extern unsigned long long int strtoull (const char *__restrict __nptr,
+ 206:/usr/include/stdlib.h **** 					char **__restrict __endptr, int __base)
+ 207:/usr/include/stdlib.h ****      __THROW __nonnull ((1));
+ 208:/usr/include/stdlib.h **** #endif /* ISO C99 or use MISC.  */
+ 209:/usr/include/stdlib.h **** 
+ 210:/usr/include/stdlib.h **** /* Convert a floating-point number to a string.  */
+ 211:/usr/include/stdlib.h **** #if __GLIBC_USE (IEC_60559_BFP_EXT_C2X)
+ 212:/usr/include/stdlib.h **** extern int strfromd (char *__dest, size_t __size, const char *__format,
+ 213:/usr/include/stdlib.h **** 		     double __f)
+ 214:/usr/include/stdlib.h ****      __THROW __nonnull ((3));
+ 215:/usr/include/stdlib.h **** 
+ 216:/usr/include/stdlib.h **** extern int strfromf (char *__dest, size_t __size, const char *__format,
+ 217:/usr/include/stdlib.h **** 		     float __f)
+ 218:/usr/include/stdlib.h ****      __THROW __nonnull ((3));
+ 219:/usr/include/stdlib.h **** 
+ 220:/usr/include/stdlib.h **** extern int strfroml (char *__dest, size_t __size, const char *__format,
+ 221:/usr/include/stdlib.h **** 		     long double __f)
+ 222:/usr/include/stdlib.h ****      __THROW __nonnull ((3));
+ 223:/usr/include/stdlib.h **** #endif
+ 224:/usr/include/stdlib.h **** 
+ 225:/usr/include/stdlib.h **** #if __HAVE_FLOAT16 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 226:/usr/include/stdlib.h **** extern int strfromf16 (char *__dest, size_t __size, const char * __format,
+ 227:/usr/include/stdlib.h **** 		       _Float16 __f)
+ 228:/usr/include/stdlib.h ****      __THROW __nonnull ((3));
+ 229:/usr/include/stdlib.h **** #endif
+ 230:/usr/include/stdlib.h **** 
+ 231:/usr/include/stdlib.h **** #if __HAVE_FLOAT32 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 232:/usr/include/stdlib.h **** extern int strfromf32 (char *__dest, size_t __size, const char * __format,
+ 233:/usr/include/stdlib.h **** 		       _Float32 __f)
+ 234:/usr/include/stdlib.h ****      __THROW __nonnull ((3));
+ 235:/usr/include/stdlib.h **** #endif
+ 236:/usr/include/stdlib.h **** 
+ 237:/usr/include/stdlib.h **** #if __HAVE_FLOAT64 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 238:/usr/include/stdlib.h **** extern int strfromf64 (char *__dest, size_t __size, const char * __format,
+ 239:/usr/include/stdlib.h **** 		       _Float64 __f)
+ 240:/usr/include/stdlib.h ****      __THROW __nonnull ((3));
+ 241:/usr/include/stdlib.h **** #endif
+ 242:/usr/include/stdlib.h **** 
+ 243:/usr/include/stdlib.h **** #if __HAVE_FLOAT128 && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 244:/usr/include/stdlib.h **** extern int strfromf128 (char *__dest, size_t __size, const char * __format,
+ 245:/usr/include/stdlib.h **** 			_Float128 __f)
+ 246:/usr/include/stdlib.h ****      __THROW __nonnull ((3));
+ 247:/usr/include/stdlib.h **** #endif
+ 248:/usr/include/stdlib.h **** 
+ 249:/usr/include/stdlib.h **** #if __HAVE_FLOAT32X && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 250:/usr/include/stdlib.h **** extern int strfromf32x (char *__dest, size_t __size, const char * __format,
+ 251:/usr/include/stdlib.h **** 			_Float32x __f)
+ 252:/usr/include/stdlib.h ****      __THROW __nonnull ((3));
+ 253:/usr/include/stdlib.h **** #endif
+ 254:/usr/include/stdlib.h **** 
+ 255:/usr/include/stdlib.h **** #if __HAVE_FLOAT64X && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 256:/usr/include/stdlib.h **** extern int strfromf64x (char *__dest, size_t __size, const char * __format,
+ 257:/usr/include/stdlib.h **** 			_Float64x __f)
+ 258:/usr/include/stdlib.h ****      __THROW __nonnull ((3));
+ 259:/usr/include/stdlib.h **** #endif
+ 260:/usr/include/stdlib.h **** 
+ 261:/usr/include/stdlib.h **** #if __HAVE_FLOAT128X && __GLIBC_USE (IEC_60559_TYPES_EXT)
+ 262:/usr/include/stdlib.h **** extern int strfromf128x (char *__dest, size_t __size, const char * __format,
+ 263:/usr/include/stdlib.h **** 			 _Float128x __f)
+ 264:/usr/include/stdlib.h ****      __THROW __nonnull ((3));
+ 265:/usr/include/stdlib.h **** #endif
+ 266:/usr/include/stdlib.h **** 
+ 267:/usr/include/stdlib.h **** 
+ 268:/usr/include/stdlib.h **** #ifdef __USE_GNU
+ 269:/usr/include/stdlib.h **** /* Parallel versions of the functions above which take the locale to
+ 270:/usr/include/stdlib.h ****    use as an additional parameter.  These are GNU extensions inspired
+ 271:/usr/include/stdlib.h ****    by the POSIX.1-2008 extended locale API.  */
+ 272:/usr/include/stdlib.h **** # include <bits/types/locale_t.h>
+ 273:/usr/include/stdlib.h **** 
+ 274:/usr/include/stdlib.h **** extern long int strtol_l (const char *__restrict __nptr,
+ 275:/usr/include/stdlib.h **** 			  char **__restrict __endptr, int __base,
+ 276:/usr/include/stdlib.h **** 			  locale_t __loc) __THROW __nonnull ((1, 4));
+ 277:/usr/include/stdlib.h **** 
+ 278:/usr/include/stdlib.h **** extern unsigned long int strtoul_l (const char *__restrict __nptr,
+ 279:/usr/include/stdlib.h **** 				    char **__restrict __endptr,
+ 280:/usr/include/stdlib.h **** 				    int __base, locale_t __loc)
+ 281:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 4));
+ 282:/usr/include/stdlib.h **** 
+ 283:/usr/include/stdlib.h **** __extension__
+ 284:/usr/include/stdlib.h **** extern long long int strtoll_l (const char *__restrict __nptr,
+ 285:/usr/include/stdlib.h **** 				char **__restrict __endptr, int __base,
+ 286:/usr/include/stdlib.h **** 				locale_t __loc)
+ 287:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 4));
+ 288:/usr/include/stdlib.h **** 
+ 289:/usr/include/stdlib.h **** __extension__
+ 290:/usr/include/stdlib.h **** extern unsigned long long int strtoull_l (const char *__restrict __nptr,
+ 291:/usr/include/stdlib.h **** 					  char **__restrict __endptr,
+ 292:/usr/include/stdlib.h **** 					  int __base, locale_t __loc)
+ 293:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 4));
+ 294:/usr/include/stdlib.h **** 
+ 295:/usr/include/stdlib.h **** extern double strtod_l (const char *__restrict __nptr,
+ 296:/usr/include/stdlib.h **** 			char **__restrict __endptr, locale_t __loc)
+ 297:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 3));
+ 298:/usr/include/stdlib.h **** 
+ 299:/usr/include/stdlib.h **** extern float strtof_l (const char *__restrict __nptr,
+ 300:/usr/include/stdlib.h **** 		       char **__restrict __endptr, locale_t __loc)
+ 301:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 3));
+ 302:/usr/include/stdlib.h **** 
+ 303:/usr/include/stdlib.h **** extern long double strtold_l (const char *__restrict __nptr,
+ 304:/usr/include/stdlib.h **** 			      char **__restrict __endptr,
+ 305:/usr/include/stdlib.h **** 			      locale_t __loc)
+ 306:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 3));
+ 307:/usr/include/stdlib.h **** 
+ 308:/usr/include/stdlib.h **** # if __HAVE_FLOAT16
+ 309:/usr/include/stdlib.h **** extern _Float16 strtof16_l (const char *__restrict __nptr,
+ 310:/usr/include/stdlib.h **** 			    char **__restrict __endptr,
+ 311:/usr/include/stdlib.h **** 			    locale_t __loc)
+ 312:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 3));
+ 313:/usr/include/stdlib.h **** # endif
+ 314:/usr/include/stdlib.h **** 
+ 315:/usr/include/stdlib.h **** # if __HAVE_FLOAT32
+ 316:/usr/include/stdlib.h **** extern _Float32 strtof32_l (const char *__restrict __nptr,
+ 317:/usr/include/stdlib.h **** 			    char **__restrict __endptr,
+ 318:/usr/include/stdlib.h **** 			    locale_t __loc)
+ 319:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 3));
+ 320:/usr/include/stdlib.h **** # endif
+ 321:/usr/include/stdlib.h **** 
+ 322:/usr/include/stdlib.h **** # if __HAVE_FLOAT64
+ 323:/usr/include/stdlib.h **** extern _Float64 strtof64_l (const char *__restrict __nptr,
+ 324:/usr/include/stdlib.h **** 			    char **__restrict __endptr,
+ 325:/usr/include/stdlib.h **** 			    locale_t __loc)
+ 326:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 3));
+ 327:/usr/include/stdlib.h **** # endif
+ 328:/usr/include/stdlib.h **** 
+ 329:/usr/include/stdlib.h **** # if __HAVE_FLOAT128
+ 330:/usr/include/stdlib.h **** extern _Float128 strtof128_l (const char *__restrict __nptr,
+ 331:/usr/include/stdlib.h **** 			      char **__restrict __endptr,
+ 332:/usr/include/stdlib.h **** 			      locale_t __loc)
+ 333:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 3));
+ 334:/usr/include/stdlib.h **** # endif
+ 335:/usr/include/stdlib.h **** 
+ 336:/usr/include/stdlib.h **** # if __HAVE_FLOAT32X
+ 337:/usr/include/stdlib.h **** extern _Float32x strtof32x_l (const char *__restrict __nptr,
+ 338:/usr/include/stdlib.h **** 			      char **__restrict __endptr,
+ 339:/usr/include/stdlib.h **** 			      locale_t __loc)
+ 340:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 3));
+ 341:/usr/include/stdlib.h **** # endif
+ 342:/usr/include/stdlib.h **** 
+ 343:/usr/include/stdlib.h **** # if __HAVE_FLOAT64X
+ 344:/usr/include/stdlib.h **** extern _Float64x strtof64x_l (const char *__restrict __nptr,
+ 345:/usr/include/stdlib.h **** 			      char **__restrict __endptr,
+ 346:/usr/include/stdlib.h **** 			      locale_t __loc)
+ 347:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 3));
+ 348:/usr/include/stdlib.h **** # endif
+ 349:/usr/include/stdlib.h **** 
+ 350:/usr/include/stdlib.h **** # if __HAVE_FLOAT128X
+ 351:/usr/include/stdlib.h **** extern _Float128x strtof128x_l (const char *__restrict __nptr,
+ 352:/usr/include/stdlib.h **** 				char **__restrict __endptr,
+ 353:/usr/include/stdlib.h **** 				locale_t __loc)
+ 354:/usr/include/stdlib.h ****      __THROW __nonnull ((1, 3));
+ 355:/usr/include/stdlib.h **** # endif
+ 356:/usr/include/stdlib.h **** #endif /* GNU */
+ 357:/usr/include/stdlib.h **** 
+ 358:/usr/include/stdlib.h **** 
+ 359:/usr/include/stdlib.h **** #ifdef __USE_EXTERN_INLINES
+ 360:/usr/include/stdlib.h **** __extern_inline int
+ 361:/usr/include/stdlib.h **** __NTH (atoi (const char *__nptr))
+  90              		.loc 2 361 1 view .LVU3
+  91              	.LBB89:
+ 362:/usr/include/stdlib.h **** {
+ 363:/usr/include/stdlib.h ****   return (int) strtol (__nptr, (char **) NULL, 10);
+  92              		.loc 2 363 3 view .LVU4
+  93              	.LBE89:
+  94              	.LBE88:
+  95              	# main.cpp:113: int main(int argc, char ** argv) {
+ 113:main.cpp      **** 
+  96              		.loc 1 113 34 is_stmt 0 view .LVU5
+  97 0004 55       		pushq	%rbp	#
+  98              		.cfi_def_cfa_offset 16
+  99              		.cfi_offset 6, -16
+ 100              	.LVL2:
+ 101              	.LBB93:
+ 102              	.LBB90:
+ 103              	# /usr/include/stdlib.h:363:   return (int) strtol (__nptr, (char **) NULL, 10);
+ 104              		.loc 2 363 23 view .LVU6
+ 105 0005 BA0A0000 		movl	$10, %edx	#,
+ 105      00
+ 106              	.LBE90:
+ 107              	.LBE93:
+ 108              	# main.cpp:113: int main(int argc, char ** argv) {
+ 113:main.cpp      **** 
+ 109              		.loc 1 113 34 view .LVU7
+ 110 000a 4889E5   		movq	%rsp, %rbp	#,
+ 111              		.cfi_def_cfa_register 6
+ 112 000d 4157     		pushq	%r15	#
+ 113 000f 4156     		pushq	%r14	#
+ 114 0011 4155     		pushq	%r13	#
+ 115 0013 4154     		pushq	%r12	#
+ 116              		.cfi_offset 15, -24
+ 117              		.cfi_offset 14, -32
+ 118              		.cfi_offset 13, -40
+ 119              		.cfi_offset 12, -48
+ 120 0015 4989F4   		movq	%rsi, %r12	# tmp445, argv
+ 121 0018 53       		pushq	%rbx	#
+ 122 0019 4883E4E0 		andq	$-32, %rsp	#,
+ 123 001d 4881ECC0 		subq	$192, %rsp	#,
+ 123      000000
+ 124              		.cfi_offset 3, -56
+ 125              	# main.cpp:113: int main(int argc, char ** argv) {
+ 113:main.cpp      **** 
+ 126              		.loc 1 113 34 view .LVU8
+ 127 0024 897C240C 		movl	%edi, 12(%rsp)	# tmp444, %sfp
+ 128              	.LBB94:
+ 129              	.LBB91:
+ 130              	# /usr/include/stdlib.h:363:   return (int) strtol (__nptr, (char **) NULL, 10);
+ 131              		.loc 2 363 23 view .LVU9
+ 132 0028 488B7E08 		movq	8(%rsi), %rdi	# MEM[(char * *)argv_55(D) + 8B], MEM[(char * *)argv_55(D) + 8B]
+ 133              	.LVL3:
+ 134              		.loc 2 363 23 view .LVU10
+ 135 002c 31F6     		xorl	%esi, %esi	#
+ 136              	.LVL4:
+ 137              		.loc 2 363 23 view .LVU11
+ 138 002e E8000000 		call	strtol@PLT	#
+ 138      00
+ 139              	.LVL5:
+ 140              	.LBE91:
+ 141              	.LBE94:
+ 142              	.LBB95:
+ 143              	.LBB96:
+ 144 0033 498B7C24 		movq	16(%r12), %rdi	# MEM[(char * *)argv_55(D) + 16B], MEM[(char * *)argv_55(D) + 16B]
+ 144      10
+ 145 0038 BA0A0000 		movl	$10, %edx	#,
+ 145      00
+ 146 003d 31F6     		xorl	%esi, %esi	#
+ 147              	.LBE96:
+ 148              	.LBE95:
+ 149              	.LBB99:
+ 150              	.LBB92:
+ 151 003f 4989C5   		movq	%rax, %r13	# tmp446, _121
+ 152              	.LVL6:
+ 153              		.loc 2 363 23 view .LVU12
+ 154              	.LBE92:
+ 155              	.LBE99:
+ 116:main.cpp      ****     int64_t out_size = atoi(argv[2]);
+ 156              		.loc 1 116 5 is_stmt 1 view .LVU13
+ 157              	.LBB100:
+ 158              	.LBI95:
+ 361:/usr/include/stdlib.h **** {
+ 159              		.loc 2 361 1 view .LVU14
+ 160              	.LBB97:
+ 161              		.loc 2 363 3 view .LVU15
+ 162              	# /usr/include/stdlib.h:363:   return (int) strtol (__nptr, (char **) NULL, 10);
+ 163              		.loc 2 363 23 is_stmt 0 view .LVU16
+ 164 0042 E8000000 		call	strtol@PLT	#
+ 164      00
+ 165              	.LVL7:
+ 166              		.loc 2 363 23 view .LVU17
+ 167              	.LBE97:
+ 168              	.LBE100:
+ 169              	# main.cpp:115:     int64_t in_size = atoi(argv[1]);
+ 115:main.cpp      ****     int64_t out_size = atoi(argv[2]);
+ 170              		.loc 1 115 13 view .LVU18
+ 171 0047 4963DD   		movslq	%r13d, %rbx	# _121, in_size.3_67
+ 172              	.LVL8:
+ 173              	# main.cpp:117:     float scale = out_size / in_size;
+ 117:main.cpp      ****     float scale = out_size / in_size;
+ 174              		.loc 1 117 11 view .LVU19
+ 175 004a C5E857D2 		vxorps	%xmm2, %xmm2, %xmm2	# tmp462
+ 176              	# main.cpp:116:     int64_t out_size = atoi(argv[2]);
+ 116:main.cpp      ****     float scale = out_size / in_size;
+ 177              		.loc 1 116 13 view .LVU20
+ 178 004e 4863F8   		movslq	%eax, %rdi	# _119, out_size
+ 179              	.LBB101:
+ 180              	.LBB98:
+ 181              	# /usr/include/stdlib.h:363:   return (int) strtol (__nptr, (char **) NULL, 10);
+ 182              		.loc 2 363 23 view .LVU21
+ 183 0051 4989C6   		movq	%rax, %r14	# tmp447, _119
+ 184              	.LVL9:
+ 185              		.loc 2 363 23 view .LVU22
+ 186              	.LBE98:
+ 187              	.LBE101:
+ 188              		.loc 1 117 5 is_stmt 1 view .LVU23
+ 189              	# main.cpp:117:     float scale = out_size / in_size;
+ 190              		.loc 1 117 28 is_stmt 0 view .LVU24
+ 191 0054 4889F8   		movq	%rdi, %rax	# out_size, tmp356
+ 192 0057 4899     		cqto
+ 193 0059 48F7FB   		idivq	%rbx	# in_size.3_67
+ 194              	# main.cpp:117:     float scale = out_size / in_size;
+ 195              		.loc 1 117 11 view .LVU25
+ 196 005c C4E1EA2A 		vcvtsi2ssq	%rax, %xmm2, %xmm0	# tmp356, tmp462, tmp463
+ 196      C0
+ 197              	# main.cpp:119:     float * output = new float[out_size];
+ 118:main.cpp      **** 
+ 119:main.cpp      ****     float * output = new float[out_size];
+ 198              		.loc 1 119 40 view .LVU26
+ 199 0061 48B8FEFF 		movabsq	$2305843009213693950, %rax	#, tmp358
+ 199      FFFFFFFF 
+ 199      FF1F
+ 200              	# main.cpp:117:     float scale = out_size / in_size;
+ 117:main.cpp      **** 
+ 201              		.loc 1 117 11 view .LVU27
+ 202 006b C5FA1184 		vmovss	%xmm0, 128(%rsp)	# tmp463, %sfp
+ 202      24800000 
+ 202      00
+ 203              	.LVL10:
+ 204              		.loc 1 119 5 is_stmt 1 view .LVU28
+ 205              	# main.cpp:119:     float * output = new float[out_size];
+ 206              		.loc 1 119 40 is_stmt 0 view .LVU29
+ 207 0074 4839C7   		cmpq	%rax, %rdi	# tmp358, out_size
+ 208 0077 0F870000 		ja	.L2	#,
+ 208      0000
+ 209              	# main.cpp:119:     float * output = new float[out_size];
+ 210              		.loc 1 119 40 discriminator 1 view .LVU30
+ 211 007d 48C1E702 		salq	$2, %rdi	#, tmp359
+ 212              	.LVL11:
+ 213              		.loc 1 119 40 discriminator 1 view .LVU31
+ 214 0081 E8000000 		call	_Znam@PLT	#
+ 214      00
+ 215              	.LVL12:
+ 216              		.loc 1 119 40 discriminator 1 view .LVU32
+ 217 0086 48894424 		movq	%rax, 64(%rsp)	# tmp448, %sfp
+ 217      40
+ 218              	.LVL13:
+ 120:main.cpp      ****     for (int i=0; i<out_size; i++) {
+ 219              		.loc 1 120 5 is_stmt 1 discriminator 1 view .LVU33
+ 220              	.LBB102:
+ 221              		.loc 1 120 20 discriminator 1 view .LVU34
+ 222 008b 4585F6   		testl	%r14d, %r14d	# _119
+ 223 008e 7E16     		jle	.L5	#,
+ 224 0090 4889C7   		movq	%rax, %rdi	# tmp448,
+ 225              	# main.cpp:121:         output[i] = 0.0;
+ 121:main.cpp      ****         output[i] = 0.0;
+ 226              		.loc 1 121 19 is_stmt 0 view .LVU35
+ 227 0093 418D46FF 		leal	-1(%r14), %eax	#, tmp363
+ 228              	.LVL14:
+ 229              		.loc 1 121 19 view .LVU36
+ 230 0097 31F6     		xorl	%esi, %esi	#
+ 231 0099 488D1485 		leaq	4(,%rax,4), %rdx	#, tmp365
+ 231      04000000 
+ 232 00a1 E8000000 		call	memset@PLT	#
+ 232      00
+ 233              	.LVL15:
+ 234              	.L5:
+ 235              		.loc 1 121 19 view .LVU37
+ 236              	.LBE102:
+ 122:main.cpp      ****     }
+ 123:main.cpp      **** 
+ 124:main.cpp      ****     float * input = new float[in_size];
+ 237              		.loc 1 124 5 is_stmt 1 view .LVU38
+ 238              	# main.cpp:124:     float * input = new float[in_size];
+ 239              		.loc 1 124 38 is_stmt 0 view .LVU39
+ 240 00a6 48B8FEFF 		movabsq	$2305843009213693950, %rax	#, tmp361
+ 240      FFFFFFFF 
+ 240      FF1F
+ 241 00b0 4839C3   		cmpq	%rax, %rbx	# tmp361, in_size.3_67
+ 242 00b3 0F870000 		ja	.L2	#,
+ 242      0000
+ 243              	# main.cpp:124:     float * input = new float[in_size];
+ 244              		.loc 1 124 38 discriminator 1 view .LVU40
+ 245 00b9 4C8D349D 		leaq	0(,%rbx,4), %r14	#, iftmp.2_69
+ 245      00000000 
+ 246 00c1 4C89F7   		movq	%r14, %rdi	# iftmp.2_69,
+ 247 00c4 E8000000 		call	_Znam@PLT	#
+ 247      00
+ 248              	.LVL16:
+ 249              	# main.cpp:125:     int32_t * ix0 = new int32_t[in_size];
+ 125:main.cpp      ****     int32_t * ix0 = new int32_t[in_size];
+ 250              		.loc 1 125 40 discriminator 1 view .LVU41
+ 251 00c9 4C89F7   		movq	%r14, %rdi	# iftmp.2_69,
+ 252              	# main.cpp:124:     float * input = new float[in_size];
+ 124:main.cpp      ****     int32_t * ix0 = new int32_t[in_size];
+ 253              		.loc 1 124 38 discriminator 1 view .LVU42
+ 254 00cc 4889C3   		movq	%rax, %rbx	# tmp449, _71
+ 255              	.LVL17:
+ 256              		.loc 1 125 5 is_stmt 1 discriminator 1 view .LVU43
+ 257              	# main.cpp:125:     int32_t * ix0 = new int32_t[in_size];
+ 258              		.loc 1 125 40 is_stmt 0 discriminator 1 view .LVU44
+ 259 00cf E8000000 		call	_Znam@PLT	#
+ 259      00
+ 260              	.LVL18:
+ 261              	# main.cpp:126:     int32_t * ix1 = new int32_t[in_size];
+ 126:main.cpp      ****     int32_t * ix1 = new int32_t[in_size];
+ 262              		.loc 1 126 40 discriminator 1 view .LVU45
+ 263 00d4 4C89F7   		movq	%r14, %rdi	# iftmp.2_69,
+ 264              	# main.cpp:125:     int32_t * ix0 = new int32_t[in_size];
+ 125:main.cpp      ****     int32_t * ix0 = new int32_t[in_size];
+ 265              		.loc 1 125 40 discriminator 1 view .LVU46
+ 266 00d7 48898424 		movq	%rax, 184(%rsp)	# tmp450, %sfp
+ 266      B8000000 
+ 267              	.LVL19:
+ 268              		.loc 1 126 5 is_stmt 1 discriminator 1 view .LVU47
+ 269              	# main.cpp:126:     int32_t * ix1 = new int32_t[in_size];
+ 270              		.loc 1 126 40 is_stmt 0 discriminator 1 view .LVU48
+ 271 00df E8000000 		call	_Znam@PLT	#
+ 271      00
+ 272              	.LVL20:
+ 273              	# main.cpp:127:     int32_t * iy0 = new int32_t[in_size];
+ 127:main.cpp      ****     int32_t * iy0 = new int32_t[in_size];
+ 274              		.loc 1 127 40 discriminator 1 view .LVU49
+ 275 00e4 4C89F7   		movq	%r14, %rdi	# iftmp.2_69,
+ 276              	# main.cpp:126:     int32_t * ix1 = new int32_t[in_size];
+ 126:main.cpp      ****     int32_t * ix1 = new int32_t[in_size];
+ 277              		.loc 1 126 40 discriminator 1 view .LVU50
+ 278 00e7 4989C7   		movq	%rax, %r15	# tmp451, _75
+ 279              	.LVL21:
+ 280              		.loc 1 127 5 is_stmt 1 discriminator 1 view .LVU51
+ 281              	# main.cpp:127:     int32_t * iy0 = new int32_t[in_size];
+ 282              		.loc 1 127 40 is_stmt 0 discriminator 1 view .LVU52
+ 283 00ea E8000000 		call	_Znam@PLT	#
+ 283      00
+ 284              	.LVL22:
+ 285              	# main.cpp:128:     int32_t * iy1 = new int32_t[in_size];
+ 128:main.cpp      ****     int32_t * iy1 = new int32_t[in_size];
+ 286              		.loc 1 128 40 discriminator 1 view .LVU53
+ 287 00ef 4C89F7   		movq	%r14, %rdi	# iftmp.2_69,
+ 288              	# main.cpp:127:     int32_t * iy0 = new int32_t[in_size];
+ 127:main.cpp      ****     int32_t * iy0 = new int32_t[in_size];
+ 289              		.loc 1 127 40 discriminator 1 view .LVU54
+ 290 00f2 48894424 		movq	%rax, 56(%rsp)	# tmp452, %sfp
+ 290      38
+ 291              	.LVL23:
+ 292              		.loc 1 128 5 is_stmt 1 discriminator 1 view .LVU55
+ 293              	# main.cpp:128:     int32_t * iy1 = new int32_t[in_size];
+ 294              		.loc 1 128 40 is_stmt 0 discriminator 1 view .LVU56
+ 295 00f7 E8000000 		call	_Znam@PLT	#
+ 295      00
+ 296              	.LVL24:
+ 297              	# main.cpp:130:     float * wx0 = new float[in_size];
+ 129:main.cpp      **** 
+ 130:main.cpp      ****     float * wx0 = new float[in_size];
+ 298              		.loc 1 130 36 discriminator 1 view .LVU57
+ 299 00fc 4C89F7   		movq	%r14, %rdi	# iftmp.2_69,
+ 300              	# main.cpp:128:     int32_t * iy1 = new int32_t[in_size];
+ 128:main.cpp      ****     int32_t * iy1 = new int32_t[in_size];
+ 301              		.loc 1 128 40 discriminator 1 view .LVU58
+ 302 00ff 48894424 		movq	%rax, 48(%rsp)	# tmp453, %sfp
+ 302      30
+ 303              	.LVL25:
+ 304              		.loc 1 130 5 is_stmt 1 discriminator 1 view .LVU59
+ 305              	# main.cpp:130:     float * wx0 = new float[in_size];
+ 306              		.loc 1 130 36 is_stmt 0 discriminator 1 view .LVU60
+ 307 0104 E8000000 		call	_Znam@PLT	#
+ 307      00
+ 308              	.LVL26:
+ 309              	# main.cpp:131:     float * wx1 = new float[in_size];
+ 131:main.cpp      ****     float * wx1 = new float[in_size];
+ 310              		.loc 1 131 36 discriminator 1 view .LVU61
+ 311 0109 4C89F7   		movq	%r14, %rdi	# iftmp.2_69,
+ 312              	# main.cpp:130:     float * wx0 = new float[in_size];
+ 130:main.cpp      ****     float * wx1 = new float[in_size];
+ 313              		.loc 1 130 36 discriminator 1 view .LVU62
+ 314 010c 48894424 		movq	%rax, 40(%rsp)	# tmp454, %sfp
+ 314      28
+ 315              	.LVL27:
+ 316              		.loc 1 131 5 is_stmt 1 discriminator 1 view .LVU63
+ 317              	# main.cpp:131:     float * wx1 = new float[in_size];
+ 318              		.loc 1 131 36 is_stmt 0 discriminator 1 view .LVU64
+ 319 0111 E8000000 		call	_Znam@PLT	#
+ 319      00
+ 320              	.LVL28:
+ 321              	# main.cpp:132:     float * wy0 = new float[in_size];
+ 132:main.cpp      ****     float * wy0 = new float[in_size];
+ 322              		.loc 1 132 36 discriminator 1 view .LVU65
+ 323 0116 4C89F7   		movq	%r14, %rdi	# iftmp.2_69,
+ 324              	# main.cpp:131:     float * wx1 = new float[in_size];
+ 131:main.cpp      ****     float * wx1 = new float[in_size];
+ 325              		.loc 1 131 36 discriminator 1 view .LVU66
+ 326 0119 48894424 		movq	%rax, 32(%rsp)	# tmp455, %sfp
+ 326      20
+ 327              	.LVL29:
+ 328              		.loc 1 132 5 is_stmt 1 discriminator 1 view .LVU67
+ 329              	# main.cpp:132:     float * wy0 = new float[in_size];
+ 330              		.loc 1 132 36 is_stmt 0 discriminator 1 view .LVU68
+ 331 011e E8000000 		call	_Znam@PLT	#
+ 331      00
+ 332              	.LVL30:
+ 333              	# main.cpp:133:     float * wy1 = new float[in_size];
+ 133:main.cpp      ****     float * wy1 = new float[in_size];
+ 334              		.loc 1 133 36 discriminator 1 view .LVU69
+ 335 0123 4C89F7   		movq	%r14, %rdi	# iftmp.2_69,
+ 336              	# main.cpp:132:     float * wy0 = new float[in_size];
+ 132:main.cpp      ****     float * wy0 = new float[in_size];
+ 337              		.loc 1 132 36 discriminator 1 view .LVU70
+ 338 0126 48894424 		movq	%rax, 24(%rsp)	# tmp456, %sfp
+ 338      18
+ 339              	.LVL31:
+ 340              		.loc 1 133 5 is_stmt 1 discriminator 1 view .LVU71
+ 341              	# main.cpp:133:     float * wy1 = new float[in_size];
+ 342              		.loc 1 133 36 is_stmt 0 discriminator 1 view .LVU72
+ 343 012b E8000000 		call	_Znam@PLT	#
+ 343      00
+ 344              	.LVL32:
+ 345              	.LBB103:
+ 346              	# main.cpp:135:     for (int i=0; i<in_size; i++) {
+ 134:main.cpp      **** 
+ 135:main.cpp      ****     for (int i=0; i<in_size; i++) {
+ 347              		.loc 1 135 20 discriminator 1 view .LVU73
+ 348 0130 4585ED   		testl	%r13d, %r13d	# _121
+ 349 0133 C5E857D2 		vxorps	%xmm2, %xmm2, %xmm2	# tmp462
+ 350              	.LBE103:
+ 351              	# main.cpp:133:     float * wy1 = new float[in_size];
+ 133:main.cpp      ****     float * wy1 = new float[in_size];
+ 352              		.loc 1 133 36 discriminator 1 view .LVU74
+ 353 0137 48894424 		movq	%rax, 16(%rsp)	# tmp457, %sfp
+ 353      10
+ 354              	.LVL33:
+ 355              		.loc 1 135 5 is_stmt 1 discriminator 1 view .LVU75
+ 356              	.LBB106:
+ 357              		.loc 1 135 20 discriminator 1 view .LVU76
+ 358 013c 0F8E3101 		jle	.L10	#,
+ 358      0000
+ 359 0142 4989C2   		movq	%rax, %r10	# tmp457, _87
+ 360 0145 418D4DFF 		leal	-1(%r13), %ecx	#, _417
+ 361 0149 4D89E3   		movq	%r12, %r11	# argv, argv
+ 362 014c 488B4424 		movq	48(%rsp), %rax	# %sfp, _79
+ 362      30
+ 363 0151 C5FA101D 		vmovss	.LC0(%rip), %xmm3	#, tmp442
+ 363      00000000 
+ 364 0159 488B5424 		movq	40(%rsp), %rdx	# %sfp, _81
+ 364      28
+ 365              	# main.cpp:135:     for (int i=0; i<in_size; i++) {
+ 366              		.loc 1 135 20 is_stmt 0 view .LVU77
+ 367 015e 4531ED   		xorl	%r13d, %r13d	# ivtmp.97
+ 368              	.LVL34:
+ 369              		.loc 1 135 20 view .LVU78
+ 370 0161 4C8B4424 		movq	32(%rsp), %r8	# %sfp, _83
+ 370      20
+ 371 0166 4C8B4C24 		movq	24(%rsp), %r9	# %sfp, _85
+ 371      18
+ 372 016b 4C8B6424 		movq	56(%rsp), %r12	# %sfp, _77
+ 372      38
+ 373              	.LVL35:
+ 374              		.loc 1 135 20 view .LVU79
+ 375 0170 EB74     		jmp	.L11	#
+ 376              	.LVL36:
+ 377              		.p2align 4,,10
+ 378 0172 660F1F44 		.p2align 3
+ 378      0000
+ 379              	.L25:
+ 380              	# main.cpp:136:         input[i] = i + (i > 0) ? input[i - 1] : atof(argv[3]);
+ 136:main.cpp      ****         input[i] = i + (i > 0) ? input[i - 1] : atof(argv[3]);
+ 381              		.loc 1 136 32 discriminator 1 view .LVU80
+ 382 0178 C4A17A10 		vmovss	-4(%rbx,%r13,4), %xmm0	# MEM[base: _71, index: ivtmp.97_104, step: 4, offset: -4B], iftmp.2
+ 382      44ABFC
+ 383              	.L9:
+ 384              	# main.cpp:136:         input[i] = i + (i > 0) ? input[i - 1] : atof(argv[3]);
+ 385              		.loc 1 136 18 discriminator 4 view .LVU81
+ 386 017f C4A17A11 		vmovss	%xmm0, (%rbx,%r13,4)	# iftmp.20_51, MEM[base: _71, index: ivtmp.97_104, step: 4, offset: 0B
+ 386      04AB
+ 137:main.cpp      ****         ix0[i] = int32_t(i * scale);
+ 387              		.loc 1 137 9 is_stmt 1 discriminator 4 view .LVU82
+ 388              	# main.cpp:137:         ix0[i] = int32_t(i * scale);
+ 389              		.loc 1 137 28 is_stmt 0 discriminator 4 view .LVU83
+ 390 0185 C4C16A2A 		vcvtsi2ssl	%r14d, %xmm2, %xmm0	# i, tmp462, tmp464
+ 390      C6
+ 391 018a C5FA598C 		vmulss	128(%rsp), %xmm0, %xmm1	# %sfp, tmp392, _19
+ 391      24800000 
+ 391      00
+ 392              	# main.cpp:137:         ix0[i] = int32_t(i * scale);
+ 393              		.loc 1 137 16 discriminator 4 view .LVU84
+ 394 0193 488BBC24 		movq	184(%rsp), %rdi	# %sfp, _73
+ 394      B8000000 
+ 395              	# main.cpp:137:         ix0[i] = int32_t(i * scale);
+ 396              		.loc 1 137 18 discriminator 4 view .LVU85
+ 397 019b C5FA2CF1 		vcvttss2sil	%xmm1, %esi	# _19, _21
+ 398              	# main.cpp:139:         wx0[i] = i * scale - ix0[i];
+ 138:main.cpp      ****         ix1[i] = ix0[i] + 1;
+ 139:main.cpp      ****         wx0[i] = i * scale - ix0[i];
+ 399              		.loc 1 139 28 discriminator 4 view .LVU86
+ 400 019f C5EA2AC6 		vcvtsi2ssl	%esi, %xmm2, %xmm0	# _21, tmp462, tmp465
+ 401              	# main.cpp:137:         ix0[i] = int32_t(i * scale);
+ 137:main.cpp      ****         ix0[i] = int32_t(i * scale);
+ 402              		.loc 1 137 16 discriminator 4 view .LVU87
+ 403 01a3 428934AF 		movl	%esi, (%rdi,%r13,4)	# _21, MEM[base: _73, index: ivtmp.97_104, step: 4, offset: 0B]
+ 138:main.cpp      ****         ix1[i] = ix0[i] + 1;
+ 404              		.loc 1 138 9 is_stmt 1 discriminator 4 view .LVU88
+ 405              	# main.cpp:138:         ix1[i] = ix0[i] + 1;
+ 138:main.cpp      ****         ix1[i] = ix0[i] + 1;
+ 406              		.loc 1 138 25 is_stmt 0 discriminator 4 view .LVU89
+ 407 01a7 8D7E01   		leal	1(%rsi), %edi	#, _23
+ 408              	# main.cpp:142:         iy0[i] = int32_t(i * scale);
+ 140:main.cpp      ****         wx1[i] = 1.0 - wx0[i];
+ 141:main.cpp      **** 
+ 142:main.cpp      ****         iy0[i] = int32_t(i * scale);
+ 409              		.loc 1 142 16 discriminator 4 view .LVU90
+ 410 01aa 438934AC 		movl	%esi, (%r12,%r13,4)	# _21, MEM[base: _77, index: ivtmp.97_104, step: 4, offset: 0B]
+ 411 01ae 498D7501 		leaq	1(%r13), %rsi	#, ivtmp.97
+ 412              	# main.cpp:138:         ix1[i] = ix0[i] + 1;
+ 138:main.cpp      ****         ix1[i] = ix0[i] + 1;
+ 413              		.loc 1 138 16 discriminator 4 view .LVU91
+ 414 01b2 43893CAF 		movl	%edi, (%r15,%r13,4)	# _23, MEM[base: _75, index: ivtmp.97_104, step: 4, offset: 0B]
+ 139:main.cpp      ****         wx1[i] = 1.0 - wx0[i];
+ 415              		.loc 1 139 9 is_stmt 1 discriminator 4 view .LVU92
+ 416              	# main.cpp:143:         iy1[i] = iy0[i] + 1;
+ 143:main.cpp      ****         iy1[i] = iy0[i] + 1;
+ 417              		.loc 1 143 16 is_stmt 0 discriminator 4 view .LVU93
+ 418 01b6 42893CA8 		movl	%edi, (%rax,%r13,4)	# _23, MEM[base: _79, index: ivtmp.97_104, step: 4, offset: 0B]
+ 419              	# main.cpp:139:         wx0[i] = i * scale - ix0[i];
+ 139:main.cpp      ****         wx1[i] = 1.0 - wx0[i];
+ 420              		.loc 1 139 28 discriminator 4 view .LVU94
+ 421 01ba C5F25CC0 		vsubss	%xmm0, %xmm1, %xmm0	# tmp393, _19, _26
+ 422              	# main.cpp:140:         wx1[i] = 1.0 - wx0[i];
+ 140:main.cpp      ****         wx1[i] = 1.0 - wx0[i];
+ 423              		.loc 1 140 16 discriminator 4 view .LVU95
+ 424 01be C5E25CC8 		vsubss	%xmm0, %xmm3, %xmm1	# _26, tmp442, _28
+ 425              	# main.cpp:139:         wx0[i] = i * scale - ix0[i];
+ 139:main.cpp      ****         wx1[i] = 1.0 - wx0[i];
+ 426              		.loc 1 139 16 discriminator 4 view .LVU96
+ 427 01c2 C4A17A11 		vmovss	%xmm0, (%rdx,%r13,4)	# _26, MEM[base: _81, index: ivtmp.97_104, step: 4, offset: 0B]
+ 427      04AA
+ 140:main.cpp      ****         wx1[i] = 1.0 - wx0[i];
+ 428              		.loc 1 140 9 is_stmt 1 discriminator 4 view .LVU97
+ 429              	# main.cpp:144:         wy0[i] = i * scale - iy0[i];
+ 144:main.cpp      ****         wy0[i] = i * scale - iy0[i];
+ 430              		.loc 1 144 16 is_stmt 0 discriminator 4 view .LVU98
+ 431 01c8 C4817A11 		vmovss	%xmm0, (%r9,%r13,4)	# _26, MEM[base: _85, index: ivtmp.97_104, step: 4, offset: 0B]
+ 431      04A9
+ 432              	# main.cpp:140:         wx1[i] = 1.0 - wx0[i];
+ 140:main.cpp      **** 
+ 433              		.loc 1 140 16 discriminator 4 view .LVU99
+ 434 01ce C4817A11 		vmovss	%xmm1, (%r8,%r13,4)	# _28, MEM[base: _83, index: ivtmp.97_104, step: 4, offset: 0B]
+ 434      0CA8
+ 142:main.cpp      ****         iy1[i] = iy0[i] + 1;
+ 435              		.loc 1 142 9 is_stmt 1 discriminator 4 view .LVU100
+ 143:main.cpp      ****         wy0[i] = i * scale - iy0[i];
+ 436              		.loc 1 143 9 discriminator 4 view .LVU101
+ 437              		.loc 1 144 9 discriminator 4 view .LVU102
+ 145:main.cpp      ****         wy1[i] = 1.0 - wy0[i];
+ 438              		.loc 1 145 9 discriminator 4 view .LVU103
+ 439              	# main.cpp:145:         wy1[i] = 1.0 - wy0[i];
+ 440              		.loc 1 145 16 is_stmt 0 discriminator 4 view .LVU104
+ 441 01d4 C4817A11 		vmovss	%xmm1, (%r10,%r13,4)	# _28, MEM[base: _87, index: ivtmp.97_104, step: 4, offset: 0B]
+ 441      0CAA
+ 135:main.cpp      ****         input[i] = i + (i > 0) ? input[i - 1] : atof(argv[3]);
+ 442              		.loc 1 135 5 is_stmt 1 discriminator 4 view .LVU105
+ 443              	.LVL37:
+ 135:main.cpp      ****         input[i] = i + (i > 0) ? input[i - 1] : atof(argv[3]);
+ 444              		.loc 1 135 20 discriminator 4 view .LVU106
+ 445 01da 4939CD   		cmpq	%rcx, %r13	# _417, ivtmp.97
+ 446 01dd 0F848D00 		je	.L20	#,
+ 446      0000
+ 135:main.cpp      ****         input[i] = i + (i > 0) ? input[i - 1] : atof(argv[3]);
+ 447              		.loc 1 135 20 is_stmt 0 discriminator 4 view .LVU107
+ 448 01e3 4989F5   		movq	%rsi, %r13	# ivtmp.97, ivtmp.97
+ 449              	.LVL38:
+ 450              	.L11:
+ 451              	# main.cpp:136:         input[i] = i + (i > 0) ? input[i - 1] : atof(argv[3]);
+ 136:main.cpp      ****         ix0[i] = int32_t(i * scale);
+ 452              		.loc 1 136 27 view .LVU108
+ 453 01e6 31F6     		xorl	%esi, %esi	# tmp388
+ 454 01e8 4585ED   		testl	%r13d, %r13d	# ivtmp.97
+ 455 01eb 4589EE   		movl	%r13d, %r14d	# ivtmp.97, i
+ 456              	.LVL39:
+ 136:main.cpp      ****         ix0[i] = int32_t(i * scale);
+ 457              		.loc 1 136 9 is_stmt 1 view .LVU109
+ 458              	# main.cpp:136:         input[i] = i + (i > 0) ? input[i - 1] : atof(argv[3]);
+ 136:main.cpp      ****         ix0[i] = int32_t(i * scale);
+ 459              		.loc 1 136 27 is_stmt 0 view .LVU110
+ 460 01ee 400F9FC6 		setg	%sil	#, tmp388
+ 461              	# main.cpp:136:         input[i] = i + (i > 0) ? input[i - 1] : atof(argv[3]);
+ 136:main.cpp      ****         ix0[i] = int32_t(i * scale);
+ 462              		.loc 1 136 32 view .LVU111
+ 463 01f2 4401EE   		addl	%r13d, %esi	# ivtmp.97, tmp388
+ 464 01f5 7581     		jne	.L25	#,
+ 465              	.LVL40:
+ 466              	.LBB104:
+ 467              	.LBI104:
+ 468              		.file 3 "/usr/include/x86_64-linux-gnu/bits/stdlib-float.h"
+   1:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** /* Floating-point inline functions for stdlib.h.
+   2:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    Copyright (C) 2012-2020 Free Software Foundation, Inc.
+   3:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    This file is part of the GNU C Library.
+   4:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** 
+   5:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    The GNU C Library is free software; you can redistribute it and/or
+   6:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    modify it under the terms of the GNU Lesser General Public
+   7:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    License as published by the Free Software Foundation; either
+   8:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    version 2.1 of the License, or (at your option) any later version.
+   9:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** 
+  10:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    The GNU C Library is distributed in the hope that it will be useful,
+  11:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    but WITHOUT ANY WARRANTY; without even the implied warranty of
+  12:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  13:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    Lesser General Public License for more details.
+  14:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** 
+  15:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    You should have received a copy of the GNU Lesser General Public
+  16:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    License along with the GNU C Library; if not, see
+  17:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****    <https://www.gnu.org/licenses/>.  */
+  18:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** 
+  19:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** #ifndef _STDLIB_H
+  20:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** # error "Never use <bits/stdlib-float.h> directly; include <stdlib.h> instead."
+  21:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** #endif
+  22:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** 
+  23:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** #ifdef __USE_EXTERN_INLINES
+  24:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** __extern_inline double
+  25:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** __NTH (atof (const char *__nptr))
+ 469              		.loc 3 25 1 is_stmt 1 discriminator 2 view .LVU112
+ 470              	.LBB105:
+  26:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h **** {
+  27:/usr/include/x86_64-linux-gnu/bits/stdlib-float.h ****   return strtod (__nptr, (char **) NULL);
+ 471              		.loc 3 27 3 discriminator 2 view .LVU113
+ 472              	# /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:27:   return strtod (__nptr, (char **) NULL);
+ 473              		.loc 3 27 17 is_stmt 0 discriminator 2 view .LVU114
+ 474 01f7 498B7B18 		movq	24(%r11), %rdi	# MEM[(char * *)argv_55(D) + 24B], MEM[(char * *)argv_55(D) + 24B]
+ 475 01fb 31F6     		xorl	%esi, %esi	#
+ 476 01fd 48894C24 		movq	%rcx, 72(%rsp)	# _417, %sfp
+ 476      48
+ 477 0202 4C895424 		movq	%r10, 80(%rsp)	# _87, %sfp
+ 477      50
+ 478 0207 4C894C24 		movq	%r9, 88(%rsp)	# _85, %sfp
+ 478      58
+ 479 020c 4C898424 		movq	%r8, 160(%rsp)	# _83, %sfp
+ 479      A0000000 
+ 480 0214 48899424 		movq	%rdx, 168(%rsp)	# _81, %sfp
+ 480      A8000000 
+ 481 021c 48898424 		movq	%rax, 176(%rsp)	# _79, %sfp
+ 481      B0000000 
+ 482 0224 4C895C24 		movq	%r11, 96(%rsp)	# argv, %sfp
+ 482      60
+ 483 0229 E8000000 		call	strtod@PLT	#
+ 483      00
+ 484              	.LVL41:
+ 485              		.loc 3 27 17 discriminator 2 view .LVU115
+ 486              	.LBE105:
+ 487              	.LBE104:
+ 488              	# main.cpp:136:         input[i] = i + (i > 0) ? input[i - 1] : atof(argv[3]);
+ 136:main.cpp      ****         ix0[i] = int32_t(i * scale);
+ 489              		.loc 1 136 32 discriminator 2 view .LVU116
+ 490 022e 488B4C24 		movq	72(%rsp), %rcx	# %sfp, _417
+ 490      48
+ 491 0233 4C8B5424 		movq	80(%rsp), %r10	# %sfp, _87
+ 491      50
+ 492 0238 C5E857D2 		vxorps	%xmm2, %xmm2, %xmm2	# tmp462
+ 493 023c 4C8B4C24 		movq	88(%rsp), %r9	# %sfp, _85
+ 493      58
+ 494 0241 4C8B8424 		movq	160(%rsp), %r8	# %sfp, _83
+ 494      A0000000 
+ 495 0249 C5FB5AC0 		vcvtsd2ss	%xmm0, %xmm0, %xmm0	# tmp460, iftmp.20_51
+ 496 024d 488B9424 		movq	168(%rsp), %rdx	# %sfp, _81
+ 496      A8000000 
+ 497 0255 488B8424 		movq	176(%rsp), %rax	# %sfp, _79
+ 497      B0000000 
+ 498 025d C5FA101D 		vmovss	.LC0(%rip), %xmm3	#, tmp442
+ 498      00000000 
+ 499 0265 4C8B5C24 		movq	96(%rsp), %r11	# %sfp, argv
+ 499      60
+ 500 026a E910FFFF 		jmp	.L9	#
+ 500      FF
+ 501              	.LVL42:
+ 502 026f 90       		.p2align 4,,10
+ 503              		.p2align 3
+ 504              	.L20:
+ 136:main.cpp      ****         ix0[i] = int32_t(i * scale);
+ 505              		.loc 1 136 32 discriminator 2 view .LVU117
+ 506 0270 4D89DC   		movq	%r11, %r12	# argv, argv
+ 507              	.LVL43:
+ 508              	.L10:
+ 136:main.cpp      ****         ix0[i] = int32_t(i * scale);
+ 509              		.loc 1 136 32 discriminator 2 view .LVU118
+ 510 0273 C5FA7E7C 		vmovq	64(%rsp), %xmm7	# %sfp, _64
+ 510      2440
+ 511 0279 C5FA7E6C 		vmovq	56(%rsp), %xmm5	# %sfp, _77
+ 511      2438
+ 512              	.LBE106:
+ 513              	# main.cpp:148:     char ** data = new char*[10];
+ 146:main.cpp      ****     }
+ 147:main.cpp      **** 
+ 148:main.cpp      ****     char ** data = new char*[10];
+ 514              		.loc 1 148 32 view .LVU119
+ 515 027f BF500000 		movl	$80, %edi	#,
+ 515      00
+ 516 0284 C4E3D122 		vpinsrq	$1, 24(%rsp), %xmm5, %xmm0	# %sfp, _77, tmp380
+ 516      44241801 
+ 517 028c C5FA7E64 		vmovq	48(%rsp), %xmm4	# %sfp, _79
+ 517      2430
+ 518 0292 C4E3C122 		vpinsrq	$1, %rbx, %xmm7, %xmm1	# _71, _64, tmp381
+ 518      CB01
+ 519 0298 C5FA7EBC 		vmovq	184(%rsp), %xmm7	# %sfp, _73
+ 519      24B80000 
+ 519      00
+ 520 02a1 C4E3C122 		vpinsrq	$1, 40(%rsp), %xmm7, %xmm2	# %sfp, _73, tmp383
+ 520      54242801 
+ 521 02a9 C4E37538 		vinserti128	$0x1, %xmm0, %ymm1, %ymm1	# tmp380, tmp381, tmp379
+ 521      C801
+ 522 02af C4E3D922 		vpinsrq	$1, 16(%rsp), %xmm4, %xmm0	# %sfp, _79, tmp384
+ 522      44241001 
+ 523 02b7 C5FD7F4C 		vmovdqa	%ymm1, 96(%rsp)	# tmp379, %sfp
+ 523      2460
+ 524 02bd C4E37D38 		vinserti128	$0x1, %xmm2, %ymm0, %ymm0	# tmp383, tmp384, tmp382
+ 524      C201
+ 525 02c3 C5FD7F84 		vmovdqa	%ymm0, 128(%rsp)	# tmp382, %sfp
+ 525      24800000 
+ 525      00
+ 526              	.LVL44:
+ 527              		.loc 1 148 5 is_stmt 1 view .LVU120
+ 528              	# main.cpp:148:     char ** data = new char*[10];
+ 529              		.loc 1 148 32 is_stmt 0 view .LVU121
+ 530 02cc C5F877   		vzeroupper
+ 531 02cf E8000000 		call	_Znam@PLT	#
+ 531      00
+ 532              	.LVL45:
+ 149:main.cpp      ****     data[0] = (char *) output;
+ 533              		.loc 1 149 5 is_stmt 1 view .LVU122
+ 150:main.cpp      ****     data[1] = (char *) input;
+ 534              		.loc 1 150 5 view .LVU123
+ 151:main.cpp      ****     data[2] = (char *) iy0;
+ 535              		.loc 1 151 5 view .LVU124
+ 152:main.cpp      ****     data[3] = (char *) wy0;
+ 536              		.loc 1 152 5 view .LVU125
+ 153:main.cpp      ****     data[4] = (char *) iy1;
+ 537              		.loc 1 153 5 view .LVU126
+ 154:main.cpp      ****     data[5] = (char *) wy1;
+ 538              		.loc 1 154 5 view .LVU127
+ 155:main.cpp      ****     data[6] = (char *) ix0;
+ 539              		.loc 1 155 5 view .LVU128
+ 156:main.cpp      ****     data[7] = (char *) wx0;
+ 540              		.loc 1 156 5 view .LVU129
+ 541              	# main.cpp:149:     data[0] = (char *) output;
+ 149:main.cpp      ****     data[1] = (char *) input;
+ 542              		.loc 1 149 13 is_stmt 0 view .LVU130
+ 543 02d4 C5FD6F4C 		vmovdqa	96(%rsp), %ymm1	# %sfp, tmp379
+ 543      2460
+ 544              	# main.cpp:158:     data[9] = (char *) wx1;
+ 157:main.cpp      ****     data[8] = (char *) ix1;
+ 158:main.cpp      ****     data[9] = (char *) wx1;
+ 545              		.loc 1 158 13 view .LVU131
+ 546 02da 488B4C24 		movq	32(%rsp), %rcx	# %sfp, _83
+ 546      20
+ 547              	# main.cpp:160:     int64_t * strides = new int64_t[10];
+ 159:main.cpp      **** 
+ 160:main.cpp      ****     int64_t * strides = new int64_t[10];
+ 548              		.loc 1 160 39 view .LVU132
+ 549 02df BF500000 		movl	$80, %edi	#,
+ 549      00
+ 550              	# main.cpp:149:     data[0] = (char *) output;
+ 149:main.cpp      ****     data[1] = (char *) input;
+ 551              		.loc 1 149 13 view .LVU133
+ 552 02e4 C5FD6F84 		vmovdqa	128(%rsp), %ymm0	# %sfp, tmp382
+ 552      24800000 
+ 552      00
+ 553              	# main.cpp:157:     data[8] = (char *) ix1;
+ 157:main.cpp      ****     data[8] = (char *) ix1;
+ 554              		.loc 1 157 13 view .LVU134
+ 555 02ed 4C897840 		movq	%r15, 64(%rax)	# _75, MEM[(char * *)_101 + 64B]
+ 556              	# main.cpp:158:     data[9] = (char *) wx1;
+ 158:main.cpp      **** 
+ 557              		.loc 1 158 13 view .LVU135
+ 558 02f1 48894848 		movq	%rcx, 72(%rax)	# _83, MEM[(char * *)_101 + 72B]
+ 559              	# main.cpp:149:     data[0] = (char *) output;
+ 149:main.cpp      ****     data[1] = (char *) input;
+ 560              		.loc 1 149 13 view .LVU136
+ 561 02f5 C4E37D39 		vextracti128	$0x1, %ymm1, 16(%rax)	# tmp379, MEM[(char * *)_101]
+ 561      481001
+ 562 02fc C5F81108 		vmovups	%xmm1, (%rax)	# tmp379, MEM[(char * *)_101]
+ 563 0300 C4E37D39 		vextracti128	$0x1, %ymm0, 48(%rax)	# tmp382, MEM[(char * *)_101 + 32B]
+ 563      403001
+ 157:main.cpp      ****     data[9] = (char *) wx1;
+ 564              		.loc 1 157 5 is_stmt 1 view .LVU137
+ 158:main.cpp      **** 
+ 565              		.loc 1 158 5 view .LVU138
+ 566              		.loc 1 160 5 view .LVU139
+ 567              	# main.cpp:149:     data[0] = (char *) output;
+ 149:main.cpp      ****     data[1] = (char *) input;
+ 568              		.loc 1 149 13 is_stmt 0 view .LVU140
+ 569 0307 C5F81140 		vmovups	%xmm0, 32(%rax)	# tmp382, MEM[(char * *)_101 + 32B]
+ 569      20
+ 570              	# main.cpp:160:     int64_t * strides = new int64_t[10];
+ 571              		.loc 1 160 39 view .LVU141
+ 572 030c C5F877   		vzeroupper
+ 573 030f 4531F6   		xorl	%r14d, %r14d	# ivtmp.95
+ 574 0312 E8000000 		call	_Znam@PLT	#
+ 574      00
+ 575              	.LVL46:
+ 576              		.loc 1 160 39 view .LVU142
+ 577 0317 4989C5   		movq	%rax, %r13	# tmp459, _113
+ 578              	.LVL47:
+ 161:main.cpp      ****     for (int i=0; i<10; i++) {
+ 579              		.loc 1 161 5 is_stmt 1 view .LVU143
+ 580              	.LBB107:
+ 581              		.loc 1 161 20 view .LVU144
+ 582 031a 660F1F44 		.p2align 4,,10
+ 582      0000
+ 583              		.p2align 3
+ 584              	.L7:
+ 162:main.cpp      ****         strides[i] = atoi(argv[4 + i]);
+ 585              		.loc 1 162 9 discriminator 2 view .LVU145
+ 586              	.LBB108:
+ 587              	.LBI108:
+ 361:/usr/include/stdlib.h **** {
+ 588              		.loc 2 361 1 discriminator 2 view .LVU146
+ 589              	.LBB109:
+ 590              		.loc 2 363 3 discriminator 2 view .LVU147
+ 591              	# /usr/include/stdlib.h:363:   return (int) strtol (__nptr, (char **) NULL, 10);
+ 592              		.loc 2 363 23 is_stmt 0 discriminator 2 view .LVU148
+ 593 0320 4B8B7C34 		movq	32(%r12,%r14), %rdi	# MEM[base: argv_55(D), index: ivtmp.95_106, offset: 32B], MEM[base: argv
+ 593      20
+ 594 0325 BA0A0000 		movl	$10, %edx	#,
+ 594      00
+ 595 032a 31F6     		xorl	%esi, %esi	#
+ 596 032c E8000000 		call	strtol@PLT	#
+ 596      00
+ 597              	.LVL48:
+ 598              		.loc 2 363 23 discriminator 2 view .LVU149
+ 599              	.LBE109:
+ 600              	.LBE108:
+ 601              	# main.cpp:162:         strides[i] = atoi(argv[4 + i]);
+ 602              		.loc 1 162 26 discriminator 2 view .LVU150
+ 603 0331 4898     		cltq
+ 604 0333 4B894435 		movq	%rax, 0(%r13,%r14)	# _124, MEM[base: _113, index: ivtmp.95_106, offset: 0B]
+ 604      00
+ 161:main.cpp      ****     for (int i=0; i<10; i++) {
+ 605              		.loc 1 161 5 is_stmt 1 discriminator 2 view .LVU151
+ 161:main.cpp      ****     for (int i=0; i<10; i++) {
+ 606              		.loc 1 161 20 discriminator 2 view .LVU152
+ 607 0338 4983C608 		addq	$8, %r14	#, ivtmp.95
+ 608 033c 4983FE50 		cmpq	$80, %r14	#, ivtmp.95
+ 609 0340 75DE     		jne	.L7	#,
+ 610              	.LBE107:
+ 163:main.cpp      ****     }
+ 164:main.cpp      ****     strides[0] = sizeof(float);
+ 611              		.loc 1 164 5 view .LVU153
+ 612              	.LBB110:
+ 613              	.LBB111:
+ 614              	# main.cpp:94:     if ((strides[0] == sizeof(scalar_t) && strides[1] == sizeof(scalar_t) &&
+  94:main.cpp      ****                is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
+ 615              		.loc 1 94 41 is_stmt 0 view .LVU154
+ 616 0342 49837D08 		cmpq	$4, 8(%r13)	#, MEM[(int64_t *)_113 + 8B]
+ 616      04
+ 617              	.LBE111:
+ 618              	.LBE110:
+ 619              	# main.cpp:164:     strides[0] = sizeof(float);
+ 620              		.loc 1 164 16 view .LVU155
+ 621 0347 49C74500 		movq	$4, 0(%r13)	#, *_113
+ 621      04000000 
+ 165:main.cpp      ****     // strides[1] = sizeof(float);
+ 166:main.cpp      **** 
+ 167:main.cpp      ****     // strides[2] = 0;  // iy0
+ 168:main.cpp      ****     // strides[3] = 0;  // wy0
+ 169:main.cpp      ****     // strides[4] = 0;  // iy1
+ 170:main.cpp      ****     // strides[5] = 0;  // wy1
+ 171:main.cpp      **** 
+ 172:main.cpp      ****     // strides[6] = 0;  // ix0
+ 173:main.cpp      ****     // strides[7] = 0;  // wx0
+ 174:main.cpp      ****     // strides[8] = 0;  // ix1
+ 175:main.cpp      ****     // strides[9] = 0;  // wx1
+ 176:main.cpp      **** 
+ 177:main.cpp      ****     // const int n = atoi(argv[4 + 10 + 1]);
+ 178:main.cpp      ****     const int n = argc;
+ 622              		.loc 1 178 5 is_stmt 1 view .LVU156
+ 623              	.LVL49:
+ 179:main.cpp      ****     // int n = 224;
+ 180:main.cpp      **** 
+ 181:main.cpp      ****     ti_cpu_upsample_linear<float, int32_t, 2>(data, strides, n);
+ 624              		.loc 1 181 5 view .LVU157
+ 625              	.LBB242:
+ 626              	.LBI110:
+  85:main.cpp      **** #ifdef WITH_STRIDES_OPTIM
+ 627              		.loc 1 85 6 view .LVU158
+ 628              	.LBB238:
+ 629              	# main.cpp:94:     if ((strides[0] == sizeof(scalar_t) && strides[1] == sizeof(scalar_t) &&
+  94:main.cpp      ****                is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
+ 630              		.loc 1 94 41 is_stmt 0 view .LVU159
+ 631 034f 741D     		je	.L12	#,
+ 632              	.L13:
+ 633              	.LVL50:
+  94:main.cpp      ****                is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
+ 634              		.loc 1 94 41 view .LVU160
+ 635              	.LBE238:
+ 636              	.LBE242:
+ 182:main.cpp      **** 
+ 183:main.cpp      ****     return int(data[0][0] + data[0][1]);
+ 637              		.loc 1 183 5 is_stmt 1 view .LVU161
+ 638              	# main.cpp:183:     return int(data[0][0] + data[0][1]);
+ 639              		.loc 1 183 25 is_stmt 0 view .LVU162
+ 640 0351 488B4C24 		movq	64(%rsp), %rcx	# %sfp, _64
+ 640      40
+ 641 0356 0FBE01   		movsbl	(%rcx), %eax	# MEM[(char *)_64], MEM[(char *)_64]
+ 642              	# main.cpp:183:     return int(data[0][0] + data[0][1]);
+ 643              		.loc 1 183 38 view .LVU163
+ 644 0359 0FBE5101 		movsbl	1(%rcx), %edx	# MEM[(char *)_64 + 1B], MEM[(char *)_64 + 1B]
+ 645              	# main.cpp:184: }
+ 184:main.cpp      **** }...
+ 646              		.loc 1 184 1 view .LVU164
+ 647 035d 488D65D8 		leaq	-40(%rbp), %rsp	#,
+ 648              	.LVL51:
+ 649              		.loc 1 184 1 view .LVU165
+ 650 0361 5B       		popq	%rbx	#
+ 651              	.LVL52:
+ 652              		.loc 1 184 1 view .LVU166
+ 653 0362 415C     		popq	%r12	#
+ 654              	# main.cpp:183:     return int(data[0][0] + data[0][1]);
+ 183:main.cpp      ****     return int(data[0][0] + data[0][1]);
+ 655              		.loc 1 183 39 view .LVU167
+ 656 0364 01D0     		addl	%edx, %eax	# MEM[(char *)_64 + 1B], tmp397
+ 657              	# main.cpp:184: }
+ 658              		.loc 1 184 1 view .LVU168
+ 659 0366 415D     		popq	%r13	#
+ 660 0368 415E     		popq	%r14	#
+ 661 036a 415F     		popq	%r15	#
+ 662 036c 5D       		popq	%rbp	#
+ 663              		.cfi_remember_state
+ 664              		.cfi_def_cfa 7, 8
+ 665              	.LVL53:
+ 666              		.loc 1 184 1 view .LVU169
+ 667 036d C3       		ret	
+ 668              	.LVL54:
+ 669              	.L12:
+ 670              		.cfi_restore_state
+ 671              	.LBB243:
+ 672              	.LBB239:
+ 673              	.LBB112:
+ 674              	.LBI112:
+  85:main.cpp      **** void ti_cpu_upsample_linear(char** data, int64_t* strides, const int64_t n) {
+ 675              		.loc 1 85 6 is_stmt 1 view .LVU170
+ 676              	.LBB113:
+ 677              	.LBI113:
+  80:main.cpp      **** static inline bool is_all_zero_stride(const int64_t* strides) {
+ 678              		.loc 1 80 20 view .LVU171
+ 679              	.LBB114:
+ 680              	.LBI114:
+  66:main.cpp      ****   static inline bool eval(const int64_t* strides) {
+ 681              		.loc 1 66 22 view .LVU172
+ 682              	.LBB115:
+ 683              	.LBI115:
+  53:main.cpp      **** static inline bool is_zero_stride(const int64_t* strides) {
+ 684              		.loc 1 53 20 view .LVU173
+ 685              	.LBB116:
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 686              		.loc 1 54 3 view .LVU174
+ 687              	# main.cpp:54:   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] 
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 688              		.loc 1 54 70 is_stmt 0 view .LVU175
+ 689 036e 49837D10 		cmpq	$0, 16(%r13)	#, MEM[(const int64_t *)_113 + 16B]
+ 689      00
+ 690 0373 75DC     		jne	.L13	#,
+ 691              	# main.cpp:54:   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] 
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 692              		.loc 1 54 28 view .LVU176
+ 693 0375 49837D18 		cmpq	$0, 24(%r13)	#, MEM[(const int64_t *)_113 + 24B]
+ 693      00
+ 694 037a 75D5     		jne	.L13	#,
+ 695              	# main.cpp:54:   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] 
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 696              		.loc 1 54 49 view .LVU177
+ 697 037c 49837D20 		cmpq	$0, 32(%r13)	#, MEM[(const int64_t *)_113 + 32B]
+ 697      00
+ 698 0381 75CE     		jne	.L13	#,
+ 699              	# main.cpp:54:   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] 
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 700              		.loc 1 54 70 view .LVU178
+ 701 0383 49837D28 		cmpq	$0, 40(%r13)	#, MEM[(const int64_t *)_113 + 40B]
+ 701      00
+ 702 0388 75C7     		jne	.L13	#,
+ 703              	.LVL55:
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 704              		.loc 1 54 70 view .LVU179
+ 705              	.LBE116:
+ 706              	.LBE115:
+ 707              	.LBB117:
+ 708              	.LBI117:
+  74:main.cpp      ****   static inline bool eval(const int64_t* strides) {
+ 709              		.loc 1 74 22 is_stmt 1 view .LVU180
+ 710              	.LBB118:
+ 711              	.LBI118:
+  53:main.cpp      **** static inline bool is_zero_stride(const int64_t* strides) {
+ 712              		.loc 1 53 20 view .LVU181
+ 713              	.LBB119:
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 714              		.loc 1 54 3 view .LVU182
+ 715              	# main.cpp:54:   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] 
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 716              		.loc 1 54 70 is_stmt 0 view .LVU183
+ 717 038a 49837D30 		cmpq	$0, 48(%r13)	#, MEM[(const int64_t *)_113 + 48B]
+ 717      00
+ 718 038f 75C0     		jne	.L13	#,
+ 719              	.LVL56:
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 720              		.loc 1 54 70 view .LVU184
+ 721              	.LBE119:
+ 722              	.LBE118:
+ 723              	.LBE117:
+ 724              	.LBB120:
+ 725              	.LBI120:
+  66:main.cpp      ****   static inline bool eval(const int64_t* strides) {
+ 726              		.loc 1 66 22 is_stmt 1 view .LVU185
+ 727              	.LBB121:
+ 728              	.LBB122:
+ 729              	.LBB123:
+ 730              	# main.cpp:54:   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] 
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 731              		.loc 1 54 28 is_stmt 0 view .LVU186
+ 732 0391 49837D38 		cmpq	$0, 56(%r13)	#, MEM[(const int64_t *)_113 + 56B]
+ 732      00
+ 733 0396 75B9     		jne	.L13	#,
+ 734              	# main.cpp:54:   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] 
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 735              		.loc 1 54 49 view .LVU187
+ 736 0398 49837D40 		cmpq	$0, 64(%r13)	#, MEM[(const int64_t *)_113 + 64B]
+ 736      00
+ 737 039d 75B2     		jne	.L13	#,
+ 738              	# main.cpp:54:   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] 
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 739              		.loc 1 54 83 view .LVU188
+ 740 039f 498B4548 		movq	72(%r13), %rax	# MEM[(const int64_t *)_113 + 72B], tmp.45
+ 741              	# main.cpp:54:   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] 
+  54:main.cpp      ****   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+ 742              		.loc 1 54 70 view .LVU189
+ 743 03a3 4885C0   		testq	%rax, %rax	# tmp.45
+ 744 03a6 75A9     		jne	.L13	#,
+ 745              	.LBE123:
+ 746              	.LBE122:
+ 747              	.LBE121:
+ 748              	.LBE120:
+ 749              	.LBE114:
+ 750              	.LBE113:
+ 751              	.LBE112:
+ 752              	.LBE239:
+ 753              	.LBE243:
+ 754              	# main.cpp:181:     ti_cpu_upsample_linear<float, int32_t, 2>(data, strides, n);
+ 181:main.cpp      ****     ti_cpu_upsample_linear<float, int32_t, 2>(data, strides, n);
+ 755              		.loc 1 181 46 view .LVU190
+ 756 03a8 48637424 		movslq	12(%rsp), %rsi	# %sfp, _42
+ 756      0C
+ 757              	.LVL57:
+ 758              	.LBB244:
+ 759              	.LBB240:
+ 760              	.LBB236:
+ 761              	.LBB124:
+ 762              	.LBB125:
+ 763              	.LBB126:
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 764              		.loc 1 47 25 is_stmt 1 view .LVU191
+ 765 03ad 4885F6   		testq	%rsi, %rsi	# _42
+ 766 03b0 7E9F     		jle	.L13	#,
+ 767              	.LBB127:
+ 768              	.LBB128:
+ 769              	.LBB129:
+ 770              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 771              		.loc 1 17 74 is_stmt 0 view .LVU192
+ 772 03b2 4C8B5C24 		movq	48(%rsp), %r11	# %sfp, _79
+ 772      30
+ 773              	# main.cpp:16:         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4
+  16:main.cpp      ****         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4], &strides[4],
+ 774              		.loc 1 16 74 view .LVU193
+ 775 03b7 488B4C24 		movq	56(%rsp), %rcx	# %sfp, _77
+ 775      38
+ 776 03bc 4C8D4EFF 		leaq	-1(%rsi), %r9	#, tmp404
+ 777              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 778              		.loc 1 17 74 view .LVU194
+ 779 03c0 4D6303   		movslq	(%r11), %r8	# MEM[(int *)_79], _191
+ 780 03c3 4C8B5C24 		movq	24(%rsp), %r11	# %sfp, _85
+ 780      18
+ 781              	# main.cpp:16:         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4
+  16:main.cpp      ****         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4], &strides[4],
+ 782              		.loc 1 16 74 view .LVU195
+ 783 03c8 486339   		movslq	(%rcx), %rdi	# MEM[(int *)_77], _188
+ 784              	.LBB130:
+ 785              	.LBB131:
+ 786              	# main.cpp:30:         scalar_t t0 = *(scalar_t *)&src[i0];
+  30:main.cpp      ****         scalar_t t0 = *(scalar_t *)&src[i0];
+ 787              		.loc 1 30 41 view .LVU196
+ 788 03cb 488B8C24 		movq	184(%rsp), %rcx	# %sfp, _73
+ 788      B8000000 
+ 789 03d3 C4C17A10 		vmovss	(%r11), %xmm6	# *_85, pretmp_288
+ 789      33
+ 790 03d8 4C8B5C24 		movq	16(%rsp), %r11	# %sfp, _87
+ 790      10
+ 791 03dd 486311   		movslq	(%rcx), %rdx	# MEM[(int *)_73], _254
+ 792              	# main.cpp:31:         scalar_t t1 = *(scalar_t *)&src[i1];
+  31:main.cpp      ****         scalar_t t1 = *(scalar_t *)&src[i1];
+ 793              		.loc 1 31 41 view .LVU197
+ 794 03e0 49630F   		movslq	(%r15), %rcx	# MEM[(int *)_75], _257
+ 795 03e3 C4417A10 		vmovss	(%r11), %xmm9	# *_87, pretmp_290
+ 795      0B
+ 796 03e8 4C8B5C24 		movq	40(%rsp), %r11	# %sfp, _81
+ 796      28
+ 797 03ed C4C17A10 		vmovss	(%r11), %xmm2	# *_81, pretmp_292
+ 797      13
+ 798 03f2 4C8B5C24 		movq	32(%rsp), %r11	# %sfp, _83
+ 798      20
+ 799 03f7 C4C17A10 		vmovss	(%r11), %xmm5	# *_83, pretmp_294
+ 799      2B
+ 800 03fc 4983F906 		cmpq	$6, %r9	#, tmp404
+ 801 0400 0F868500 		jbe	.L14	#,
+ 801      0000
+ 802 0406 4989F1   		movq	%rsi, %r9	# _42, bnd.43
+ 803 0409 4C8D2C17 		leaq	(%rdi,%rdx), %r13	#, tmp405
+ 804 040d 4C8D240F 		leaq	(%rdi,%rcx), %r12	#, tmp406
+ 805              	.LBE131:
+ 806              	.LBE130:
+ 807              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 808              		.loc 1 17 74 view .LVU198
+ 809 0411 4C8B7424 		movq	64(%rsp), %r14	# %sfp, _64
+ 809      40
+ 810 0416 4D8D1C10 		leaq	(%r8,%rdx), %r11	#, tmp409
+ 811 041a 4D8D1408 		leaq	(%r8,%rcx), %r10	#, tmp410
+ 812 041e 49C1E903 		shrq	$3, %r9	#, bnd.43
+ 813 0422 4901DD   		addq	%rbx, %r13	# _71, vectp.47
+ 814 0425 4901DC   		addq	%rbx, %r12	# _71, vectp.50
+ 815 0428 C4E27D18 		vbroadcastss	%xmm2, %ymm4	# pretmp_292, vect_cst__234
+ 815      E2
+ 816 042d C4E27D18 		vbroadcastss	%xmm5, %ymm3	# pretmp_294, vect_cst__232
+ 816      DD
+ 817 0432 4901DB   		addq	%rbx, %r11	# _71, vectp.56
+ 818 0435 4901DA   		addq	%rbx, %r10	# _71, vectp.59
+ 819 0438 C4627D18 		vbroadcastss	%xmm6, %ymm8	# pretmp_288, vect_cst__169
+ 819      C6
+ 820 043d C4C27D18 		vbroadcastss	%xmm9, %ymm7	# pretmp_290, vect_cst__166
+ 820      F9
+ 821 0442 49C1E105 		salq	$5, %r9	#, _107
+ 822              	.LVL58:
+ 823              	.L16:
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 824              		.loc 1 17 74 view .LVU199
+ 825              	.LBE129:
+ 826              	.LBE128:
+ 827              	.LBI127:
+  37:main.cpp      **** static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
+ 828              		.loc 1 37 24 is_stmt 1 view .LVU200
+ 829              	.LBB216:
+ 830              	.LBI128:
+  10:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 831              		.loc 1 10 28 view .LVU201
+ 832              	.LBB207:
+ 833              	.LBB147:
+ 834              	.LBI130:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 835              		.loc 1 25 28 view .LVU202
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 836              		.loc 1 25 28 is_stmt 0 view .LVU203
+ 837              	.LBE147:
+ 838              	.LBB148:
+ 839              	.LBB149:
+ 840              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 841              		.loc 1 32 29 view .LVU204
+ 842 0446 C4C16459 		vmulps	(%r10,%rax), %ymm3, %ymm1	# MEM[base: vectp.59_190, index: ivtmp.75_109, offset: 0B], vect_
+ 842      0C02
+ 843              	.LBE149:
+ 844              	.LBE148:
+ 845              	.LBB164:
+ 846              	.LBB132:
+ 847 044c C4C16459 		vmulps	(%r12,%rax), %ymm3, %ymm0	# MEM[base: vectp.50_243, index: ivtmp.75_109, offset: 0B], vect_
+ 847      0404
+ 848              	.LBE132:
+ 849              	.LBE164:
+ 850              	.LBB165:
+ 851              	.LBB150:
+ 852              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 853              		.loc 1 32 31 view .LVU205
+ 854 0452 C4C25DB8 		vfmadd231ps	(%r11,%rax), %ymm4, %ymm1	# MEM[base: vectp.56_214, index: ivtmp.75_109, offset: 0B], 
+ 854      0C03
+ 855              	.LBE150:
+ 856              	.LBE165:
+ 857              	.LBB166:
+ 858              	.LBB133:
+ 859 0458 C4C25DB8 		vfmadd231ps	0(%r13,%rax), %ymm4, %ymm0	# MEM[base: vectp.47_252, index: ivtmp.75_109, offset: 0B],
+ 859      440500
+ 860              	.LVL59:
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 861              		.loc 1 32 31 view .LVU206
+ 862              	.LBE133:
+ 863              	.LBE166:
+ 864              	.LBB167:
+ 865              	.LBI148:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 866              		.loc 1 25 28 is_stmt 1 view .LVU207
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 867              		.loc 1 25 28 is_stmt 0 view .LVU208
+ 868              	.LBE167:
+ 869              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 870              		.loc 1 19 29 view .LVU209
+ 871 045f C5C459C9 		vmulps	%ymm1, %ymm7, %ymm1	# vect__229.63, vect_cst__166, vect__195.65
+ 872              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 873              		.loc 1 19 31 view .LVU210
+ 874 0463 C4C27598 		vfmadd132ps	%ymm8, %ymm1, %ymm0	# vect_cst__169, vect__195.65, vect__196.66
+ 874      C0
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 875              		.loc 1 19 31 view .LVU211
+ 876              	.LBE207:
+ 877              	.LBE216:
+ 878              	.LBE127:
+ 879              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 880              		.loc 1 48 5 view .LVU212
+ 881 0468 C4C17C11 		vmovups	%ymm0, (%r14,%rax)	# vect__196.66, MEM[base: _64, index: ivtmp.75_109, offset: 0B]
+ 881      0406
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 882              		.loc 1 47 3 is_stmt 1 view .LVU213
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 883              		.loc 1 47 25 view .LVU214
+ 884 046e 4883C020 		addq	$32, %rax	#, ivtmp.75
+ 885 0472 4939C1   		cmpq	%rax, %r9	# ivtmp.75, _107
+ 886 0475 75CF     		jne	.L16	#,
+ 887 0477 4889F0   		movq	%rsi, %rax	# _42, tmp.45
+ 888 047a 4883E0F8 		andq	$-8, %rax	#, tmp.45
+ 889 047e 40F6C607 		testb	$7, %sil	#, _42
+ 890 0482 0F84E201 		je	.L21	#,
+ 890      0000
+ 891 0488 C5F877   		vzeroupper
+ 892              	.L14:
+ 893              	.LVL60:
+ 894              	# main.cpp:49:         src + i * strides[1], &data[2], &strides[2], i);
+  49:main.cpp      ****         src + i * strides[1], &data[2], &strides[2], i);
+ 895              		.loc 1 49 17 is_stmt 0 view .LVU215
+ 896 048b 4C8D1485 		leaq	0(,%rax,4), %r10	#, _155
+ 896      00000000 
+ 897              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 898              		.loc 1 48 5 view .LVU216
+ 899 0493 4C8B7C24 		movq	64(%rsp), %r15	# %sfp, _64
+ 899      40
+ 900              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 901              		.loc 1 48 83 view .LVU217
+ 902 0498 4E8D0C13 		leaq	(%rbx,%r10), %r9	#, _159
+ 903              	.LVL61:
+ 904              	.LBB225:
+  37:main.cpp      **** static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
+ 905              		.loc 1 37 24 is_stmt 1 view .LVU218
+ 906              	.LBB217:
+  10:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 907              		.loc 1 10 28 view .LVU219
+ 908              	.LBB208:
+ 909              	# main.cpp:16:         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4
+  16:main.cpp      ****         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4], &strides[4],
+ 910              		.loc 1 16 67 is_stmt 0 view .LVU220
+ 911 049c 4D8D1C39 		leaq	(%r9,%rdi), %r11	#, _255
+ 912              	.LVL62:
+ 913              	.LBB168:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 914              		.loc 1 25 28 is_stmt 1 view .LVU221
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 915              		.loc 1 25 28 is_stmt 0 view .LVU222
+ 916              	.LBE168:
+ 917              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 918              		.loc 1 17 67 view .LVU223
+ 919 04a0 4D01C1   		addq	%r8, %r9	# _191, _222
+ 920              	.LVL63:
+ 921              	.LBB169:
+ 922              	.LBB151:
+ 923              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 924              		.loc 1 32 29 view .LVU224
+ 925 04a3 C4C15259 		vmulss	(%r9,%rcx), %xmm5, %xmm1	# MEM[(float *)_226], pretmp_294, tmp422
+ 925      0C09
+ 926              	.LBE151:
+ 927              	.LBE169:
+ 928              	.LBB170:
+ 929              	.LBB134:
+ 930 04a9 C4C15259 		vmulss	(%r11,%rcx), %xmm5, %xmm0	# MEM[(float *)_259], pretmp_294, tmp421
+ 930      040B
+ 931              	.LBE134:
+ 932              	.LBE170:
+ 933              	.LBB171:
+ 934              	.LBB152:
+ 935              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 936              		.loc 1 32 31 view .LVU225
+ 937 04af C4C269B9 		vfmadd231ss	(%r9,%rdx), %xmm2, %xmm1	# MEM[(float *)_223], pretmp_292, _194
+ 937      0C11
+ 938              	.LBE152:
+ 939              	.LBE171:
+ 940              	.LBE208:
+ 941              	.LBE217:
+ 942              	.LBE225:
+ 943              	# main.cpp:47:   for (int64_t i = 0; i < n; i++) {
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 944              		.loc 1 47 3 view .LVU226
+ 945 04b5 4C8D4801 		leaq	1(%rax), %r9	#, i
+ 946              	.LBB226:
+ 947              	.LBB218:
+ 948              	.LBB209:
+ 949              	.LBB172:
+ 950              	.LBB135:
+ 951              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 952              		.loc 1 32 31 view .LVU227
+ 953 04b9 C4C269B9 		vfmadd231ss	(%r11,%rdx), %xmm2, %xmm0	# MEM[(float *)_256], pretmp_292, _192
+ 953      0413
+ 954              	.LVL64:
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 955              		.loc 1 32 31 view .LVU228
+ 956              	.LBE135:
+ 957              	.LBE172:
+ 958              	.LBB173:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 959              		.loc 1 25 28 is_stmt 1 view .LVU229
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 960              		.loc 1 25 28 is_stmt 0 view .LVU230
+ 961              	.LBE173:
+ 962              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 963              		.loc 1 19 29 view .LVU231
+ 964 04bf C4C17259 		vmulss	%xmm9, %xmm1, %xmm1	# pretmp_290, _194, tmp423
+ 964      C9
+ 965              	.LVL65:
+ 966              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 967              		.loc 1 19 31 view .LVU232
+ 968 04c4 C4E27199 		vfmadd132ss	%xmm6, %xmm1, %xmm0	# pretmp_288, tmp423, _161
+ 968      C6
+ 969              	.LVL66:
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 970              		.loc 1 19 31 view .LVU233
+ 971              	.LBE209:
+ 972              	.LBE218:
+ 973              	.LBE226:
+ 974              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 975              		.loc 1 48 5 view .LVU234
+ 976 04c9 C4817A11 		vmovss	%xmm0, (%r15,%r10)	# _161, MEM[(float *)_189]
+ 976      0417
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 977              		.loc 1 47 3 is_stmt 1 view .LVU235
+ 978              	.LVL67:
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 979              		.loc 1 47 25 view .LVU236
+ 980 04cf 4C39CE   		cmpq	%r9, %rsi	# i, _42
+ 981 04d2 0F8E79FE 		jle	.L13	#,
+ 981      FFFF
+ 982              	# main.cpp:49:         src + i * strides[1], &data[2], &strides[2], i);
+  49:main.cpp      ****         src + i * strides[1], &data[2], &strides[2], i);
+ 983              		.loc 1 49 17 is_stmt 0 view .LVU237
+ 984 04d8 49C1E102 		salq	$2, %r9	#, _149
+ 985              	.LVL68:
+ 986              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 987              		.loc 1 48 83 view .LVU238
+ 988 04dc 4E8D140B 		leaq	(%rbx,%r9), %r10	#, _148
+ 989              	.LVL69:
+ 990              	.LBB227:
+  37:main.cpp      **** static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
+ 991              		.loc 1 37 24 is_stmt 1 view .LVU239
+ 992              	.LBB219:
+  10:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 993              		.loc 1 10 28 view .LVU240
+ 994              	.LBB210:
+ 995              	# main.cpp:16:         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4
+  16:main.cpp      ****         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4], &strides[4],
+ 996              		.loc 1 16 67 is_stmt 0 view .LVU241
+ 997 04e0 4D8D1C3A 		leaq	(%r10,%rdi), %r11	#, _146
+ 998              	.LVL70:
+ 999              	.LBB174:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1000              		.loc 1 25 28 is_stmt 1 view .LVU242
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1001              		.loc 1 25 28 is_stmt 0 view .LVU243
+ 1002              	.LBE174:
+ 1003              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 1004              		.loc 1 17 67 view .LVU244
+ 1005 04e4 4D01C2   		addq	%r8, %r10	# _191, _50
+ 1006              	.LVL71:
+ 1007              	.LBB175:
+ 1008              	.LBB153:
+ 1009              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1010              		.loc 1 32 29 view .LVU245
+ 1011 04e7 C4C15259 		vmulss	(%r10,%rcx), %xmm5, %xmm1	# MEM[(float *)_68], pretmp_294, tmp425
+ 1011      0C0A
+ 1012              	.LBE153:
+ 1013              	.LBE175:
+ 1014              	.LBB176:
+ 1015              	.LBB136:
+ 1016 04ed C4C15259 		vmulss	(%r11,%rcx), %xmm5, %xmm0	# MEM[(float *)_135], pretmp_294, tmp424
+ 1016      040B
+ 1017              	.LBE136:
+ 1018              	.LBE176:
+ 1019              	.LBB177:
+ 1020              	.LBB154:
+ 1021              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1022              		.loc 1 32 31 view .LVU246
+ 1023 04f3 C4C269B9 		vfmadd231ss	(%r10,%rdx), %xmm2, %xmm1	# MEM[(float *)_49], pretmp_292, _283
+ 1023      0C12
+ 1024              	.LBE154:
+ 1025              	.LBE177:
+ 1026              	.LBB178:
+ 1027              	.LBB137:
+ 1028 04f9 C4C269B9 		vfmadd231ss	(%r11,%rdx), %xmm2, %xmm0	# MEM[(float *)_142], pretmp_292, _52
+ 1028      0413
+ 1029              	.LVL72:
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1030              		.loc 1 32 31 view .LVU247
+ 1031              	.LBE137:
+ 1032              	.LBE178:
+ 1033              	.LBB179:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1034              		.loc 1 25 28 is_stmt 1 view .LVU248
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1035              		.loc 1 25 28 is_stmt 0 view .LVU249
+ 1036              	.LBE179:
+ 1037              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1038              		.loc 1 19 29 view .LVU250
+ 1039 04ff C4C17259 		vmulss	%xmm9, %xmm1, %xmm1	# pretmp_290, _283, tmp426
+ 1039      C9
+ 1040              	.LVL73:
+ 1041              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1042              		.loc 1 19 31 view .LVU251
+ 1043 0504 C4E27199 		vfmadd132ss	%xmm6, %xmm1, %xmm0	# pretmp_288, tmp426, _280
+ 1043      C6
+ 1044              	.LVL74:
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1045              		.loc 1 19 31 view .LVU252
+ 1046              	.LBE210:
+ 1047              	.LBE219:
+ 1048              	.LBE227:
+ 1049              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 1050              		.loc 1 48 5 view .LVU253
+ 1051 0509 C4817A11 		vmovss	%xmm0, (%r15,%r9)	# _280, MEM[(float *)_147]
+ 1051      040F
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1052              		.loc 1 47 3 is_stmt 1 view .LVU254
+ 1053 050f 4C8D4802 		leaq	2(%rax), %r9	#, i
+ 1054              	.LVL75:
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1055              		.loc 1 47 25 view .LVU255
+ 1056 0513 4C39CE   		cmpq	%r9, %rsi	# i, _42
+ 1057 0516 0F8E35FE 		jle	.L13	#,
+ 1057      FFFF
+ 1058              	# main.cpp:49:         src + i * strides[1], &data[2], &strides[2], i);
+  49:main.cpp      ****         src + i * strides[1], &data[2], &strides[2], i);
+ 1059              		.loc 1 49 17 is_stmt 0 view .LVU256
+ 1060 051c 49C1E102 		salq	$2, %r9	#, _220
+ 1061              	.LVL76:
+ 1062              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 1063              		.loc 1 48 83 view .LVU257
+ 1064 0520 4E8D140B 		leaq	(%rbx,%r9), %r10	#, _215
+ 1065              	.LVL77:
+ 1066              	.LBB228:
+  37:main.cpp      **** static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1067              		.loc 1 37 24 is_stmt 1 view .LVU258
+ 1068              	.LBB220:
+  10:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1069              		.loc 1 10 28 view .LVU259
+ 1070              	.LBB211:
+ 1071              	# main.cpp:16:         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4
+  16:main.cpp      ****         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4], &strides[4],
+ 1072              		.loc 1 16 67 is_stmt 0 view .LVU260
+ 1073 0524 4D8D1C3A 		leaq	(%r10,%rdi), %r11	#, _217
+ 1074              	.LVL78:
+ 1075              	.LBB180:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1076              		.loc 1 25 28 is_stmt 1 view .LVU261
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1077              		.loc 1 25 28 is_stmt 0 view .LVU262
+ 1078              	.LBE180:
+ 1079              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 1080              		.loc 1 17 67 view .LVU263
+ 1081 0528 4D01C2   		addq	%r8, %r10	# _191, _150
+ 1082              	.LVL79:
+ 1083              	.LBB181:
+ 1084              	.LBB155:
+ 1085              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1086              		.loc 1 32 29 view .LVU264
+ 1087 052b C4C15259 		vmulss	(%r10,%rcx), %xmm5, %xmm1	# MEM[(float *)_10], pretmp_294, tmp428
+ 1087      0C0A
+ 1088              	.LBE155:
+ 1089              	.LBE181:
+ 1090              	.LBB182:
+ 1091              	.LBB138:
+ 1092 0531 C4C15259 		vmulss	(%r11,%rcx), %xmm5, %xmm0	# MEM[(float *)_211], pretmp_294, tmp427
+ 1092      040B
+ 1093              	.LBE138:
+ 1094              	.LBE182:
+ 1095              	.LBB183:
+ 1096              	.LBB156:
+ 1097              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1098              		.loc 1 32 31 view .LVU265
+ 1099 0537 C4C269B9 		vfmadd231ss	(%r10,%rdx), %xmm2, %xmm1	# MEM[(float *)_134], pretmp_292, _289
+ 1099      0C12
+ 1100              	.LBE156:
+ 1101              	.LBE183:
+ 1102              	.LBB184:
+ 1103              	.LBB139:
+ 1104 053d C4C269B9 		vfmadd231ss	(%r11,%rdx), %xmm2, %xmm0	# MEM[(float *)_213], pretmp_292, _151
+ 1104      0413
+ 1105              	.LVL80:
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1106              		.loc 1 32 31 view .LVU266
+ 1107              	.LBE139:
+ 1108              	.LBE184:
+ 1109              	.LBB185:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1110              		.loc 1 25 28 is_stmt 1 view .LVU267
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1111              		.loc 1 25 28 is_stmt 0 view .LVU268
+ 1112              	.LBE185:
+ 1113              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1114              		.loc 1 19 29 view .LVU269
+ 1115 0543 C4C17259 		vmulss	%xmm9, %xmm1, %xmm1	# pretmp_290, _289, tmp429
+ 1115      C9
+ 1116              	.LVL81:
+ 1117              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1118              		.loc 1 19 31 view .LVU270
+ 1119 0548 C4E27199 		vfmadd132ss	%xmm6, %xmm1, %xmm0	# pretmp_288, tmp429, _295
+ 1119      C6
+ 1120              	.LVL82:
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1121              		.loc 1 19 31 view .LVU271
+ 1122              	.LBE211:
+ 1123              	.LBE220:
+ 1124              	.LBE228:
+ 1125              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 1126              		.loc 1 48 5 view .LVU272
+ 1127 054d C4817A11 		vmovss	%xmm0, (%r15,%r9)	# _295, MEM[(float *)_216]
+ 1127      040F
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1128              		.loc 1 47 3 is_stmt 1 view .LVU273
+ 1129 0553 4C8D4803 		leaq	3(%rax), %r9	#, i
+ 1130              	.LVL83:
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1131              		.loc 1 47 25 view .LVU274
+ 1132 0557 4C39CE   		cmpq	%r9, %rsi	# i, _42
+ 1133 055a 0F8EF1FD 		jle	.L13	#,
+ 1133      FFFF
+ 1134              	# main.cpp:49:         src + i * strides[1], &data[2], &strides[2], i);
+  49:main.cpp      ****         src + i * strides[1], &data[2], &strides[2], i);
+ 1135              		.loc 1 49 17 is_stmt 0 view .LVU275
+ 1136 0560 49C1E102 		salq	$2, %r9	#, _322
+ 1137              	.LVL84:
+ 1138              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 1139              		.loc 1 48 83 view .LVU276
+ 1140 0564 4E8D140B 		leaq	(%rbx,%r9), %r10	#, _323
+ 1141              	.LVL85:
+ 1142              	.LBB229:
+  37:main.cpp      **** static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1143              		.loc 1 37 24 is_stmt 1 view .LVU277
+ 1144              	.LBB221:
+  10:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1145              		.loc 1 10 28 view .LVU278
+ 1146              	.LBB212:
+ 1147              	# main.cpp:16:         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4
+  16:main.cpp      ****         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4], &strides[4],
+ 1148              		.loc 1 16 67 is_stmt 0 view .LVU279
+ 1149 0568 4D8D1C3A 		leaq	(%r10,%rdi), %r11	#, _325
+ 1150              	.LVL86:
+ 1151              	.LBB186:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1152              		.loc 1 25 28 is_stmt 1 view .LVU280
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1153              		.loc 1 25 28 is_stmt 0 view .LVU281
+ 1154              	.LBE186:
+ 1155              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 1156              		.loc 1 17 67 view .LVU282
+ 1157 056c 4D01C2   		addq	%r8, %r10	# _191, _333
+ 1158              	.LVL87:
+ 1159              	.LBB187:
+ 1160              	.LBB157:
+ 1161              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1162              		.loc 1 32 29 view .LVU283
+ 1163 056f C4C15259 		vmulss	(%r10,%rcx), %xmm5, %xmm1	# MEM[(float *)_336], pretmp_294, tmp431
+ 1163      0C0A
+ 1164              	.LBE157:
+ 1165              	.LBE187:
+ 1166              	.LBB188:
+ 1167              	.LBB140:
+ 1168 0575 C4C15259 		vmulss	(%r11,%rcx), %xmm5, %xmm0	# MEM[(float *)_328], pretmp_294, tmp430
+ 1168      040B
+ 1169              	.LBE140:
+ 1170              	.LBE188:
+ 1171              	.LBB189:
+ 1172              	.LBB158:
+ 1173              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1174              		.loc 1 32 31 view .LVU284
+ 1175 057b C4C269B9 		vfmadd231ss	(%r10,%rdx), %xmm2, %xmm1	# MEM[(float *)_334], pretmp_292, _340
+ 1175      0C12
+ 1176              	.LBE158:
+ 1177              	.LBE189:
+ 1178              	.LBB190:
+ 1179              	.LBB141:
+ 1180 0581 C4C269B9 		vfmadd231ss	(%r11,%rdx), %xmm2, %xmm0	# MEM[(float *)_326], pretmp_292, _332
+ 1180      0413
+ 1181              	.LVL88:
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1182              		.loc 1 32 31 view .LVU285
+ 1183              	.LBE141:
+ 1184              	.LBE190:
+ 1185              	.LBB191:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1186              		.loc 1 25 28 is_stmt 1 view .LVU286
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1187              		.loc 1 25 28 is_stmt 0 view .LVU287
+ 1188              	.LBE191:
+ 1189              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1190              		.loc 1 19 29 view .LVU288
+ 1191 0587 C5B259C9 		vmulss	%xmm1, %xmm9, %xmm1	# _340, pretmp_290, tmp432
+ 1192              	.LVL89:
+ 1193              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1194              		.loc 1 19 31 view .LVU289
+ 1195 058b C4E27199 		vfmadd132ss	%xmm6, %xmm1, %xmm0	# pretmp_288, tmp432, _343
+ 1195      C6
+ 1196              	.LVL90:
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1197              		.loc 1 19 31 view .LVU290
+ 1198              	.LBE212:
+ 1199              	.LBE221:
+ 1200              	.LBE229:
+ 1201              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 1202              		.loc 1 48 5 view .LVU291
+ 1203 0590 C4817A11 		vmovss	%xmm0, (%r15,%r9)	# _343, MEM[(float *)_324]
+ 1203      040F
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1204              		.loc 1 47 3 is_stmt 1 view .LVU292
+ 1205 0596 4C8D4804 		leaq	4(%rax), %r9	#, i
+ 1206              	.LVL91:
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1207              		.loc 1 47 25 view .LVU293
+ 1208 059a 4C39CE   		cmpq	%r9, %rsi	# i, _42
+ 1209 059d 0F8EAEFD 		jle	.L13	#,
+ 1209      FFFF
+ 1210              	# main.cpp:49:         src + i * strides[1], &data[2], &strides[2], i);
+  49:main.cpp      ****         src + i * strides[1], &data[2], &strides[2], i);
+ 1211              		.loc 1 49 17 is_stmt 0 view .LVU294
+ 1212 05a3 49C1E102 		salq	$2, %r9	#, _349
+ 1213              	.LVL92:
+ 1214              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 1215              		.loc 1 48 83 view .LVU295
+ 1216 05a7 4E8D140B 		leaq	(%rbx,%r9), %r10	#, _350
+ 1217              	.LVL93:
+ 1218              	.LBB230:
+  37:main.cpp      **** static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1219              		.loc 1 37 24 is_stmt 1 view .LVU296
+ 1220              	.LBB222:
+  10:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1221              		.loc 1 10 28 view .LVU297
+ 1222              	.LBB213:
+ 1223              	# main.cpp:16:         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4
+  16:main.cpp      ****         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4], &strides[4],
+ 1224              		.loc 1 16 67 is_stmt 0 view .LVU298
+ 1225 05ab 4D8D1C3A 		leaq	(%r10,%rdi), %r11	#, _352
+ 1226              	.LVL94:
+ 1227              	.LBB192:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1228              		.loc 1 25 28 is_stmt 1 view .LVU299
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1229              		.loc 1 25 28 is_stmt 0 view .LVU300
+ 1230              	.LBE192:
+ 1231              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 1232              		.loc 1 17 67 view .LVU301
+ 1233 05af 4D01C2   		addq	%r8, %r10	# _191, _360
+ 1234              	.LVL95:
+ 1235              	.LBB193:
+ 1236              	.LBB159:
+ 1237              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1238              		.loc 1 32 29 view .LVU302
+ 1239 05b2 C4C15259 		vmulss	(%r10,%rcx), %xmm5, %xmm1	# MEM[(float *)_363], pretmp_294, tmp434
+ 1239      0C0A
+ 1240              	.LBE159:
+ 1241              	.LBE193:
+ 1242              	.LBB194:
+ 1243              	.LBB142:
+ 1244 05b8 C4C15259 		vmulss	(%r11,%rcx), %xmm5, %xmm0	# MEM[(float *)_355], pretmp_294, tmp433
+ 1244      040B
+ 1245              	.LBE142:
+ 1246              	.LBE194:
+ 1247              	.LBB195:
+ 1248              	.LBB160:
+ 1249              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1250              		.loc 1 32 31 view .LVU303
+ 1251 05be C4C269B9 		vfmadd231ss	(%r10,%rdx), %xmm2, %xmm1	# MEM[(float *)_361], pretmp_292, _367
+ 1251      0C12
+ 1252              	.LBE160:
+ 1253              	.LBE195:
+ 1254              	.LBB196:
+ 1255              	.LBB143:
+ 1256 05c4 C4C269B9 		vfmadd231ss	(%r11,%rdx), %xmm2, %xmm0	# MEM[(float *)_353], pretmp_292, _359
+ 1256      0413
+ 1257              	.LVL96:
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1258              		.loc 1 32 31 view .LVU304
+ 1259              	.LBE143:
+ 1260              	.LBE196:
+ 1261              	.LBB197:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1262              		.loc 1 25 28 is_stmt 1 view .LVU305
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1263              		.loc 1 25 28 is_stmt 0 view .LVU306
+ 1264              	.LBE197:
+ 1265              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1266              		.loc 1 19 29 view .LVU307
+ 1267 05ca C5B259C9 		vmulss	%xmm1, %xmm9, %xmm1	# _367, pretmp_290, tmp435
+ 1268              	.LVL97:
+ 1269              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1270              		.loc 1 19 31 view .LVU308
+ 1271 05ce C4E27199 		vfmadd132ss	%xmm6, %xmm1, %xmm0	# pretmp_288, tmp435, _370
+ 1271      C6
+ 1272              	.LVL98:
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1273              		.loc 1 19 31 view .LVU309
+ 1274              	.LBE213:
+ 1275              	.LBE222:
+ 1276              	.LBE230:
+ 1277              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 1278              		.loc 1 48 5 view .LVU310
+ 1279 05d3 C4817A11 		vmovss	%xmm0, (%r15,%r9)	# _370, MEM[(float *)_351]
+ 1279      040F
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1280              		.loc 1 47 3 is_stmt 1 view .LVU311
+ 1281 05d9 4C8D4805 		leaq	5(%rax), %r9	#, i
+ 1282              	.LVL99:
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1283              		.loc 1 47 25 view .LVU312
+ 1284 05dd 4C39CE   		cmpq	%r9, %rsi	# i, _42
+ 1285 05e0 0F8E6BFD 		jle	.L13	#,
+ 1285      FFFF
+ 1286              	# main.cpp:49:         src + i * strides[1], &data[2], &strides[2], i);
+  49:main.cpp      ****         src + i * strides[1], &data[2], &strides[2], i);
+ 1287              		.loc 1 49 17 is_stmt 0 view .LVU313
+ 1288 05e6 49C1E102 		salq	$2, %r9	#, _376
+ 1289              	.LVL100:
+ 1290              	# main.cpp:47:   for (int64_t i = 0; i < n; i++) {
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1291              		.loc 1 47 3 view .LVU314
+ 1292 05ea 4883C006 		addq	$6, %rax	#, i
+ 1293              	.LVL101:
+ 1294              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 1295              		.loc 1 48 83 view .LVU315
+ 1296 05ee 4E8D140B 		leaq	(%rbx,%r9), %r10	#, _377
+ 1297              	.LVL102:
+ 1298              	.LBB231:
+  37:main.cpp      **** static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1299              		.loc 1 37 24 is_stmt 1 view .LVU316
+ 1300              	.LBB223:
+  10:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1301              		.loc 1 10 28 view .LVU317
+ 1302              	.LBB214:
+ 1303              	# main.cpp:16:         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4
+  16:main.cpp      ****         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4], &strides[4],
+ 1304              		.loc 1 16 67 is_stmt 0 view .LVU318
+ 1305 05f2 4D8D1C3A 		leaq	(%r10,%rdi), %r11	#, _379
+ 1306              	.LVL103:
+ 1307              	.LBB198:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1308              		.loc 1 25 28 is_stmt 1 view .LVU319
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1309              		.loc 1 25 28 is_stmt 0 view .LVU320
+ 1310              	.LBE198:
+ 1311              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 1312              		.loc 1 17 67 view .LVU321
+ 1313 05f6 4D01C2   		addq	%r8, %r10	# _191, _387
+ 1314              	.LVL104:
+ 1315              	.LBB199:
+ 1316              	.LBB161:
+ 1317              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1318              		.loc 1 32 29 view .LVU322
+ 1319 05f9 C4C15259 		vmulss	(%r10,%rcx), %xmm5, %xmm1	# MEM[(float *)_390], pretmp_294, tmp437
+ 1319      0C0A
+ 1320              	.LBE161:
+ 1321              	.LBE199:
+ 1322              	.LBB200:
+ 1323              	.LBB144:
+ 1324 05ff C4C15259 		vmulss	(%r11,%rcx), %xmm5, %xmm0	# MEM[(float *)_382], pretmp_294, tmp436
+ 1324      040B
+ 1325              	.LBE144:
+ 1326              	.LBE200:
+ 1327              	.LBB201:
+ 1328              	.LBB162:
+ 1329              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1330              		.loc 1 32 31 view .LVU323
+ 1331 0605 C4C269B9 		vfmadd231ss	(%r10,%rdx), %xmm2, %xmm1	# MEM[(float *)_388], pretmp_292, _394
+ 1331      0C12
+ 1332              	.LBE162:
+ 1333              	.LBE201:
+ 1334              	.LBB202:
+ 1335              	.LBB145:
+ 1336 060b C4C269B9 		vfmadd231ss	(%r11,%rdx), %xmm2, %xmm0	# MEM[(float *)_380], pretmp_292, _386
+ 1336      0413
+ 1337              	.LVL105:
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1338              		.loc 1 32 31 view .LVU324
+ 1339              	.LBE145:
+ 1340              	.LBE202:
+ 1341              	.LBB203:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1342              		.loc 1 25 28 is_stmt 1 view .LVU325
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1343              		.loc 1 25 28 is_stmt 0 view .LVU326
+ 1344              	.LBE203:
+ 1345              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1346              		.loc 1 19 29 view .LVU327
+ 1347 0611 C5B259C9 		vmulss	%xmm1, %xmm9, %xmm1	# _394, pretmp_290, tmp438
+ 1348              	.LVL106:
+ 1349              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1350              		.loc 1 19 31 view .LVU328
+ 1351 0615 C4E27199 		vfmadd132ss	%xmm6, %xmm1, %xmm0	# pretmp_288, tmp438, _397
+ 1351      C6
+ 1352              	.LVL107:
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1353              		.loc 1 19 31 view .LVU329
+ 1354              	.LBE214:
+ 1355              	.LBE223:
+ 1356              	.LBE231:
+ 1357              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 1358              		.loc 1 48 5 view .LVU330
+ 1359 061a C4817A11 		vmovss	%xmm0, (%r15,%r9)	# _397, MEM[(float *)_378]
+ 1359      040F
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1360              		.loc 1 47 3 is_stmt 1 view .LVU331
+ 1361              	.LVL108:
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1362              		.loc 1 47 25 view .LVU332
+ 1363 0620 4839C6   		cmpq	%rax, %rsi	# i, _42
+ 1364 0623 0F8E28FD 		jle	.L13	#,
+ 1364      FFFF
+ 1365              	# main.cpp:49:         src + i * strides[1], &data[2], &strides[2], i);
+  49:main.cpp      ****         src + i * strides[1], &data[2], &strides[2], i);
+ 1366              		.loc 1 49 17 is_stmt 0 view .LVU333
+ 1367 0629 488D3485 		leaq	0(,%rax,4), %rsi	#, _65
+ 1367      00000000 
+ 1368              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 1369              		.loc 1 48 83 view .LVU334
+ 1370 0631 488D0433 		leaq	(%rbx,%rsi), %rax	#, _66
+ 1371              	.LVL109:
+ 1372              	.LBB232:
+  37:main.cpp      **** static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1373              		.loc 1 37 24 is_stmt 1 view .LVU335
+ 1374              	.LBB224:
+  10:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1375              		.loc 1 10 28 view .LVU336
+ 1376              	.LBB215:
+ 1377              	# main.cpp:16:         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4
+  16:main.cpp      ****         scalar_t t0 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i0, &data[4], &strides[4],
+ 1378              		.loc 1 16 67 is_stmt 0 view .LVU337
+ 1379 0635 4801C7   		addq	%rax, %rdi	# _66, _310
+ 1380              	.LVL110:
+ 1381              	.LBB204:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1382              		.loc 1 25 28 is_stmt 1 view .LVU338
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1383              		.loc 1 25 28 is_stmt 0 view .LVU339
+ 1384              	.LBE204:
+ 1385              	# main.cpp:17:         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4
+  17:main.cpp      ****         scalar_t t1 = InterpLinear<n - 1, scalar_t, index_t>::eval(src + i1, &data[4], &strides[4],
+ 1386              		.loc 1 17 67 view .LVU340
+ 1387 0638 4C01C0   		addq	%r8, %rax	# _191, _302
+ 1388              	.LVL111:
+ 1389              	.LBB205:
+ 1390              	.LBB146:
+ 1391              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1392              		.loc 1 32 29 view .LVU341
+ 1393 063b C5D25904 		vmulss	(%rdi,%rcx), %xmm5, %xmm0	# MEM[(float *)_307], pretmp_294, tmp439
+ 1393      0F
+ 1394              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1395              		.loc 1 32 31 view .LVU342
+ 1396 0640 C5F828C8 		vmovaps	%xmm0, %xmm1	# tmp439, tmp439
+ 1397 0644 C4E269B9 		vfmadd231ss	(%rdi,%rdx), %xmm2, %xmm1	# MEM[(float *)_309], pretmp_292, tmp439
+ 1397      0C17
+ 1398              	.LVL112:
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1399              		.loc 1 32 31 view .LVU343
+ 1400              	.LBE146:
+ 1401              	.LBE205:
+ 1402              	.LBB206:
+  25:main.cpp      ****     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+ 1403              		.loc 1 25 28 is_stmt 1 view .LVU344
+ 1404              	.LBB163:
+ 1405              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1406              		.loc 1 32 29 is_stmt 0 view .LVU345
+ 1407 064a C5D25904 		vmulss	(%rax,%rcx), %xmm5, %xmm0	# MEM[(float *)_299], pretmp_294, tmp440
+ 1407      08
+ 1408              	# main.cpp:32:         return t0 * w0 + t1 * w1;
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1409              		.loc 1 32 31 view .LVU346
+ 1410 064f C4E269B9 		vfmadd231ss	(%rax,%rdx), %xmm2, %xmm0	# MEM[(float *)_301], pretmp_292, _287
+ 1410      0410
+ 1411              	.LVL113:
+  32:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1412              		.loc 1 32 31 view .LVU347
+ 1413              	.LBE163:
+ 1414              	.LBE206:
+ 1415              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1416              		.loc 1 19 29 view .LVU348
+ 1417 0655 C4C17A59 		vmulss	%xmm9, %xmm0, %xmm0	# pretmp_290, _287, tmp441
+ 1417      C1
+ 1418              	.LVL114:
+ 1419              	# main.cpp:19:         return t0 * w0 + t1 * w1;
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1420              		.loc 1 19 31 view .LVU349
+ 1421 065a C4E249B9 		vfmadd231ss	%xmm1, %xmm6, %xmm0	# _303, pretmp_288, _277
+ 1421      C1
+ 1422              	.LVL115:
+  19:main.cpp      ****         return t0 * w0 + t1 * w1;
+ 1423              		.loc 1 19 31 view .LVU350
+ 1424              	.LBE215:
+ 1425              	.LBE224:
+ 1426              	.LBE232:
+ 1427              	# main.cpp:48:     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+  48:main.cpp      ****     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
+ 1428              		.loc 1 48 5 view .LVU351
+ 1429 065f C4C17A11 		vmovss	%xmm0, (%r15,%rsi)	# _277, MEM[(float *)_311]
+ 1429      0437
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1430              		.loc 1 47 3 is_stmt 1 view .LVU352
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1431              		.loc 1 47 25 view .LVU353
+ 1432 0665 E9E7FCFF 		jmp	.L13	#
+ 1432      FF
+ 1433              	.L21:
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1434              		.loc 1 47 25 is_stmt 0 view .LVU354
+ 1435 066a C5F877   		vzeroupper
+ 1436 066d E9DFFCFF 		jmp	.L13	#
+ 1436      FF
+ 1437              	.LVL116:
+  47:main.cpp      ****   for (int64_t i = 0; i < n; i++) {
+ 1438              		.loc 1 47 25 view .LVU355
+ 1439              	.LBE126:
+ 1440              	.LBE125:
+ 1441              	.LBE124:
+ 1442              	.LBE236:
+ 1443              	.LBE240:
+ 1444              	.LBE244:
+ 1445              		.cfi_endproc
+ 1446              		.section	.text.unlikely
+ 1447              		.cfi_startproc
+ 1449              	main.cold:
+ 1450              	.LFSB35:
+ 1451              	.LBB245:
+ 1452              	.LBB241:
+ 1453              	.LBB237:
+ 1454              	.LBB235:
+ 1455              	.LBB234:
+ 1456              	.LBB233:
+ 1457              	.L2:
+ 1458              		.cfi_def_cfa 6, 16
+ 1459              		.cfi_offset 3, -56
+ 1460              		.cfi_offset 6, -16
+ 1461              		.cfi_offset 12, -48
+ 1462              		.cfi_offset 13, -40
+ 1463              		.cfi_offset 14, -32
+ 1464              		.cfi_offset 15, -24
+ 1465              	.LBE233:
+ 1466              	.LBE234:
+ 1467              	.LBE235:
+ 1468              	.LBE237:
+ 1469              	.LBE241:
+ 1470              	.LBE245:
+ 1471              	# main.cpp:119:     float * output = new float[out_size];
+ 119:main.cpp      ****     float * output = new float[out_size];
+ 1472              		.loc 1 119 40 discriminator 2 view -0
+ 1473 0000 E8000000 		call	__cxa_throw_bad_array_new_length@PLT	#
+ 1473      00
+ 1474              	.LVL117:
+ 1475              		.cfi_endproc
+ 1476              	.LFE35:
+ 1477              		.section	.text.startup
+ 1479              		.section	.text.unlikely
+ 1481              	.LCOLDE1:
+ 1482              		.section	.text.startup
+ 1483              	.LHOTE1:
+ 1484              		.section	.rodata.cst4,"aM",@progbits,4
+ 1485              		.align 4
+ 1486              	.LC0:
+ 1487 0000 0000803F 		.long	1065353216
+ 1488              		.text
+ 1489              	.Letext0:
+ 1490              		.section	.text.unlikely
+ 1491              	.Letext_cold0:
+ 1492              		.file 4 "/usr/include/c++/9/cstdlib"
+ 1493              		.file 5 "/usr/include/c++/9/bits/std_abs.h"
+ 1494              		.file 6 "/usr/include/x86_64-linux-gnu/c++/9/bits/c++config.h"
+ 1495              		.file 7 "/usr/lib/gcc/x86_64-linux-gnu/9/include/stddef.h"
+ 1496              		.file 8 "/usr/include/x86_64-linux-gnu/bits/types.h"
+ 1497              		.file 9 "/usr/include/x86_64-linux-gnu/bits/stdint-intn.h"
+ 1498              		.file 10 "/usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h"
+ 1499              		.file 11 "/usr/include/x86_64-linux-gnu/bits/stdlib.h"
+ 1500              		.file 12 "/usr/include/c++/9/stdlib.h"
+ 1501              		.file 13 "<built-in>"
+ 6757              		.section	.note.gnu.property,"a"
+ 6758              		.align 8
+ 6759 0000 04000000 		.long	 1f - 0f
+ 6760 0004 10000000 		.long	 4f - 1f
+ 6761 0008 05000000 		.long	 5
+ 6762              	0:
+ 6763 000c 474E5500 		.string	 "GNU"
+ 6764              	1:
+ 6765              		.align 8
+ 6766 0010 020000C0 		.long	 0xc0000002
+ 6767 0014 04000000 		.long	 3f - 2f
+ 6768              	2:
+ 6769 0018 03000000 		.long	 0x3
+ 6770              	3:
+ 6771 001c 00000000 		.align 8
+ 6772              	4:

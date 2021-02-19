@@ -6,7 +6,6 @@
 #include <ATen/native/TensorIterator.h>
 #include <ATen/native/IndexingUtils.h>
 #include <ATen/native/UpSample.h>
-#include <ATen/cpu/vec256/vec256.h>
 
 
 namespace at {
@@ -73,48 +72,10 @@ struct InterpLinear<1, scalar_t, index_t> {
     }
 };
 
-
-// template <int n, typename scalar_t, typename index_t>
-// struct InterpLinearLCVec {
-//     static inline vec256::Vec256<scalar_t> eval(char* src, char** data) {
-//         using Vec = at::vec256::Vec256<scalar_t>;
-
-//         index_t i0 = *(index_t*)&data[0][0];
-//         index_t i1 = *(index_t*)&data[2][0];
-//         // scalar_t w0 = *(scalar_t *)&data[1][0];
-//         // scalar_t w1 = *(scalar_t *)&data[3][0];
-//         auto w0v = Vec(*(scalar_t *)&data[1][0]);
-//         auto w1v = Vec(*(scalar_t *)&data[3][0]);
-
-//         auto t0 = InterpLinearLCVec<n - 1, scalar_t, index_t>::eval(src + i0, &data[4]);
-//         auto t1 = InterpLinearLCVec<n - 1, scalar_t, index_t>::eval(src + i1, &data[4]);
-
-//         return at::vec256::fmadd(t0, w0v, t1 * w1v);
-//     }
-// };
-
-// template <typename scalar_t, typename index_t>
-// struct InterpLinearLCVec<1, scalar_t, index_t> {
-//     static inline vec256::Vec256<scalar_t> eval(char* src, char** data) {
-//         using Vec = at::vec256::Vec256<scalar_t>;
-
-//         auto t0 = Vec::loadu((scalar_t *)&src0);
-//         auto t1 = Vec::loadu((scalar_t *)&src1);
-//         return at::vec256::fmadd(t0, w0v, t1 * w1v);
-//     }
-// };
-
 template <int n, typename scalar_t, typename index_t>
 static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
   return InterpLinear<n, scalar_t, index_t>::eval(src, data, strides, i);
 }
-
-
-// template <int n, typename scalar_t, typename index_t>
-// static inline vec256::Vec256<scalar_t> interp_linear_channels_last_vec(char* src, char** data) {
-//   return InterpLinearLCVec<n, scalar_t, index_t>::eval(src, data);
-// }
-
 
 static inline bool is_zero_stride(const int64_t* strides) {
   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
@@ -147,105 +108,32 @@ static inline bool is_all_zero_stride(const int64_t* strides) {
 }
 
 template <typename scalar_t, typename index_t, int out_ndims>
-static inline void basic_loop(char** data, const int64_t* strides, int64_t i, int64_t n) {
+static inline void basic_loop(char** data, const int64_t* strides, int64_t n) {
   char* dst = data[0];
   char* src = data[1];
-  for (; i < n; i++) {
+  for (int64_t i = 0; i < n; i++) {
     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
         src + i * strides[1], &data[2], &strides[2], i);
   }
 }
 
-
-template <typename scalar_t, typename index_t, int out_ndims>
-static inline void basic_loop_channels_last_vec(char** data, const int64_t* strides, int64_t i, int64_t n) {
-  char* dst = data[0];
-  char* src = data[1];
-
-  using Vec = vec256::Vec256<scalar_t>;
-  int64_t end = n - (n % Vec::size());
-
-  index_t ix0 = *(index_t*)&data[2 + 0][0];
-  auto wx0v = Vec(*(scalar_t *)&data[2 + 1][0]);
-  index_t ix1 = *(index_t*)&data[2 + 2][0];
-  auto wx1v = Vec(*(scalar_t *)&data[2 + 3][0]);
-
-  index_t iy0 = *(index_t*)&data[2 + 4][0];
-  auto wy0v = Vec(*(scalar_t *)&data[2 + 5][0]);
-  index_t iy1 = *(index_t*)&data[2 + 6][0];
-  auto wy1v = Vec(*(scalar_t *)&data[2 + 7][0]);
-
-  scalar_t * src00 = (scalar_t *)(src + ix0 + iy0);
-  scalar_t * src01 = (scalar_t *)(src + ix1 + iy0);
-  scalar_t * src10 = (scalar_t *)(src + ix0 + iy1);
-  scalar_t * src11 = (scalar_t *)(src + ix1 + iy1);
-
-  Vec out_vec(0.0);
-  auto w00 = wx0v * wy0v;
-  auto w01 = wx1v * wy0v;
-  auto w10 = wx0v * wy1v;
-  auto w11 = wx1v * wy1v;
-
-  for (; i < end; i += Vec::size()) {
-    // out_vec = interp_linear_channels_last_vec<out_ndims, scalar_t, index_t>(
-    //   src + i * strides[1], &data[2]);
-    // out_vec = wx0v * wy0v * Vec::loadu(src00 + i)
-    //   + wx1v * wy0v * Vec::loadu(src01 + i)
-    //   + wx0v * wy1v * Vec::loadu(src10 + i)
-    //   + wx1v * wy1v * Vec::loadu(src11 + i);
-    out_vec = at::vec256::fmadd(
-      w00, Vec::loadu(src00 + i), 
-      at::vec256::fmadd(
-        w01, Vec::loadu(src01 + i),
-        at::vec256::fmadd(
-          w10, Vec::loadu(src10 + i), w11 * Vec::loadu(src11 + i)        
-        )
-      )
-    );
-
-    out_vec.store((scalar_t*)&dst[i * strides[0]]);
-  }
-
-  basic_loop<scalar_t, index_t, out_ndims>(data, strides, i, n);
-}
-
-
-#define BL_ALL
-
 template <typename scalar_t, typename index_t, int out_ndims>
 void ti_cpu_upsample_linear(at::TensorIterator& iter)
 {
   auto loop = [&](char** data, const int64_t* strides, int64_t n) {
-    
-#ifdef BL_ALL
-    
     // special-cases to let the compiler apply compile-time input-specific optimizations
     if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
         is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
       // contiguous channels-first case
-      basic_loop<scalar_t, index_t, out_ndims>(data, strides, 0, n);
+      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
                is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
       // contiguous channels-last case
-      // basic_loop<scalar_t, index_t, out_ndims>(data, strides, 0, n);
-      basic_loop_channels_last_vec<scalar_t, index_t, out_ndims>(data, strides, 0, n);
-    } 
-    else {
+      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+    } else {
       // fallback
-      basic_loop<scalar_t, index_t, out_ndims>(data, strides, 0, n);
+      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     }
-#else
-
-    if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
-               is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
-      // contiguous channels-last case
-      // basic_loop<scalar_t, index_t, out_ndims>(data, strides, 0, n);
-      basic_loop_channels_last_vec<scalar_t, index_t, out_ndims>(data, strides, 0, n);
-    }
-
-#endif
-
-
   };
   iter.for_each(loop);
 }
@@ -383,11 +271,28 @@ void _ti_upsample_bilinear2d_kernel_impl(
 }
 
 
+void _ti_upsample_bicubic2d_kernel_impl(
+    Tensor& output,
+    const Tensor& input,
+    bool align_corners,
+    c10::optional<double> scales_h,
+    c10::optional<double> scales_w) {
+
+  if (canUse32BitIndexMath(input)) {
+    ti_upsample_linearNd_kernel_impl<int32_t, 2, scale_t>(
+      output, input, align_corners, {scales_h, scales_w});
+  } else {
+    ti_upsample_linearNd_kernel_impl<int64_t, 2, scale_t>(
+      output, input, align_corners, {scales_h, scales_w});  
+  }
+}
+
+
 using at::native::upsample::compute_output_size;
 using at::native::upsample::get_scale_value;
 
 
-Tensor ti_upsample_bilinear2d_kernel_impl(
+Tensor ti_upsample_bilinear2d_cpu(
     const Tensor& input,
     c10::optional<IntArrayRef> output_size,
     bool align_corners,
@@ -433,6 +338,52 @@ Tensor ti_upsample_bilinear2d_kernel_impl(
 }
 
 
+Tensor ti_upsample_bicubic2d_cpu(
+    const Tensor& input,
+    c10::optional<IntArrayRef> output_size,
+    bool align_corners,
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt) {
+
+  // UpSampleBicubic2d.cpp:upsample_bicubic2d_cpu
+  auto output = at::empty({0}, input.options());
+  auto osize = compute_output_size(input.sizes(), output_size, scale_factors);
+  auto scale_h = get_scale_value(scale_factors, 0);
+  auto scale_w = get_scale_value(scale_factors, 1);
+
+  TORCH_CHECK(
+      osize.size() == 2,
+      "It is expected output_size equals to 2, but got size ",
+      osize.size());
+
+  int64_t output_height = osize[0];
+  int64_t output_width = osize[1];
+
+  int64_t nbatch = input.size(0);
+  int64_t channels = input.size(1);
+  int64_t input_height = input.size(2);
+  int64_t input_width = input.size(3);
+
+  upsample_2d_shape_check(
+      input,
+      Tensor(),
+      nbatch,
+      channels,
+      input_height,
+      input_width,
+      output_height,
+      output_width);
+
+  output.resize_({nbatch, channels, output_height, output_width}, input.suggest_memory_format());
+
+  TORCH_INTERNAL_ASSERT(
+      input_height > 0 && input_width > 0 && output_height > 0 &&
+      output_width > 0);
+
+  _ti_upsample_bicubic2d_kernel_impl(output, input, align_corners, scale_h, scale_w);
+  return output;
+}
+
+
 void _ti_upsample_linear1d_kernel_impl(
     Tensor& output,
     const Tensor& input,
@@ -449,7 +400,7 @@ void _ti_upsample_linear1d_kernel_impl(
 }
 
 
-Tensor ti_upsample_linear1d_kernel_impl(
+Tensor ti_upsample_linear1d_cpu(
     const Tensor& input,
     c10::optional<IntArrayRef> output_size,
     bool align_corners,
@@ -503,7 +454,7 @@ void _ti_upsample_trilinear3d_kernel_impl(
 }
 
 
-Tensor ti_upsample_trilinear3d_kernel_impl(
+Tensor ti_upsample_trilinear3d_cpu(
     const Tensor& input,
     c10::optional<IntArrayRef> output_size,
     bool align_corners,

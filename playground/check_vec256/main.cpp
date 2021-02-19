@@ -74,10 +74,10 @@ at::Tensor prod_vec256(const at::Tensor & x, const at::Tensor & y) {
     int64_t d = 0;
     Vec vec_x, vec_y, vec_output;
     for (; d < size - (size % step); d+=step) {
-        vec_x = Vec::loadu(x_ptr + d, step);
-        vec_y = Vec::loadu(y_ptr + d, step);
+        vec_x = Vec::loadu(x_ptr + d);
+        vec_y = Vec::loadu(y_ptr + d);
         vec_output = vec_x * vec_y;
-        vec_output.store(out_ptr + d, step);
+        vec_output.store(out_ptr + d);
     }
 
     if (size - d > 0) {
@@ -195,15 +195,15 @@ int main(int argc, char** argv)
     }
     std::cout << "align of aligned_x = " << alignof(aligned_x) << std::endl;
     std::cout << "align of aligned_y = " << alignof(aligned_y) << std::endl;
-    std::cout << "32-bit aligned aligned_x ? -> " << is_32bit_aligned(aligned_x) << " vs " << true << std::endl;
-    std::cout << "32-bit aligned aligned_y ? -> " << is_32bit_aligned(aligned_y) << " vs " << true << std::endl;
+    std::cout << "is 32-bit aligned aligned_x -> " << (is_32bit_aligned(aligned_x) ? "true" : "false") << std::endl;
+    std::cout << "is 32-bit aligned aligned_y -> " << (is_32bit_aligned(aligned_y) ? "true" : "false") << std::endl;
 
     auto x = at::from_blob(aligned_x, size, at::CPU(at::kFloat));
     auto y = at::from_blob(aligned_y, size, at::CPU(at::kFloat));    
 #endif
 
-    std::cout << "32-bit aligned x ? -> " << is_32bit_aligned(x.data_ptr()) << std::endl;
-    std::cout << "32-bit aligned y ? -> " << is_32bit_aligned(y.data_ptr()) << std::endl;
+    std::cout << "is 32-bit aligned x -> " << (is_32bit_aligned(x.data_ptr()) ? "true" : "false") << std::endl;
+    std::cout << "is 32-bit aligned y -> " << (is_32bit_aligned(y.data_ptr()) ? "true" : "false") << std::endl;
 
     auto z = prod_vec256(x, y);
     assert (z.allclose(x * y));
