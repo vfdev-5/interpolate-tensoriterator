@@ -6,6 +6,7 @@
 #include <ATen/native/TensorIterator.h>
 #include <ATen/native/IndexingUtils.h>
 #include <ATen/native/UpSample.h>
+#include <ATen/cpu/vec256/vec256.h>
 
 
 namespace at {
@@ -72,10 +73,46 @@ struct InterpLinear<1, scalar_t, index_t> {
     }
 };
 
+
+template <int n, typename scalar_t, typename index_t>
+struct InterpLinearLCVec {
+    static inline vec256::Vec256<scalar_t> eval(char* src, char** data) {
+        using Vec = at::vec256::Vec256<scalar_t>;
+
+        index_t i0 = *(index_t*)&data[0][0];
+        index_t i1 = *(index_t*)&data[2][0];
+        auto w0v = Vec(*(scalar_t *)&data[1][0]);
+        auto w1v = Vec(*(scalar_t *)&data[3][0]);
+
+        auto t0 = InterpLinearLCVec<n - 1, scalar_t, index_t>::eval(src + i0, &data[4]);
+        auto t1 = InterpLinearLCVec<n - 1, scalar_t, index_t>::eval(src + i1, &data[4]);
+
+        return at::vec256::fmadd(t0, w0v, t1 * w1v);
+    }
+};
+
+// template <typename scalar_t, typename index_t>
+// struct InterpLinearLCVec<1, scalar_t, index_t> {
+//     static inline vec256::Vec256<scalar_t> eval(char* src, char** data) {
+//         using Vec = at::vec256::Vec256<scalar_t>;
+
+//         auto t0 = Vec::loadu((scalar_t *)&src0);
+//         auto t1 = Vec::loadu((scalar_t *)&src1);
+//         return at::vec256::fmadd(t0, w0v, t1 * w1v);
+//     }
+// };
+
 template <int n, typename scalar_t, typename index_t>
 static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
   return InterpLinear<n, scalar_t, index_t>::eval(src, data, strides, i);
 }
+
+
+// template <int n, typename scalar_t, typename index_t>
+// static inline vec256::Vec256<scalar_t> interp_linear_channels_last_vec(char* src, char** data) {
+//   return InterpLinearLCVec<n, scalar_t, index_t>::eval(src, data);
+// }
+
 
 static inline bool is_zero_stride(const int64_t* strides) {
   return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
@@ -108,32 +145,149 @@ static inline bool is_all_zero_stride(const int64_t* strides) {
 }
 
 template <typename scalar_t, typename index_t, int out_ndims>
-static inline void basic_loop(char** data, const int64_t* strides, int64_t n) {
+static inline void basic_loop(char** data, const int64_t* strides, int64_t i, int64_t n) {
   char* dst = data[0];
   char* src = data[1];
-  for (int64_t i = 0; i < n; i++) {
+  for (; i < n; i++) {
     *(scalar_t*)&dst[i * strides[0]] = interp_linear<out_ndims, scalar_t, index_t>(
         src + i * strides[1], &data[2], &strides[2], i);
   }
 }
 
+
+
+// template <typename scalar_t, int out_ndims>
+// static inline void precompute_source_and_weights() {
+
+// }
+
+
+
+// template <typename scalar_t, typename index_t, int out_ndims>
+// static inline void basic_loop_channels_last_vec(char** data, const int64_t* strides, int64_t i, int64_t n) {
+//   char* dst = data[0];
+//   char* src = data[1];
+
+//   using Vec = vec256::Vec256<scalar_t>;
+//   int64_t end = n - (n % Vec::size());
+
+//   // // for linear interpolation: 2 ^ N = total num combinations
+//   // constexpr int p2_size = 1 << out_ndims;
+//   // scalar_t * src_offset[p2_size];
+//   // Vec weights_vec[p2_size];
+
+//   // precompute_source_and_weights<scalar_t, out_ndims>(src_offset, weights_vec, &data[1]);
+
+//   // {
+//   //   index_t * constval_idx_ptrs[out_ndims];
+//   //   index_t * constval_wgt_ptrs[out_ndims];
+//   //   int i = 0;
+//   //   for (; i < out_ndims; i++) {
+//   //     constval_idx_ptrs[2 * i + 0] = (index_t *) data[4 * i + 0 + 2];
+//   //     constval_wgt_ptrs[2 * i + 0] = (scalar_t *) data[4 * i + 1 + 2];
+//   //     constval_idx_ptrs[2 * i + 1] = (index_t *) data[4 * i + 2 + 2];
+//   //     constval_wgt_ptrs[2 * i + 1] = (scalar_t *) data[4 * i + 3 + 2];
+//   //   }
+//   //   // Add all constant offsets to src
+//   //   // Compute all combinations of weights: wxi * wyj * wzk ...
+//   //   int dim_idx = 0;
+//   //   for (int j=0; j<p2_size; j++) {
+//   //     dim_idx = (j >> (out_ndims - 1 - i)) % 2;
+//   //     src_offset[j] = src + constval_idx_ptrs[dim_idx];      
+//   //     weights_vec[j] = constval_wgt_ptrs[dim_idx];
+//   //     for (int i=1; i<out_ndims; i++) {
+//   //       dim_idx = (j >> (out_ndims - 1 - i)) % 2;
+//   //       src_offset[j] += *constval_idx_ptrs[2 * i + dim_idx];
+//   //       weights_vec[j] *= constval_wgt_ptrs[2 * i + dim_idx];
+//   //     }
+//   //   }
+//   // }
+  
+//   // index_t ix0 = *(index_t*)&data[2 + 0][0];
+//   // auto wx0v = Vec(*(scalar_t *)&data[2 + 1][0]);
+//   // index_t ix1 = *(index_t*)&data[2 + 2][0];
+//   // auto wx1v = Vec(*(scalar_t *)&data[2 + 3][0]);
+
+//   // index_t iy0 = *(index_t*)&data[2 + 4][0];
+//   // auto wy0v = Vec(*(scalar_t *)&data[2 + 5][0]);
+//   // index_t iy1 = *(index_t*)&data[2 + 6][0];
+//   // auto wy1v = Vec(*(scalar_t *)&data[2 + 7][0]);
+
+//   // scalar_t * src00 = (scalar_t *)(src + ix0 + iy0);
+//   // scalar_t * src01 = (scalar_t *)(src + ix1 + iy0);
+//   // scalar_t * src10 = (scalar_t *)(src + ix0 + iy1);
+//   // scalar_t * src11 = (scalar_t *)(src + ix1 + iy1);
+
+//   Vec out_vec(0.0);
+//   // auto w00 = wx0v * wy0v;
+//   // auto w01 = wx1v * wy0v;
+//   // auto w10 = wx0v * wy1v;
+//   // auto w11 = wx1v * wy1v;
+
+//   for (; i < end; i += Vec::size()) {
+//     out_vec = interp_linear_channels_last_vec<out_ndims, scalar_t, index_t>(
+//         src + i * strides[1], &data[2], &strides[2], i);
+
+//     // out_vec = interp_linear_channels_last_vec<out_ndims, scalar_t, index_t>(
+//     //     i, src_offset, weights_vec);
+
+//     // out_vec = wx0v * wy0v * Vec::loadu(src00 + i)
+//     //   + wx1v * wy0v * Vec::loadu(src01 + i)
+//     //   + wx0v * wy1v * Vec::loadu(src10 + i)
+//     //   + wx1v * wy1v * Vec::loadu(src11 + i);
+//     // out_vec = at::vec256::fmadd(
+//     //   w00, Vec::loadu(src00 + i), 
+//     //   at::vec256::fmadd(
+//     //     w01, Vec::loadu(src01 + i),
+//     //     at::vec256::fmadd(
+//     //       w10, Vec::loadu(src10 + i), w11 * Vec::loadu(src11 + i)        
+//     //     )
+//     //   )
+//     // );
+
+//     out_vec.store((scalar_t*)&dst[i * strides[0]]);
+//   }
+
+//   basic_loop<scalar_t, index_t, out_ndims>(data, strides, i, n);
+// }
+
+
+#define BL_ALL
+
 template <typename scalar_t, typename index_t, int out_ndims>
 void ti_cpu_upsample_linear(at::TensorIterator& iter)
 {
   auto loop = [&](char** data, const int64_t* strides, int64_t n) {
+    
+#ifdef BL_ALL
+    
     // special-cases to let the compiler apply compile-time input-specific optimizations
     if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
         is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
       // contiguous channels-first case
-      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+      basic_loop<scalar_t, index_t, out_ndims>(data, strides, 0, n);
     } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
                is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
       // contiguous channels-last case
-      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
-    } else {
+      basic_loop<scalar_t, index_t, out_ndims>(data, strides, 0, n);
+      // basic_loop_channels_last_vec<scalar_t, index_t, out_ndims>(data, strides, 0, n);
+    } 
+    else {
       // fallback
-      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+      basic_loop<scalar_t, index_t, out_ndims>(data, strides, 0, n);
     }
+#else
+
+    if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
+               is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
+      // contiguous channels-last case
+      // basic_loop<scalar_t, index_t, out_ndims>(data, strides, 0, n);
+      basic_loop_channels_last_vec<scalar_t, index_t, out_ndims>(data, strides, 0, n);
+    }
+
+#endif
+
+
   };
   iter.for_each(loop);
 }
