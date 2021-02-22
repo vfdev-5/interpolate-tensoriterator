@@ -261,6 +261,7 @@ void _ti_upsample_bilinear2d_kernel_impl(
     c10::optional<double> scales_h,
     c10::optional<double> scales_w) {
 
+#ifndef USE_ALWAYS_INDEX64
   if (canUse32BitIndexMath(input)) {
     ti_upsample_linearNd_kernel_impl<int32_t, 2, scale_t>(
       output, input, align_corners, {scales_h, scales_w});
@@ -268,6 +269,10 @@ void _ti_upsample_bilinear2d_kernel_impl(
     ti_upsample_linearNd_kernel_impl<int64_t, 2, scale_t>(
       output, input, align_corners, {scales_h, scales_w});  
   }
+#else
+  ti_upsample_linearNd_kernel_impl<int64_t, 2, scale_t>(
+    output, input, align_corners, {scales_h, scales_w});
+#endif
 }
 
 
@@ -327,6 +332,7 @@ void _ti_upsample_linear1d_kernel_impl(
     bool align_corners,
     c10::optional<double> scales_w) {
 
+#ifndef USE_ALWAYS_INDEX64
   if (canUse32BitIndexMath(input)){
     ti_upsample_linearNd_kernel_impl<int32_t, 1, scale_t>(
       output, input, align_corners, {scales_w});
@@ -334,6 +340,10 @@ void _ti_upsample_linear1d_kernel_impl(
     ti_upsample_linearNd_kernel_impl<int64_t, 1, scale_t>(
       output, input, align_corners, {scales_w});
   }
+#else
+  ti_upsample_linearNd_kernel_impl<int64_t, 1, scale_t>(
+    output, input, align_corners, {scales_w});
+#endif
 }
 
 
@@ -381,6 +391,7 @@ void _ti_upsample_trilinear3d_kernel_impl(
     c10::optional<double> scales_h,
     c10::optional<double> scales_w) {
 
+#ifndef USE_ALWAYS_INDEX64
   if (canUse32BitIndexMath(input)) {
     ti_upsample_linearNd_kernel_impl<int32_t, 3, scale_t>(
       output, input, align_corners, {scales_d, scales_h, scales_w});
@@ -388,6 +399,10 @@ void _ti_upsample_trilinear3d_kernel_impl(
     ti_upsample_linearNd_kernel_impl<int64_t, 3, scale_t>(
       output, input, align_corners, {scales_d, scales_h, scales_w});
   }
+#else
+  ti_upsample_linearNd_kernel_impl<int64_t, 3, scale_t>(
+    output, input, align_corners, {scales_d, scales_h, scales_w});
+#endif
 }
 
 

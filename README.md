@@ -53,10 +53,22 @@ See [playground](playground) for details step by step.
 
 ### Step 6 - Linear interpolation
 
+- Install GCC 7.3 as PyTorch Nightly
+
+```bash
+echo "deb http://archive.ubuntu.com/ubuntu/ bionic main\n" >> /etc/apt/sources.list
+echo "deb http://archive.ubuntu.com/ubuntu/ bionic universe\n" >> /etc/apt/sources.list
+apt-get update
+apt-get install g++-7=7.3.0-16ubuntu3 gcc-7-base=7.3.0-16ubuntu3 gcc-7=7.3.0-16ubuntu3 cpp-7=7.3.0-16ubuntu3 libgcc-7-dev=7.3.0-16ubuntu3 libstdc++-7-dev=7.3.0-16ubuntu3 libasan4=7.3.0-16ubuntu3 libubsan0=7.3.0-16ubuntu3 libcilkrts5=7.3.0-16ubuntu3
+```
+
+- Build
 
 ```bash
 cd step_six && mkdir -p build && cd $_
-export TORCH_PATH=/pytorch/torch
+export CC=/usr/bin/gcc-7
+export CXX=/usr/bin/g++-7
+export TORCH_PATH=/tmp/libtorch
 cmake -DTORCH_DIR=$TORCH_PATH ..
 make
 ```
@@ -67,117 +79,15 @@ make && ./bench 20000
 
 #### How to produce benchmarks:
 
-Configure TORCH_PATH for PyTorch master build and PR_TORCH_PATH for PR PyTorch build inside `run_pr_bench.sh`:
+Configure PR_TORCH_PATH for PR PyTorch build inside `run_python_pr_bench.sh`:
 ```
-export TORCH_PATH=/pytorch/torch
-export PR_TORCH_PATH=/workspace/pth-linear-interp/torch
+export PR_TORCH_PATH=/workspace/pth-linear-interp/
 ```
 
 and run:
 ```
-sh run_pr_bench.sh
-python make_results_table.py output.md pth_vs_this_full_results.log.save PR_vs_this_full_results.log.save
-```
-
-#### Channels last times
-
-2D only (df8edb4)
-```
-App build flags: -mavx -mfma -mavx2 -mno-avx256-split-unaligned-load -mno-avx256-split-unaligned-store -Wno-deprecated -fvisibility-inlines-hidden -fopenmp -DNDEBUG -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow
-
-
-Torch config: PyTorch built with:
-  - GCC 9.3
-  - C++ Version: 201402                                                
-  - OpenMP 201511 (a.k.a. OpenMP 4.5)
-  - CPU capability usage: AVX2
-  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREAD
-POOL -fopenmp -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-p
-ragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-err
-or=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unuse
-d-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_
-WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL
-=ON, USE_NNPACK=0, USE_OPENMP=ON,                                       
-                          
-Num threads: 6
-
-
----- Benchmark 2D ----     
-
-Input tensor: [1, 3, 320, 320]                                         
-Input is_contiguous memory_format torch.channels_last: true
-Input is_contiguous : false
-                                                                          
-- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
-Elapsed time (ms): 1.11414
-                                                                     
-- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.36291
-
-- Bench upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
-Elapsed time (ms): 4.33236
-
-- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
-Elapsed time (ms): 1.40062
-
-Input tensor: [1, 12, 320, 320]
-Input is_contiguous memory_format torch.channels_last: true
-Input is_contiguous : false
-
-- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
-Elapsed time (ms): 1.34784
-
-- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.430209
-
-- Bench upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
-Elapsed time (ms): 5.28019
-
-- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
-Elapsed time (ms): 1.69565
-
-Input tensor: [1, 24, 320, 320]
-Input is_contiguous memory_format torch.channels_last: true
-Input is_contiguous : false
-
-- Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
-Elapsed time (ms): 1.13603
-
-- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.30654
-
-- Bench upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
-Elapsed time (ms): 4.41721
-
-- Bench ti_upsample_bilinear2d_cpu (7500 rounds) - upsampling to 512x512
-Elapsed time (ms): 1.50753
-
-
-1 - Test size as in https://github.com/mingfeima/op_bench-py
-                                                                        
-Input tensor: [32, 128, 64, 64]                                      
-Input is_contiguous memory_format torch.channels_last: true
-Input is_contiguous : false    
-                                                                        
-- Bench upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
-Elapsed time (ms): 35.5334
-                                                                       
-- Bench ti_upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
-Elapsed time (ms): 32.8065
-                                                                          
-2 - Test size as in https://github.com/mingfeima/op_bench-py
-
-Input tensor: [32, 128, 64, 64]
-Input is_contiguous memory_format torch.channels_last: false
-Input is_contiguous : true
-
-- Bench upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
-Elapsed time (ms): 84.203
-
-- Bench ti_upsample_bilinear2d_cpu (750 rounds) - upsampling to 128x128
-Elapsed time (ms): 50.5433
-
----- END Benchmark 2D ----
+sh run_python_pr_bench.sh
+> pr_vs_pth_results.md
 ```
 
 

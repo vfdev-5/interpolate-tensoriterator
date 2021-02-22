@@ -780,8 +780,8 @@ wget https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared
 - Install GCC 5.4
 
 ```bash
-echo "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main\n" >> /etc/apt/sources.list
-echo "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe\n" >> /etc/apt/sources.list
+echo "deb http://archive.ubuntu.com/ubuntu/ xenial main\n" >> /etc/apt/sources.list
+echo "deb http://archive.ubuntu.com/ubuntu/ xenial universe\n" >> /etc/apt/sources.list
 apt-get update
 
 apt-get install -y g++-5 gcc-5

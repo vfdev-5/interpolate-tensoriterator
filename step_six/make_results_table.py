@@ -48,11 +48,11 @@ def get_input_tensor_data(handler):
         "Channels last": json.loads(get_value(
             handler, "Input is_contiguous memory_format torch.channels_last", ":",
             stop_search_words=["- Bench ", ]
-        )),
+        ).lower()),
         "Is contiguous": json.loads(get_value(
             handler, "Input is_contiguous", ":",
             stop_search_words=["- Bench ", ]
-        )),
+        ).lower()),
     }
     return output
 
@@ -106,15 +106,15 @@ def parse_bench_file(filepath):
                 run_output["num_threads"] = int(get_value(handler, "Num threads", ":"))
 
                 _ = seek_str(handler, "---- Benchmark 2D")
-                bench_2d = get_bench_results(handler, "upsample_bilinear2d_cpu", debug=False)
+                bench_2d = get_bench_results(handler, "upsample_bilinear2d")
                 run_output["bench_2d"] = bench_2d
 
                 _ = seek_str(handler, "---- Benchmark 1D")
-                bench_1d = get_bench_results(handler, "upsample_linear1d_cpu", debug=False)
+                bench_1d = get_bench_results(handler, "upsample_linear1d")
                 run_output["bench_1d"] = bench_1d
 
                 _ = seek_str(handler, "---- Benchmark 3D")
-                bench_3d = get_bench_results(handler, "upsample_trilinear3d_cpu", debug=False)
+                bench_3d = get_bench_results(handler, "upsample_trilinear3d")
                 run_output["bench_3d"] = bench_3d
                 output["runs"].append(run_output)
             except EndFileException:
