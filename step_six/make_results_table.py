@@ -131,7 +131,7 @@ Interpolation {nd_case} - {num_threads} thread(s)
 </summary>
 
 
-In | Out | Is contigous | Channels last | master | this PR | speed-up
+In | Out | Is contiguous | Channels last | master | this PR | speed-up
 ---|---|---|---|---|---|---
 {table}
 

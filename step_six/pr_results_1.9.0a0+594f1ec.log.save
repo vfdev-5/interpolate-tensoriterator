@@ -1,8 +1,8 @@
 
-__version__ = 1.9.0a0+149b976
+__version__ = 1.9.0a0+594f1ec
 debug = False
 cuda = 11.1
-git_version = 149b976dc2e9246dfac8cd185788054d1c0114a1
+git_version = 594f1ecca2dfb384ea5954f8da8c8979df271f4a
 hip = None
 
 
@@ -26,30 +26,30 @@ Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : True
 
 - Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.12392051219940187
+Elapsed time (ms): 0.07886412143707275
 
 - Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.408624541759491
+Elapsed time (ms): 0.40931652784347533
 
 Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : False
 
 - Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.07765392065048218
+Elapsed time (ms): 0.07756161689758301
 
 - Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.4084219217300415
+Elapsed time (ms): 0.4087469816207886
 
 Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: True
 Input is_contiguous : False
 
 - Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.3289023756980896
+Elapsed time (ms): 1.0896942615509033
 
 - Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 1.3840559244155886
+Elapsed time (ms): 4.238735890388489
 
 1 - Test size as in https://github.com/mingfeima/op_bench-py
 
@@ -58,10 +58,10 @@ Input is_contiguous memory_format torch.channels_last: True
 Input is_contiguous : False
 
 - Bench upsample_bilinear2d (2000 rounds) - downsampling to 32x32
-Elapsed time (ms): 2.931432008743286
+Elapsed time (ms): 2.284687876701355
 
 - Bench upsample_bilinear2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 35.629345178604126
+Elapsed time (ms): 35.969621896743774
 
 2 - Test size as in https://github.com/mingfeima/op_bench-py
 
@@ -70,30 +70,30 @@ Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : True
 
 - Bench upsample_bilinear2d (2000 rounds) - downsampling to 32x32
-Elapsed time (ms): 3.545053243637085
+Elapsed time (ms): 2.437732219696045
 
 - Bench upsample_bilinear2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 52.450066328048706
+Elapsed time (ms): 52.43665301799774
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : True
 
 - Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0785077691078186
+Elapsed time (ms): 0.07822500467300415
 
 - Bench upsample_bilinear2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 0.5579700589179992
+Elapsed time (ms): 0.5604660272598266
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : False
 
 - Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.07930161952972412
+Elapsed time (ms): 0.07927006483078003
 
 - Bench upsample_bilinear2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 0.5610457301139832
+Elapsed time (ms): 0.5630805253982544
 
 ---- END Benchmark 2D ----
 
@@ -105,10 +105,10 @@ Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : True
 
 - Bench upsample_linear1d (20000 rounds) - downsampling to 256
-Elapsed time (ms): 0.1043732762336731
+Elapsed time (ms): 0.10358200073242188
 
 - Bench upsample_linear1d (20000 rounds) - upsampling to 512
-Elapsed time (ms): 0.1887139916419983
+Elapsed time (ms): 0.1883918523788452
 
 ---- END Benchmark 1D ----
 
@@ -120,29 +120,29 @@ Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : True
 
 - Bench upsample_trilinear3d (2000 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 0.957762598991394
+Elapsed time (ms): 2.0948145389556885
 
 - Bench upsample_trilinear3d (2000 rounds) - upsampling to [32, 512, 512]
-Elapsed time (ms): 24.06689143180847
+Elapsed time (ms): 42.649837136268616
 
 Input tensor: [1, 3, 16, 320, 320]
 Input is_contiguous memory_format torch.channels_last: True
 Input is_contiguous : False
 
 - Bench upsample_trilinear3d (2000 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 3.0288151502609253
+Elapsed time (ms): 13.657591342926025
 
 - Bench upsample_trilinear3d (2000 rounds) - upsampling to [32, 512, 512]
-Elapsed time (ms): 64.34001553058624
+Elapsed time (ms): 246.2547128200531
 
 ---- END Benchmark 3D ----
 
 
 
-__version__ = 1.9.0a0+149b976
+__version__ = 1.9.0a0+594f1ec
 debug = False
 cuda = 11.1
-git_version = 149b976dc2e9246dfac8cd185788054d1c0114a1
+git_version = 594f1ecca2dfb384ea5954f8da8c8979df271f4a
 hip = None
 
 
@@ -166,30 +166,30 @@ Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : True
 
 - Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.4550984978675842
+Elapsed time (ms): 0.329777204990387
 
 - Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 1.7593759894371033
+Elapsed time (ms): 1.7586658120155334
 
 Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : False
 
 - Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.3304996371269226
+Elapsed time (ms): 0.32957136631011963
 
 - Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 1.7643107414245605
+Elapsed time (ms): 1.763187003135681
 
 Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: True
 Input is_contiguous : False
 
 - Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 1.658927869796753
+Elapsed time (ms): 1.007518208026886
 
 - Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 7.130207002162933
+Elapsed time (ms): 4.00889230966568
 
 1 - Test size as in https://github.com/mingfeima/op_bench-py
 
@@ -198,10 +198,10 @@ Input is_contiguous memory_format torch.channels_last: True
 Input is_contiguous : False
 
 - Bench upsample_bilinear2d (2000 rounds) - downsampling to 32x32
-Elapsed time (ms): 9.638235807418823
+Elapsed time (ms): 5.886129379272461
 
 - Bench upsample_bilinear2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 117.11833441257477
+Elapsed time (ms): 107.54705131053925
 
 2 - Test size as in https://github.com/mingfeima/op_bench-py
 
@@ -210,30 +210,30 @@ Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : True
 
 - Bench upsample_bilinear2d (2000 rounds) - downsampling to 32x32
-Elapsed time (ms): 14.088271021842957
+Elapsed time (ms): 10.050315141677856
 
 - Bench upsample_bilinear2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 205.5316525697708
+Elapsed time (ms): 204.6446783542633
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : True
 
 - Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.3387537717819214
+Elapsed time (ms): 0.33576762676239014
 
 - Bench upsample_bilinear2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 2.956789886951446
+Elapsed time (ms): 2.951205790042877
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : False
 
 - Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.3404704809188843
+Elapsed time (ms): 0.3404280304908752
 
 - Bench upsample_bilinear2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 2.965448260307312
+Elapsed time (ms): 2.961883521080017
 
 ---- END Benchmark 2D ----
 
@@ -245,10 +245,10 @@ Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : True
 
 - Bench upsample_linear1d (20000 rounds) - downsampling to 256
-Elapsed time (ms): 0.5065788269042969
+Elapsed time (ms): 0.5064866423606872
 
 - Bench upsample_linear1d (20000 rounds) - upsampling to 512
-Elapsed time (ms): 0.9796205401420593
+Elapsed time (ms): 0.9800663232803345
 
 ---- END Benchmark 1D ----
 
@@ -260,19 +260,19 @@ Input is_contiguous memory_format torch.channels_last: False
 Input is_contiguous : True
 
 - Bench upsample_trilinear3d (2000 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 4.8497995138168335
+Elapsed time (ms): 11.303557634353638
 
 - Bench upsample_trilinear3d (2000 rounds) - upsampling to [32, 512, 512]
-Elapsed time (ms): 105.13154065608978
+Elapsed time (ms): 209.67745316028595
 
 Input tensor: [1, 3, 16, 320, 320]
 Input is_contiguous memory_format torch.channels_last: True
 Input is_contiguous : False
 
 - Bench upsample_trilinear3d (2000 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 17.23610782623291
+Elapsed time (ms): 13.322856307029724
 
 - Bench upsample_trilinear3d (2000 rounds) - upsampling to [32, 512, 512]
-Elapsed time (ms): 297.03169775009155
+Elapsed time (ms): 245.58394241333008
 
 ---- END Benchmark 3D ----
