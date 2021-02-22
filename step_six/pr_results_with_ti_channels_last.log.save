@@ -1,8 +1,8 @@
 
-__version__ = 1.9.0a0+7132cfb
+__version__ = 1.9.0a0+149b976
 debug = False
 cuda = 11.1
-git_version = 7132cfbddb73a4c5ae59951f29af0bb6423f4d5d
+git_version = 149b976dc2e9246dfac8cd185788054d1c0114a1
 hip = None
 
 
