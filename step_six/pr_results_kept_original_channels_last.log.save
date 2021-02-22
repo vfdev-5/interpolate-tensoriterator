@@ -1,0 +1,278 @@
+
+__version__ = 1.9.0a0+7132cfb
+debug = False
+cuda = 11.1
+git_version = 7132cfbddb73a4c5ae59951f29af0bb6423f4d5d
+hip = None
+
+
+Torch config: PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - CUDA Runtime 11.1
+  - NVCC architecture flags: -gencode;arch=compute_61,code=sm_61
+  - CuDNN 8.0.5
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/bin/g++-7, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON, 
+
+Num threads: 6
+
+
+---- Benchmark 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.08077304363250733
+
+- Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.4111157298088074
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.07769036293029785
+
+- Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.4100116968154907
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 1.0874919414520265
+
+- Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 4.244155204296113
+
+1 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample_bilinear2d (2000 rounds) - downsampling to 32x32
+Elapsed time (ms): 2.2833993434906006
+
+- Bench upsample_bilinear2d (2000 rounds) - upsampling to 128x128
+Elapsed time (ms): 35.95758533477783
+
+2 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample_bilinear2d (2000 rounds) - downsampling to 32x32
+Elapsed time (ms): 2.3240082263946533
+
+- Bench upsample_bilinear2d (2000 rounds) - upsampling to 128x128
+Elapsed time (ms): 52.361719250679016
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.07997478246688844
+
+- Bench upsample_bilinear2d (20000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.5587689280509949
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.07942092418670654
+
+- Bench upsample_bilinear2d (20000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.5630752444267273
+
+---- END Benchmark 2D ----
+
+
+---- Benchmark 1D ----
+
+Input tensor: [4, 512, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample_linear1d (20000 rounds) - downsampling to 256
+Elapsed time (ms): 0.1036805272102356
+
+- Bench upsample_linear1d (20000 rounds) - upsampling to 512
+Elapsed time (ms): 0.19225037097930908
+
+---- END Benchmark 1D ----
+
+
+---- Benchmark 3D ----
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample_trilinear3d (2000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 2.099849224090576
+
+- Bench upsample_trilinear3d (2000 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 42.72598659992218
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample_trilinear3d (2000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 13.622805118560791
+
+- Bench upsample_trilinear3d (2000 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 246.44572746753693
+
+---- END Benchmark 3D ----
+
+
+
+__version__ = 1.9.0a0+7132cfb
+debug = False
+cuda = 11.1
+git_version = 7132cfbddb73a4c5ae59951f29af0bb6423f4d5d
+hip = None
+
+
+Torch config: PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - CUDA Runtime 11.1
+  - NVCC architecture flags: -gencode;arch=compute_61,code=sm_61
+  - CuDNN 8.0.5
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/bin/g++-7, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON, 
+
+Num threads: 1
+
+
+---- Benchmark 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.45643504858016964
+
+- Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.7641720294952392
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.33104404211044314
+
+- Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.7697526931762695
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 1.0077606439590454
+
+- Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
+Elapsed time (ms): 4.017741656303405
+
+1 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample_bilinear2d (2000 rounds) - downsampling to 32x32
+Elapsed time (ms): 5.920980095863342
+
+- Bench upsample_bilinear2d (2000 rounds) - upsampling to 128x128
+Elapsed time (ms): 106.94060027599335
+
+2 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample_bilinear2d (2000 rounds) - downsampling to 32x32
+Elapsed time (ms): 10.017810463905334
+
+- Bench upsample_bilinear2d (2000 rounds) - upsampling to 128x128
+Elapsed time (ms): 203.95459032058716
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.3401698589324951
+
+- Bench upsample_bilinear2d (20000 rounds) - upsampling to 800x800
+Elapsed time (ms): 2.956466329097748
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.3421781063079834
+
+- Bench upsample_bilinear2d (20000 rounds) - upsampling to 800x800
+Elapsed time (ms): 2.9606082558631894
+
+---- END Benchmark 2D ----
+
+
+---- Benchmark 1D ----
+
+Input tensor: [4, 512, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample_linear1d (20000 rounds) - downsampling to 256
+Elapsed time (ms): 0.5074087142944336
+
+- Bench upsample_linear1d (20000 rounds) - upsampling to 512
+Elapsed time (ms): 0.9811707496643067
+
+---- END Benchmark 1D ----
+
+
+---- Benchmark 3D ----
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample_trilinear3d (2000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 11.319496870040894
+
+- Bench upsample_trilinear3d (2000 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 209.5616191625595
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample_trilinear3d (2000 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 13.328855037689209
+
+- Bench upsample_trilinear3d (2000 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 245.79937744140625
+
+---- END Benchmark 3D ----
