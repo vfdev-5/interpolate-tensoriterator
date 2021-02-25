@@ -39,7 +39,7 @@ inline void assert_consistency_bicubic2d(
         scale_factors = sfs;
     }
 
-    auto ref_out = upsample_bicubic2d_cpu(t_input, output_size, align_corners, scale_factors);
+    auto ref_out = at::native::upsample_bicubic2d(t_input, output_size, align_corners, scale_factors);
     auto out = ti_upsample_bicubic2d_cpu(t_input, output_size, align_corners, scale_factors);
 
     if (!ref_out.allclose(out)){
@@ -107,11 +107,11 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         int64_t osizes[2] = {dn_osize, dn_osize};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench upsample_bicubic2d_cpu (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
+        std::cout << "\n- Bench upsample_bicubic2d (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto ref_out = upsample_bicubic2d_cpu(t_input, output_size, false);
+            auto ref_out = upsample_bicubic2d(t_input, output_size, false);
             auto result = ref_out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -139,11 +139,11 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         int64_t osizes[2] = {up_osize, up_osize};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench upsample_bicubic2d_cpu (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
+        std::cout << "\n- Bench upsample_bicubic2d (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto ref_out = upsample_bicubic2d_cpu(t_input, output_size, false);
+            auto ref_out = upsample_bicubic2d(t_input, output_size, false);
             auto result = ref_out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -200,11 +200,11 @@ inline void sub_bench_2d_mingfeima_channel_last(int n, int isize, int dn_osize, 
 
         assert_consistency_bicubic2d(t_input, -1, 128);
         {    
-            std::cout << "\n- Bench upsample_bicubic2d_cpu (" << n << " rounds) - upsampling to 128x128" << std::endl;
+            std::cout << "\n- Bench upsample_bicubic2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto ref_out = upsample_bicubic2d_cpu(t_input, output_size, false);
+                auto ref_out = upsample_bicubic2d(t_input, output_size, false);
                 auto result = ref_out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
@@ -238,11 +238,11 @@ inline void sub_bench_2d_mingfeima_channel_last(int n, int isize, int dn_osize, 
 
         assert_consistency_bicubic2d(t_input, -1, 128);
         {    
-            std::cout << "\n- Bench upsample_bicubic2d_cpu (" << n << " rounds) - upsampling to 128x128" << std::endl;
+            std::cout << "\n- Bench upsample_bicubic2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto ref_out = upsample_bicubic2d_cpu(t_input, output_size, false);
+                auto ref_out = upsample_bicubic2d(t_input, output_size, false);
                 auto result = ref_out.size(0);
             }
             auto end = std::chrono::steady_clock::now();

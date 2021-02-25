@@ -6,9 +6,7 @@
 #include "bench_helper.h"
 #include "interpolate.h"
 
-
 // #define INSPECT_ASSEMBLY_CODE
-
 
 using namespace at;
 using namespace at::native;
@@ -51,30 +49,6 @@ int main(int argc, char** argv)
 
     set_num_threads(num_threads);
     std::cout << "Num threads: " << get_num_threads() << std::endl;
-
-#if 0
-    {
-        std::cout << "--- Test very large sizes: 32x32 -> 2**28 x 16 ---" << std::endl;
-        auto input = at::rand({1, 1, 32, 32});
-        int64_t osizes[2] = {int64_t(pow(2, 28)), 16};
-        c10::optional<IntArrayRef> output_size = osizes;
-        c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
-
-        std::cout << "- ti_upsample_bicubic2d_kernel_impl" << std::endl;
-        auto out = ti_upsample_bicubic2d_kernel_impl(input, output_size, false, scale_factors);
-        std::cout << "- upsample_bicubic2d_cpu" << std::endl;
-        auto ref_out = upsample_bicubic2d_cpu(input, output_size, false, scale_factors);
-
-        if (!ref_out.allclose(out)){
-            auto mse = (ref_out - out).pow(2.0).mean();
-            auto max_e = (ref_out - out).view(-1).abs().max();
-            std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
-            assert(false);
-        }
-        return 1;
-    }
-#endif
-
 
 #ifdef WITH_ASAN
 

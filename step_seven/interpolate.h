@@ -73,8 +73,61 @@ struct InterpLinear<1, scalar_t, index_t> {
 };
 
 template <int n, typename scalar_t, typename index_t>
+struct InterpCubic {
+    static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+        index_t i0 = *(index_t*)&data[0][i * strides[0]];
+        scalar_t w0 = *(scalar_t *)&data[1][i * strides[1]];
+
+        index_t i1 = *(index_t*)&data[2][i * strides[2]];
+        scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
+
+        index_t i2 = *(index_t*)&data[4][i * strides[4]];
+        scalar_t w2 = *(scalar_t *)&data[5][i * strides[5]];
+
+        index_t i3 = *(index_t*)&data[6][i * strides[6]];
+        scalar_t w3 = *(scalar_t *)&data[7][i * strides[7]];
+
+        scalar_t t0 = InterpCubic<n - 1, scalar_t, index_t>::eval(src + i0, &data[8], &strides[8], i);
+        scalar_t t1 = InterpCubic<n - 1, scalar_t, index_t>::eval(src + i1, &data[8], &strides[8], i);
+        scalar_t t2 = InterpCubic<n - 1, scalar_t, index_t>::eval(src + i2, &data[8], &strides[8], i);
+        scalar_t t3 = InterpCubic<n - 1, scalar_t, index_t>::eval(src + i3, &data[8], &strides[8], i);
+
+        return t0 * w0 + t1 * w1 + t2 * w2 + t3 * w3;
+    }
+};
+
+template <typename scalar_t, typename index_t>
+struct InterpCubic<1, scalar_t, index_t> {
+    static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+        index_t i0 = *(index_t*)&data[0][i * strides[0]];
+        scalar_t w0 = *(scalar_t *)&data[1][i * strides[1]];
+
+        index_t i1 = *(index_t*)&data[2][i * strides[2]];
+        scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
+
+        index_t i2 = *(index_t*)&data[4][i * strides[4]];
+        scalar_t w2 = *(scalar_t *)&data[5][i * strides[5]];
+
+        index_t i3 = *(index_t*)&data[6][i * strides[6]];
+        scalar_t w3 = *(scalar_t *)&data[7][i * strides[7]];
+
+        scalar_t t0 = *(scalar_t *)&src[i0];
+        scalar_t t1 = *(scalar_t *)&src[i1];
+        scalar_t t2 = *(scalar_t *)&src[i2];
+        scalar_t t3 = *(scalar_t *)&src[i3];
+
+        return t0 * w0 + t1 * w1 + t2 * w2 + t3 * w3;
+    }
+};
+
+template <int n, typename scalar_t, typename index_t>
 static inline scalar_t interp_linear(char* src, char** data, const int64_t* strides, int64_t i) {
   return InterpLinear<n, scalar_t, index_t>::eval(src, data, strides, i);
+}
+
+template <int n, typename scalar_t, typename index_t>
+static inline scalar_t interp_cubic(char* src, char** data, const int64_t* strides, int64_t i) {
+  return InterpCubic<n, scalar_t, index_t>::eval(src, data, strides, i);
 }
 
 static inline bool is_zero_stride(const int64_t* strides) {
@@ -108,7 +161,7 @@ static inline bool is_all_zero_stride(const int64_t* strides) {
 }
 
 template <typename scalar_t, typename index_t, int out_ndims>
-static inline void basic_loop(char** data, const int64_t* strides, int64_t n) {
+static inline void basic_loop_linear(char** data, const int64_t* strides, int64_t n) {
   char* dst = data[0];
   char* src = data[1];
   for (int64_t i = 0; i < n; i++) {
@@ -116,6 +169,18 @@ static inline void basic_loop(char** data, const int64_t* strides, int64_t n) {
         src + i * strides[1], &data[2], &strides[2], i);
   }
 }
+
+
+template <typename scalar_t, typename index_t, int out_ndims>
+static inline void basic_loop_cubic(char** data, const int64_t* strides, int64_t n) {
+  char* dst = data[0];
+  char* src = data[1];
+  for (int64_t i = 0; i < n; i++) {
+    *(scalar_t*)&dst[i * strides[0]] = interp_cubic<out_ndims, scalar_t, index_t>(
+        src + i * strides[1], &data[2], &strides[2], i);
+  }
+}
+
 
 template <typename scalar_t, typename index_t, int out_ndims>
 void ti_cpu_upsample_linear(at::TensorIterator& iter)
@@ -125,14 +190,14 @@ void ti_cpu_upsample_linear(at::TensorIterator& iter)
     if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
         is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
       // contiguous channels-first case
-      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+      basic_loop_linear<scalar_t, index_t, out_ndims>(data, strides, n);
     } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
                is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
       // contiguous channels-last case
-      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+      basic_loop_linear<scalar_t, index_t, out_ndims>(data, strides, n);
     } else {
       // fallback
-      basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
+      basic_loop_linear<scalar_t, index_t, out_ndims>(data, strides, n);
     }
   };
   iter.for_each(loop);
@@ -159,9 +224,6 @@ std::vector<Tensor> ti_compute_indices_weights_linear(
   auto lambda0_ptr = output[1].data_ptr<scalar_t>();
   auto input_index1_ptr = output[2].data_ptr<index_t>();
   auto lambda1_ptr = output[3].data_ptr<scalar_t>();
-
-  double xd;
-  int64_t xl;
   
   for (int64_t i=0; i<output_size; i++) {
 
@@ -253,6 +315,156 @@ void ti_upsample_linearNd_kernel_impl(
 }
 
 
+template <typename scalar_t, typename index_t, int out_ndims>
+void ti_cpu_upsample_cubic(at::TensorIterator& iter)
+{
+  auto loop = [&](char** data, const int64_t* strides, int64_t n) {
+    // special-cases to let the compiler apply compile-time input-specific optimizations
+    if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
+        is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
+      // contiguous channels-first case
+      basic_loop_cubic<scalar_t, index_t, out_ndims>(data, strides, n);
+    } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
+               is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
+      // contiguous channels-last case
+      basic_loop_cubic<scalar_t, index_t, out_ndims>(data, strides, n);
+    } else {
+      // fallback
+      basic_loop_cubic<scalar_t, index_t, out_ndims>(data, strides, n);
+    }
+  };
+  iter.for_each(loop);
+}
+
+
+template<typename index_t, typename scalar_t>
+std::vector<Tensor> ti_compute_indices_weights_cubic(
+  int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
+  bool align_corners, const c10::optional<double> opt_scale
+) {
+
+  scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
+
+  std::vector<Tensor> output;
+  auto new_shape = std::vector<int64_t>(ndims, 1);
+  new_shape[reshape_dim] = output_size;
+
+  // index 0 (corresponds to x-1), weight 0
+  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
+  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
+  // index 1 (corresponds to x), weight 1
+  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
+  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
+  // index 2 (corresponds to x+1), weight 2
+  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
+  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
+  // index 3 (corresponds to x+2), weight 3
+  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
+  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
+
+  auto input_i0_ptr = output[0].data_ptr<index_t>();
+  auto w0_ptr = output[1].data_ptr<scalar_t>();
+  auto input_i1_ptr = output[2].data_ptr<index_t>();
+  auto w1_ptr = output[3].data_ptr<scalar_t>();
+  auto input_i2_ptr = output[4].data_ptr<index_t>();
+  auto w2_ptr = output[5].data_ptr<scalar_t>();
+  auto input_i3_ptr = output[6].data_ptr<index_t>();
+  auto w3_ptr = output[7].data_ptr<scalar_t>();
+  
+  int64_t input_index;
+  int64_t zero = static_cast<int64_t>(0);
+  scalar_t coeffs[4];
+
+  for (int64_t i=0; i<output_size; i++) {
+
+    const scalar_t real_input_index = area_pixel_compute_source_index<scalar_t>(
+        scale, i, align_corners, /*cubic=*/true);
+    input_index = static_cast<int64_t>(real_input_index);
+    
+    input_i0_ptr[i] = static_cast<index_t>(std::max(input_index - 1, zero) * stride);
+    input_i1_ptr[i] = static_cast<index_t>(input_index * stride);
+    input_i2_ptr[i] = static_cast<index_t>(std::min(input_index + 1, input_size - 1) * stride);
+    input_i3_ptr[i] = static_cast<index_t>(std::min(input_index + 2, input_size - 1) * stride);
+
+    get_cubic_upsample_coefficients<scalar_t>(coeffs, real_input_index - input_index);
+    w0_ptr[i] = coeffs[0];
+    w1_ptr[i] = coeffs[1];
+    w2_ptr[i] = coeffs[2];
+    w3_ptr[i] = coeffs[3];
+
+  }
+  return output;
+}
+
+
+// ADAPTED COPY OF ABOVE METHOD
+// TODO: TO REFACTOR LATER
+template <typename index_t, int out_ndims, typename scale_type>
+void ti_upsample_cubicNd_kernel_impl(
+    Tensor& output,
+    const Tensor& input,
+    bool align_corners,
+    const scale_type& scales) {
+
+  // input can be NCHW, NCL or NCKHW
+  auto shape = input.sizes().vec();
+  auto strides = input.strides().vec();
+  auto oshape = output.sizes();
+
+  for (int i=0; i<out_ndims; i++) {
+    shape[i + 2] = oshape[i + 2];
+    strides[i + 2] = 0;
+  }
+  auto restrided_input = input.as_strided(shape, strides);
+
+  // Compute indices and weights for each interpolated dimension
+  // indices_weights = {
+  //      {indices_0, weights_0, indices_1, weights_1, ..., indices_3, weights_3},  // dim -n
+  //      {indices_0, weights_0, indices_1, weights_1, ..., indices_3, weights_3},  // dim -(n-1)
+  //      ...
+  //      {indices_0, weights_0, indices_1, weights_1, ..., indices_3, weights_3},  // dim -1
+  // }
+  // Indices and weights are reshaped as (1, 1, ..., N, ..., 1, 1) to
+  // fit input/output tensors.
+  // Indices are already containing the strides to optimize the computations
+  //
+  // Indices dtype can be int32_t or int64_t depending on canUse32BitIndexMath(input)
+  // which should not overflow because maximum possible value that it could take is the 
+  // product of interpolated input strides: input_size[dim-1] * input_size[dim-2] * ...
+  // which is always smaller then the number of input elements checked by canUse32BitIndexMath
+  std::vector<std::vector<Tensor>> indices_weights;
+  AT_DISPATCH_FLOATING_TYPES(
+    input.scalar_type(), "compute_indices_weights_cubic", [&] {
+      for (int i=0; i<out_ndims; i++) {
+        indices_weights.emplace_back(
+          ti_compute_indices_weights_cubic<index_t, scalar_t>(
+            input.size(i + 2), oshape[i + 2], input.stride(i + 2) * input.element_size(), input.dim(), i + 2, align_corners, scales[i])
+        );
+      }
+    }
+  );
+
+  TensorIteratorConfig config;
+  config.check_all_same_dtype(false)
+    .declare_static_dtype_and_device(input.scalar_type(), input.device())
+    .add_output(output)
+    .add_input(restrided_input);
+  
+  for (auto iter=indices_weights.begin(); iter!=indices_weights.end(); iter++) { 
+    for (auto& tensor : *iter) {
+      config.add_input(tensor);
+    }
+  }
+
+  auto iter = config.build();
+
+  AT_DISPATCH_FLOATING_TYPES(
+      iter.dtype(), "upsample_cubicNd", [&] {
+      ti_cpu_upsample_cubic<scalar_t, index_t, out_ndims>(iter);
+  });
+}
+
+
 using scale_t = std::vector<c10::optional<double>>;
 void _ti_upsample_bilinear2d_kernel_impl(
     Tensor& output,
@@ -279,10 +491,10 @@ void _ti_upsample_bicubic2d_kernel_impl(
     c10::optional<double> scales_w) {
 
   if (canUse32BitIndexMath(input)) {
-    ti_upsample_linearNd_kernel_impl<int32_t, 2, scale_t>(
+    ti_upsample_cubicNd_kernel_impl<int32_t, 2, scale_t>(
       output, input, align_corners, {scales_h, scales_w});
   } else {
-    ti_upsample_linearNd_kernel_impl<int64_t, 2, scale_t>(
+    ti_upsample_cubicNd_kernel_impl<int64_t, 2, scale_t>(
       output, input, align_corners, {scales_h, scales_w});  
   }
 }
@@ -304,35 +516,15 @@ Tensor ti_upsample_bilinear2d_cpu(
   auto scale_h = get_scale_value(scale_factors, 0);
   auto scale_w = get_scale_value(scale_factors, 1);
 
+  auto full_output_size = native::upsample_2d_common_check(input.sizes(), osize);
+
+  // Allow for empty batch size but not other dimensions
   TORCH_CHECK(
-      osize.size() == 2,
-      "It is expected output_size equals to 2, but got size ",
-      osize.size());
+      input.numel() != 0 || c10::multiply_integers(input.sizes().begin() + 1, input.sizes().end()),
+      "Non-empty 4D data tensor expected but got a tensor with sizes ",
+      input.sizes());
 
-  int64_t output_height = osize[0];
-  int64_t output_width = osize[1];
-
-  int64_t nbatch = input.size(0);
-  int64_t channels = input.size(1);
-  int64_t input_height = input.size(2);
-  int64_t input_width = input.size(3);
-
-  upsample_2d_shape_check(
-      input,
-      Tensor(),
-      nbatch,
-      channels,
-      input_height,
-      input_width,
-      output_height,
-      output_width);
-
-  output.resize_({nbatch, channels, output_height, output_width}, input.suggest_memory_format());
-
-  TORCH_INTERNAL_ASSERT(
-      input_height > 0 && input_width > 0 && output_height > 0 &&
-      output_width > 0);
-
+  output.resize_(full_output_size, input.suggest_memory_format());
   _ti_upsample_bilinear2d_kernel_impl(output, input, align_corners, scale_h, scale_w);
   return output;
 }
@@ -350,35 +542,22 @@ Tensor ti_upsample_bicubic2d_cpu(
   auto scale_h = get_scale_value(scale_factors, 0);
   auto scale_w = get_scale_value(scale_factors, 1);
 
+  auto full_output_size = native::upsample_2d_common_check(input.sizes(), osize);
+  // Allow for empty batch size but not other dimensions
   TORCH_CHECK(
-      osize.size() == 2,
-      "It is expected output_size equals to 2, but got size ",
-      osize.size());
+      input.numel() != 0 || c10::multiply_integers(input.sizes().begin() + 1, input.sizes().end()),
+      "Non-empty 4D data tensor expected but got a tensor with sizes ",
+      input.sizes());
 
-  int64_t output_height = osize[0];
-  int64_t output_width = osize[1];
+  // Special case: input/output same size, just copy
+  // See upsample_bicubic2d_out_frame
+  auto input_height = input.sizes()[2];
+  auto input_width = input.sizes()[3];
+  if (input_height == full_output_size[2] && input_width == full_output_size[3]) {
+    return input.clone();
+  }
 
-  int64_t nbatch = input.size(0);
-  int64_t channels = input.size(1);
-  int64_t input_height = input.size(2);
-  int64_t input_width = input.size(3);
-
-  upsample_2d_shape_check(
-      input,
-      Tensor(),
-      nbatch,
-      channels,
-      input_height,
-      input_width,
-      output_height,
-      output_width);
-
-  output.resize_({nbatch, channels, output_height, output_width}, input.suggest_memory_format());
-
-  TORCH_INTERNAL_ASSERT(
-      input_height > 0 && input_width > 0 && output_height > 0 &&
-      output_width > 0);
-
+  output.resize_(full_output_size, input.suggest_memory_format());
   _ti_upsample_bicubic2d_kernel_impl(output, input, align_corners, scale_h, scale_w);
   return output;
 }
@@ -411,26 +590,15 @@ Tensor ti_upsample_linear1d_cpu(
   auto osize = compute_output_size(input.sizes(), output_size, scale_factors);
   auto scale_w = get_scale_value(scale_factors, 0);
 
+  auto full_output_size = native::upsample_1d_common_check(input.sizes(), osize);
+
+  // Allow for empty batch size but not other dimensions
   TORCH_CHECK(
-      osize.size() == 1,
-      "It is expected output_size equals to 1, but got size ",
-      osize.size());
+      (input.size(1) != 0 && input.size(2) != 0) && input.dim() == 3,
+      "Non-empty 3D data tensor expected but got a tensor with sizes ",
+      input.sizes());
 
-  int64_t output_width = osize[0];
-  int64_t nbatch = input.size(0);
-  int64_t channels = input.size(1);
-  int64_t input_width = input.size(2);
-
-  upsample_1d_shape_check(
-      input,
-      Tensor(),
-      nbatch,
-      channels,
-      input_width,
-      output_width);
-
-  output.resize_({nbatch, channels, output_width});
-  TORCH_INTERNAL_ASSERT(input_width > 0 && output_width > 0);  
+  output.resize_(full_output_size);
   _ti_upsample_linear1d_kernel_impl(output, input, align_corners, scale_w);
   return output;
 }
@@ -467,38 +635,15 @@ Tensor ti_upsample_trilinear3d_cpu(
   auto scale_h = get_scale_value(scale_factors, 1);
   auto scale_w = get_scale_value(scale_factors, 2);
 
+  auto full_output_size = native::upsample_3d_common_check(input.sizes(), osize);
+
+  // Allow for empty batch size but not other dimensions
   TORCH_CHECK(
-      osize.size() == 3,
-      "It is expected output_size equals to 3, but got size ",
-      osize.size());
+      input.numel() != 0 || c10::multiply_integers(input.sizes().begin() + 1, input.sizes().end()),
+      "Non-empty 5D data tensor expected but got a tensor with sizes ",
+      input.sizes());
 
-  int64_t output_depth = osize[0];
-  int64_t output_height = osize[1];
-  int64_t output_width = osize[2];
-
-  int64_t nbatch = input.size(0);
-  int64_t channels = input.size(1);
-  int64_t input_depth = input.size(2);
-  int64_t input_height = input.size(3);
-  int64_t input_width = input.size(4);
-
-  upsample_3d_shape_check(
-      input,
-      Tensor(),
-      nbatch,
-      channels,
-      input_depth,
-      input_height,
-      input_width,
-      output_depth,
-      output_height,
-      output_width);
-
-  output.resize_({nbatch, channels, output_depth, output_height, output_width}, input.suggest_memory_format());
-  TORCH_INTERNAL_ASSERT(
-      input_depth > 0 && input_height > 0 && input_width > 0 &&
-      output_depth > 0 && output_height > 0 && output_width > 0);
-
+  output.resize_(full_output_size, input.suggest_memory_format());
   _ti_upsample_trilinear3d_kernel_impl(output, input, align_corners, scale_d, scale_h, scale_w);
   return output;
 }
@@ -507,3 +652,4 @@ Tensor ti_upsample_trilinear3d_cpu(
 } // anonymous namespace
 } // namespace native
 } // namespace at
+
