@@ -42,14 +42,14 @@ inline void assert_consistency_bicubic2d(
     auto ref_out = at::native::upsample_bicubic2d(t_input, output_size, align_corners, scale_factors);
     auto out = ti_upsample_bicubic2d_cpu(t_input, output_size, align_corners, scale_factors);
 
-    if (!ref_out.allclose(out)){
+    if (!ref_out.allclose(out, 5e-6, 5e-6)){
         auto mse = (ref_out - out).pow(2.0).mean();
         auto max_e = (ref_out - out).view(-1).abs().max();
         std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
         std::cout << "Configuration: "
             << isize << " "
             << osize << " "
-            << align_corners << " "
+            << (align_corners ? "true" : "false") << " "
             << (s_h.has_value() ? *s_h : 0.0) << " "
             << (s_w.has_value() ? *s_w : 0.0) << " "
             << t_input.dtype() << " "

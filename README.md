@@ -107,3 +107,140 @@ make
 ```bash
 make && ./bench
 ```
+
+
+
+<details>
+
+<summary>
+
+Cubic 2d prelimiary results
+
+</summary>
+
+```
+Torch config: PyTorch built with:
+  - GCC 9.3                                                           
+  - C++ Version: 201402       
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)                       
+  - CPU capability usage: AVX2                                        
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopen
+mp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas
+ -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-
+declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wn
+o-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1
+.9.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON,
+                                                                        
+Num threads: 6                                                 
+                                                              
+                                                               
+---- Benchmark 2D ----                                    
+                                                                     
+Input tensor: [1, 3, 320, 320]                                        
+Input is_contiguous memory_format torch.channels_last: false
+Input is_contiguous : true                                  
+                              
+- Bench upsample_bicubic2d (750 rounds) - downsampling to 256x256
+Elapsed time (ms): 6.5751                                        
+                          
+- Bench ti_upsample_bicubic2d_cpu (750 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.415758                                             
+                                              
+- Bench upsample_bicubic2d (750 rounds) - upsampling to 512x512         
+Elapsed time (ms): 25.2327                                           
+                          
+- Bench ti_upsample_bicubic2d_cpu (750 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.57621                                            
+                                                            
+Input tensor: [1, 3, 320, 320]                                        
+Input is_contiguous memory_format torch.channels_last: false
+Input is_contiguous : false                                      
+
+- Bench upsample_bicubic2d (750 rounds) - downsampling to 256x256
+Elapsed time (ms): 6.54954
+
+- Bench ti_upsample_bicubic2d_cpu (750 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.413038
+
+- Bench upsample_bicubic2d (750 rounds) - upsampling to 512x512
+Elapsed time (ms): 25.2994
+
+- Bench ti_upsample_bicubic2d_cpu (750 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.50504
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: true
+Input is_contiguous : false
+
+- Bench upsample_bicubic2d (750 rounds) - downsampling to 256x256
+Elapsed time (ms): 6.58091
+
+- Bench ti_upsample_bicubic2d_cpu (750 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.752833
+
+- Bench upsample_bicubic2d (750 rounds) - upsampling to 512x512
+Elapsed time (ms): 25.3467
+
+- Bench ti_upsample_bicubic2d_cpu (750 rounds) - upsampling to 512x512
+Elapsed time (ms): 2.94774
+
+1 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: true
+Input is_contiguous : false
+
+- Bench upsample_bicubic2d (75 rounds) - upsampling to 128x128
+Elapsed time (ms): 7296.32
+
+- Bench ti_upsample_bicubic2d_cpu (75 rounds) - upsampling to 128x128
+Elapsed time (ms): 158.019
+
+2 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: false
+Input is_contiguous : true
+
+- Bench upsample_bicubic2d (75 rounds) - upsampling to 128x128
+Elapsed time (ms): 7249.08
+
+- Bench ti_upsample_bicubic2d_cpu (75 rounds) - upsampling to 128x128
+Elapsed time (ms): 158.135
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: false
+Input is_contiguous : true
+
+- Bench upsample_bicubic2d (750 rounds) - downsampling to 256x256
+Elapsed time (ms): 6.51921
+
+- Bench ti_upsample_bicubic2d_cpu (750 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.414213
+
+- Bench upsample_bicubic2d (750 rounds) - upsampling to 800x800
+Elapsed time (ms): 61.1398
+
+- Bench ti_upsample_bicubic2d_cpu (750 rounds) - upsampling to 800x800
+Elapsed time (ms): 3.62011
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: false
+Input is_contiguous : false
+
+- Bench upsample_bicubic2d (750 rounds) - downsampling to 256x256
+Elapsed time (ms): 6.6466
+
+- Bench ti_upsample_bicubic2d_cpu (750 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.420774
+
+- Bench upsample_bicubic2d (750 rounds) - upsampling to 800x800
+Elapsed time (ms): 61.3422
+
+- Bench ti_upsample_bicubic2d_cpu (750 rounds) - upsampling to 800x800
+Elapsed time (ms): 3.62022
+
+---- END Benchmark 2D ----
+```
+
+</details>

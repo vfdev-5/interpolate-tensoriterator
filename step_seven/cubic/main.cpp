@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 
 #endif
 
-    int n = 7500;
+    int n = 2500;
     bool full_bench = false;
     int num_threads = 6;
 
@@ -64,8 +64,50 @@ int main(int argc, char** argv)
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256, 512);
-    bench_2d(n, false, 500, 256, 800);
+    if (full_bench) {
+        bench_2d(n, false, 500, 256, 800);
+    }        
     std::cout << "\n---- END Benchmark 2D ----" << std::endl;
 
     return 0;
 }
+
+
+
+// Check Consistency error
+
+    // int64_t osizes[2] = {16 * 5, 16 * 5};
+    // c10::optional<IntArrayRef> output_size = osizes;
+    // auto nch = 3;
+    // auto sx = 32 * 5;
+    // auto sy = 32 * 5;
+    // auto t = 1024 * at::arange(1, 1 + 1 * nch * sx * sy, at::CPU(at::kFloat)).reshape({1, nch, sy, sx});
+
+    // // std::cout << "Input:\n";
+    // // std::cout << t << std::endl;
+
+    // auto ref_out = at::native::upsample_bicubic2d(t, output_size, false, c10::nullopt);
+    // // std::cout << "Ref output:\n";
+    // // std::cout << ref_out << std::endl;
+
+    // auto out = ti_upsample_bicubic2d_cpu(t, output_size, false, c10::nullopt);
+    // // std::cout << "Output:\n";
+    // // std::cout << out << std::endl;
+
+    // if (!ref_out.allclose(out))
+    // {
+    //     auto mse = (ref_out - out).pow(2.0).mean();
+    //     auto max_e = (ref_out - out).view(-1).abs().max();
+    //     std::cout << "Error: mse=" << mse << ", max e=" << max_e << std::endl;
+    //     auto mask = ref_out != out;
+    //     int n_err_vals = mask.sum().item<int>();
+    //     std::cout << "Number of different vals: " << n_err_vals << std::endl;
+    //     std::cout << "Ref output vs TI output (value and diff):" << std::endl;
+    //     auto r1 = ref_out.masked_select(mask);
+    //     auto diff = (ref_out - out).masked_select(mask);
+    //     auto argmax = diff.argmax();        
+    //     for (int i=0; i<int(std::min(5, n_err_vals)); i++) {
+    //         std::cout << "\t" << r1[i].item<double>() << ", diff=" << diff[i].item<double>() << std::endl;
+    //     }
+    //     std::cout << "\t" << r1[argmax].item<double>() << ", diff=" << diff[argmax].item<double>() << std::endl;
+    // }

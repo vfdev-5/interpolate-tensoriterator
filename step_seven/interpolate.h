@@ -44,6 +44,65 @@ static inline void compute_source_index_and_lambda(
 }
 // End of copied ...
 
+template <int n, typename scalar_t, typename index_t, int interp_size>
+struct Interpolate {
+    static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+      int half_interp_size = int(interp_size / 2);
+      index_t ids[half_interp_size];
+      for (int j=0; j<half_interp_size; j++) {
+        ids[j] = *(index_t*)&data[2 * j + 0][i * strides[2 * j + 0]];
+      }
+      scalar_t wts[half_interp_size];
+      for (int j=0; j<half_interp_size; j++) {
+        wts[j] = *(scalar_t*)&data[2 * j + 1][i * strides[2 * j + 1]];
+      }
+
+      scalar_t ts[half_interp_size];
+      // for (int j=0; j<half_interp_size; j++) {
+      //   ts[j] = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids[j], &data[interp_size], &strides[interp_size], i);
+      // }
+
+      ts[0] = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids[0], &data[interp_size], &strides[interp_size], i);
+      ts[1] = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids[1], &data[interp_size], &strides[interp_size], i);
+      ts[2] = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids[2], &data[interp_size], &strides[interp_size], i);
+      ts[3] = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids[3], &data[interp_size], &strides[interp_size], i);
+
+      scalar_t output = ts[0] * wts[0];
+      for (int j=1; j<half_interp_size; j++) {
+        output += ts[j] * wts[j];
+      }
+      return output;
+  }
+};
+
+
+template <typename scalar_t, typename index_t, int interp_size>
+struct Interpolate<1, scalar_t, index_t, interp_size> {
+    static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
+      int half_interp_size = int(interp_size / 2);
+      index_t ids[half_interp_size];
+      for (int j=0; j<half_interp_size; j++) {
+        ids[j] = *(index_t*)&data[2 * j + 0][i * strides[2 * j + 0]];
+      }
+      scalar_t wts[half_interp_size];
+      for (int j=0; j<half_interp_size; j++) {
+        wts[j] = *(scalar_t*)&data[2 * j + 1][i * strides[2 * j + 1]];
+      }
+      scalar_t ts[half_interp_size];
+      for (int j=0; j<half_interp_size; j++) {
+        ts[j] = *(scalar_t *)&src[ids[j]];
+      }
+
+      scalar_t output = ts[0] * wts[0];
+      for (int j=1; j<half_interp_size; j++) {
+        output += ts[j] * wts[j];
+      }
+      return output;
+    }
+};
+
+
+
 template <int n, typename scalar_t, typename index_t>
 struct InterpLinear {
     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
@@ -75,16 +134,16 @@ struct InterpLinear<1, scalar_t, index_t> {
 template <int n, typename scalar_t, typename index_t>
 struct InterpCubic {
     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
-        index_t i0 = *(index_t*)&data[0][i * strides[0]];
+        index_t i0 = *(index_t *)&data[0][i * strides[0]];
         scalar_t w0 = *(scalar_t *)&data[1][i * strides[1]];
 
-        index_t i1 = *(index_t*)&data[2][i * strides[2]];
+        index_t i1 = *(index_t *)&data[2][i * strides[2]];
         scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
 
-        index_t i2 = *(index_t*)&data[4][i * strides[4]];
+        index_t i2 = *(index_t *)&data[4][i * strides[4]];
         scalar_t w2 = *(scalar_t *)&data[5][i * strides[5]];
 
-        index_t i3 = *(index_t*)&data[6][i * strides[6]];
+        index_t i3 = *(index_t *)&data[6][i * strides[6]];
         scalar_t w3 = *(scalar_t *)&data[7][i * strides[7]];
 
         scalar_t t0 = InterpCubic<n - 1, scalar_t, index_t>::eval(src + i0, &data[8], &strides[8], i);
@@ -99,16 +158,16 @@ struct InterpCubic {
 template <typename scalar_t, typename index_t>
 struct InterpCubic<1, scalar_t, index_t> {
     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
-        index_t i0 = *(index_t*)&data[0][i * strides[0]];
+        index_t i0 = *(index_t *)&data[0][i * strides[0]];
         scalar_t w0 = *(scalar_t *)&data[1][i * strides[1]];
 
-        index_t i1 = *(index_t*)&data[2][i * strides[2]];
+        index_t i1 = *(index_t *)&data[2][i * strides[2]];
         scalar_t w1 = *(scalar_t *)&data[3][i * strides[3]];
 
-        index_t i2 = *(index_t*)&data[4][i * strides[4]];
+        index_t i2 = *(index_t *)&data[4][i * strides[4]];
         scalar_t w2 = *(scalar_t *)&data[5][i * strides[5]];
 
-        index_t i3 = *(index_t*)&data[6][i * strides[6]];
+        index_t i3 = *(index_t *)&data[6][i * strides[6]];
         scalar_t w3 = *(scalar_t *)&data[7][i * strides[7]];
 
         scalar_t t0 = *(scalar_t *)&src[i0];
@@ -130,34 +189,54 @@ static inline scalar_t interp_cubic(char* src, char** data, const int64_t* strid
   return InterpCubic<n, scalar_t, index_t>::eval(src, data, strides, i);
 }
 
+template <int n, typename scalar_t, typename index_t, int interp_size>
+static inline scalar_t interpolate(char* src, char** data, const int64_t* strides, int64_t i) {
+  return Interpolate<n, scalar_t, index_t, interp_size>::eval(src, data, strides, i);
+}
+
+template<int interp_size>
 static inline bool is_zero_stride(const int64_t* strides) {
-  return (strides[0] == 0) && (strides[1] == 0) && (strides[2] == 0) && (strides[3] == 0);
+  bool output = strides[0] == 0;
+  for (int i=1; i<interp_size; i++) {
+    output &= (strides[i] == 0);
+  }
+  return output;
 }
 
-template <typename scalar_t, typename index_t>
+template <typename scalar_t, typename index_t, int interp_size>
 static inline bool is_contiguous_stride(const int64_t* strides) {
-  return (strides[0] == sizeof(index_t)) && (strides[1] == sizeof(scalar_t)) &&
-         (strides[2] == sizeof(index_t)) && (strides[3] == sizeof(scalar_t));
+  bool output = (strides[0] == sizeof(index_t)) && (strides[1] == sizeof(scalar_t));
+  for (int i=2; i<interp_size; i+=2) {
+    output &= (strides[i] == sizeof(index_t)) && (strides[i + 1] == sizeof(scalar_t));
+  }
+  return output;
 }
 
-template <int N, int non_zero_stride_dim, typename scalar_t, typename index_t>
+template <int N, int non_zero_stride_dim, typename scalar_t, typename index_t, int interp_size>
 struct CheckAlmostAllZeroStrides {
   static inline bool eval(const int64_t* strides) {
-    return (N == non_zero_stride_dim ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides)) &&
-            CheckAlmostAllZeroStrides<N - 1, non_zero_stride_dim, scalar_t, index_t>::eval(&strides[4]);
+    bool output;
+    if (N == non_zero_stride_dim) {
+      output = is_contiguous_stride<scalar_t, index_t, interp_size>(strides);
+    } else {
+      output = is_zero_stride<interp_size>(strides);
+    }    
+    return output && 
+      CheckAlmostAllZeroStrides<N - 1, non_zero_stride_dim, scalar_t, index_t, interp_size>::eval(
+        &strides[interp_size]);
   }
 };
 
-template <int non_zero_stride_dim, typename scalar_t, typename index_t>
-struct CheckAlmostAllZeroStrides<0, non_zero_stride_dim, scalar_t, index_t> {
+template <int non_zero_stride_dim, typename scalar_t, typename index_t, int interp_size>
+struct CheckAlmostAllZeroStrides<0, non_zero_stride_dim, scalar_t, index_t, interp_size> {
   static inline bool eval(const int64_t* strides) {
     return true;
   }
 };
 
-template <int n, int s, typename scalar_t, typename index_t>
-static inline bool is_all_zero_stride(const int64_t* strides) {
-  return CheckAlmostAllZeroStrides<n, s, scalar_t, index_t>::eval(strides);
+template <int n, int s, typename scalar_t, typename index_t, int interp_size>
+static inline bool check_almost_all_zero_stride(const int64_t* strides) {
+  return CheckAlmostAllZeroStrides<n, s, scalar_t, index_t, interp_size>::eval(strides);
 }
 
 template <typename scalar_t, typename index_t, int out_ndims>
@@ -176,8 +255,13 @@ static inline void basic_loop_cubic(char** data, const int64_t* strides, int64_t
   char* dst = data[0];
   char* src = data[1];
   for (int64_t i = 0; i < n; i++) {
+#if 0
     *(scalar_t*)&dst[i * strides[0]] = interp_cubic<out_ndims, scalar_t, index_t>(
         src + i * strides[1], &data[2], &strides[2], i);
+#else
+    *(scalar_t*)&dst[i * strides[0]] = interpolate<out_ndims, scalar_t, index_t, 8>(
+        src + i * strides[1], &data[2], &strides[2], i);
+#endif
   }
 }
 
@@ -188,11 +272,11 @@ void ti_cpu_upsample_linear(at::TensorIterator& iter)
   auto loop = [&](char** data, const int64_t* strides, int64_t n) {
     // special-cases to let the compiler apply compile-time input-specific optimizations
     if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
-        is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
+        check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, 4>(&strides[2]))) {
       // contiguous channels-first case
       basic_loop_linear<scalar_t, index_t, out_ndims>(data, strides, n);
     } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
-               is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
+               check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, 4>(&strides[2]))) {
       // contiguous channels-last case
       basic_loop_linear<scalar_t, index_t, out_ndims>(data, strides, n);
     } else {
@@ -321,11 +405,11 @@ void ti_cpu_upsample_cubic(at::TensorIterator& iter)
   auto loop = [&](char** data, const int64_t* strides, int64_t n) {
     // special-cases to let the compiler apply compile-time input-specific optimizations
     if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
-        is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
+        check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, 8>(&strides[2]))) {
       // contiguous channels-first case
       basic_loop_cubic<scalar_t, index_t, out_ndims>(data, strides, n);
     } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
-               is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
+               check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, 8>(&strides[2]))) {
       // contiguous channels-last case
       basic_loop_cubic<scalar_t, index_t, out_ndims>(data, strides, n);
     } else {
@@ -379,12 +463,12 @@ std::vector<Tensor> ti_compute_indices_weights_cubic(
 
     const scalar_t real_input_index = area_pixel_compute_source_index<scalar_t>(
         scale, i, align_corners, /*cubic=*/true);
-    input_index = static_cast<int64_t>(real_input_index);
+    input_index = static_cast<int64_t>(floorf(real_input_index));
     
-    input_i0_ptr[i] = static_cast<index_t>(std::max(input_index - 1, zero) * stride);
-    input_i1_ptr[i] = static_cast<index_t>(input_index * stride);
-    input_i2_ptr[i] = static_cast<index_t>(std::min(input_index + 1, input_size - 1) * stride);
-    input_i3_ptr[i] = static_cast<index_t>(std::min(input_index + 2, input_size - 1) * stride);
+    input_i0_ptr[i] = static_cast<index_t>(std::max(std::min(input_index - 1, input_size - 1), zero)) * stride;
+    input_i1_ptr[i] = static_cast<index_t>(std::max(std::min(input_index + 0, input_size - 1), zero)) * stride;
+    input_i2_ptr[i] = static_cast<index_t>(std::max(std::min(input_index + 1, input_size - 1), zero)) * stride;
+    input_i3_ptr[i] = static_cast<index_t>(std::max(std::min(input_index + 2, input_size - 1), zero)) * stride;
 
     get_cubic_upsample_coefficients<scalar_t>(coeffs, real_input_index - input_index);
     w0_ptr[i] = coeffs[0];
