@@ -44,33 +44,49 @@ static inline void compute_source_index_and_lambda(
 }
 // End of copied ...
 
+
+// ZERO_APPEND option is slower
+// With ZERO_APPEND 
+// - Bench ti_upsample_bilinear2d (20000 rounds) - downsampling to 256x256                                                                                                                        
+// Elapsed time (ms): 0.0722179
+// - Bench ti_upsample_bilinear2d (20000 rounds) - upsampling to 512x512                                                                                                                          
+// Elapsed time (ms): 0.237255  
+// 
+// No ZERO_APPEND
+// - Bench ti_upsample_bilinear2d (20000 rounds) - downsampling to 256x256
+// Elapsed time (ms): 0.0676144
+// - Bench ti_upsample_bilinear2d (20000 rounds) - upsampling to 512x512
+// Elapsed time (ms): 0.221416
+
+// #define ZERO_APPEND
+
 template <int n, typename scalar_t, typename index_t, int interp_size>
 struct Interpolate {
     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
-      int half_interp_size = int(interp_size / 2);
-      index_t ids[half_interp_size];
+      constexpr int half_interp_size = int(interp_size / 2);
+
+#ifdef ZERO_APPEND
+      index_t ids;
+      scalar_t wts, t;
+      scalar_t output = (scalar_t) 0.0;
       for (int j=0; j<half_interp_size; j++) {
-        ids[j] = *(index_t*)&data[2 * j + 0][i * strides[2 * j + 0]];
+        ids = *(index_t*)&data[2 * j + 0][i * strides[2 * j + 0]];
+        wts = *(scalar_t*)&data[2 * j + 1][i * strides[2 * j + 1]];
+        t = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids, &data[interp_size], &strides[interp_size], i);
+        output += t * wts;
       }
-      scalar_t wts[half_interp_size];
-      for (int j=0; j<half_interp_size; j++) {
-        wts[j] = *(scalar_t*)&data[2 * j + 1][i * strides[2 * j + 1]];
-      }
-
-      scalar_t ts[half_interp_size];
-      // for (int j=0; j<half_interp_size; j++) {
-      //   ts[j] = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids[j], &data[interp_size], &strides[interp_size], i);
-      // }
-
-      ts[0] = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids[0], &data[interp_size], &strides[interp_size], i);
-      ts[1] = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids[1], &data[interp_size], &strides[interp_size], i);
-      ts[2] = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids[2], &data[interp_size], &strides[interp_size], i);
-      ts[3] = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids[3], &data[interp_size], &strides[interp_size], i);
-
-      scalar_t output = ts[0] * wts[0];
+#else
+      index_t ids = *(index_t*)&data[0][i * strides[0]];
+      scalar_t wts = *(scalar_t*)&data[1][i * strides[1]];
+      scalar_t t = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids, &data[interp_size], &strides[interp_size], i);
+      scalar_t output = t * wts;
       for (int j=1; j<half_interp_size; j++) {
-        output += ts[j] * wts[j];
+        ids = *(index_t*)&data[2 * j + 0][i * strides[2 * j + 0]];
+        wts = *(scalar_t*)&data[2 * j + 1][i * strides[2 * j + 1]];
+        t = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids, &data[interp_size], &strides[interp_size], i);
+        output += t * wts;
       }
+#endif
       return output;
   }
 };
@@ -79,24 +95,29 @@ struct Interpolate {
 template <typename scalar_t, typename index_t, int interp_size>
 struct Interpolate<1, scalar_t, index_t, interp_size> {
     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
-      int half_interp_size = int(interp_size / 2);
-      index_t ids[half_interp_size];
+      constexpr int half_interp_size = int(interp_size / 2);
+#ifdef ZERO_APPEND
+      index_t ids;
+      scalar_t wts, t;
+      scalar_t output = (scalar_t) 0.0;
       for (int j=0; j<half_interp_size; j++) {
-        ids[j] = *(index_t*)&data[2 * j + 0][i * strides[2 * j + 0]];
+        ids = *(index_t*)&data[2 * j + 0][i * strides[2 * j + 0]];
+        wts = *(scalar_t*)&data[2 * j + 1][i * strides[2 * j + 1]];
+        t = *(scalar_t *)&src[ids];
+        output += t * wts;
       }
-      scalar_t wts[half_interp_size];
-      for (int j=0; j<half_interp_size; j++) {
-        wts[j] = *(scalar_t*)&data[2 * j + 1][i * strides[2 * j + 1]];
-      }
-      scalar_t ts[half_interp_size];
-      for (int j=0; j<half_interp_size; j++) {
-        ts[j] = *(scalar_t *)&src[ids[j]];
-      }
-
-      scalar_t output = ts[0] * wts[0];
+#else
+      index_t ids = *(index_t*)&data[0][i * strides[0]];
+      scalar_t wts = *(scalar_t*)&data[1][i * strides[1]];
+      scalar_t t = *(scalar_t *)&src[ids];
+      scalar_t output = t * wts;
       for (int j=1; j<half_interp_size; j++) {
-        output += ts[j] * wts[j];
+        ids = *(index_t*)&data[2 * j + 0][i * strides[2 * j + 0]];
+        wts = *(scalar_t*)&data[2 * j + 1][i * strides[2 * j + 1]];
+        t = *(scalar_t *)&src[ids];
+        output += t * wts;
       }
+#endif
       return output;
     }
 };
@@ -255,13 +276,19 @@ static inline void basic_loop_cubic(char** data, const int64_t* strides, int64_t
   char* dst = data[0];
   char* src = data[1];
   for (int64_t i = 0; i < n; i++) {
-#if 0
-    *(scalar_t*)&dst[i * strides[0]] = interp_cubic<out_ndims, scalar_t, index_t>(
-        src + i * strides[1], &data[2], &strides[2], i);
-#else
     *(scalar_t*)&dst[i * strides[0]] = interpolate<out_ndims, scalar_t, index_t, 8>(
         src + i * strides[1], &data[2], &strides[2], i);
-#endif
+  }
+}
+
+
+template <typename scalar_t, typename index_t, int out_ndims, int interp_size>
+static inline void basic_loop(char** data, const int64_t* strides, int64_t n) {
+  char* dst = data[0];
+  char* src = data[1];
+  for (int64_t i = 0; i < n; i++) {
+    *(scalar_t*)&dst[i * strides[0]] = interpolate<out_ndims, scalar_t, index_t, interp_size>(
+        src + i * strides[1], &data[2], &strides[2], i);
   }
 }
 
@@ -286,6 +313,29 @@ void ti_cpu_upsample_linear(at::TensorIterator& iter)
   };
   iter.for_each(loop);
 }
+
+
+template <typename scalar_t, typename index_t, int out_ndims, int interp_size>
+void ti_cpu_upsample_generic(at::TensorIterator& iter)
+{
+  auto loop = [&](char** data, const int64_t* strides, int64_t n) {
+    // special-cases to let the compiler apply compile-time input-specific optimizations
+    if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
+        check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, interp_size>(&strides[2]))) {
+      // contiguous channels-first case
+      basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, n);
+    } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
+               check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, interp_size>(&strides[2]))) {
+      // contiguous channels-last case
+      basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, n);
+    } else {
+      // fallback
+      basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, n);
+    }
+  };
+  iter.for_each(loop);
+}
+
 
 template<typename index_t, typename scalar_t>
 std::vector<Tensor> ti_compute_indices_weights_linear(
@@ -394,30 +444,9 @@ void ti_upsample_linearNd_kernel_impl(
 
   AT_DISPATCH_FLOATING_TYPES(
       iter.dtype(), "upsample_linearNd", [&] {
-      ti_cpu_upsample_linear<scalar_t, index_t, out_ndims>(iter);
+      ti_cpu_upsample_generic<scalar_t, index_t, out_ndims, 4>(iter);
+      // ti_cpu_upsample_linear<scalar_t, index_t, out_ndims>(iter);
   });
-}
-
-
-template <typename scalar_t, typename index_t, int out_ndims>
-void ti_cpu_upsample_cubic(at::TensorIterator& iter)
-{
-  auto loop = [&](char** data, const int64_t* strides, int64_t n) {
-    // special-cases to let the compiler apply compile-time input-specific optimizations
-    if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
-        check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, 8>(&strides[2]))) {
-      // contiguous channels-first case
-      basic_loop_cubic<scalar_t, index_t, out_ndims>(data, strides, n);
-    } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
-               check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, 8>(&strides[2]))) {
-      // contiguous channels-last case
-      basic_loop_cubic<scalar_t, index_t, out_ndims>(data, strides, n);
-    } else {
-      // fallback
-      basic_loop_cubic<scalar_t, index_t, out_ndims>(data, strides, n);
-    }
-  };
-  iter.for_each(loop);
 }
 
 
@@ -544,7 +573,7 @@ void ti_upsample_cubicNd_kernel_impl(
 
   AT_DISPATCH_FLOATING_TYPES(
       iter.dtype(), "upsample_cubicNd", [&] {
-      ti_cpu_upsample_cubic<scalar_t, index_t, out_ndims>(iter);
+      ti_cpu_upsample_generic<scalar_t, index_t, out_ndims, 8>(iter);
   });
 }
 
