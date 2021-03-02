@@ -13,7 +13,7 @@
 
 
 // #define INSPECT_ASSEMBLY_CODE
-#define BENCH_3D_ONLY
+// #define BENCH_3D_ONLY
 #define USE_ALWAYS_INDEX64
 
 

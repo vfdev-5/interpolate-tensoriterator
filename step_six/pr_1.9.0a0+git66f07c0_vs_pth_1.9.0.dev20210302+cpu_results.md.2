@@ -1,0 +1,78 @@
+
+
+<details>
+<summary>
+Interpolation 2d - 6 thread(s)
+</summary>
+
+
+In | Out | Is contiguous | Channels last | master | this PR | speed-up
+---|---|---|---|---|---|---
+[1, 3, 320, 320] | [256, 256] | True | False | 0.0766 | 0.0783 | 0.9780
+[1, 3, 320, 320] | [512, 512] | True | False | 0.4047 | 0.4030 | 1.0042
+[1, 3, 320, 320] | [256, 256] | False | False | 0.0764 | 0.0750 | 1.0189
+[1, 3, 320, 320] | [512, 512] | False | False | 0.4068 | 0.4073 | 0.9987
+[1, 3, 320, 320] | [256, 256] | False | True | 1.2051 | 0.0763 | 15.7844
+[1, 3, 320, 320] | [512, 512] | False | True | 4.8613 | 0.4024 | 12.0795
+[32, 128, 64, 64] | [32, 32] | False | True | 6.3996 | 8.7019 | 0.7354
+[32, 128, 64, 64] | [128, 128] | False | True | 165.8478 | 67.6672 | 2.4509
+[32, 128, 64, 64] | [32, 32] | True | False | 2.3141 | 3.3803 | 0.6846
+[32, 128, 64, 64] | [128, 128] | True | False | 52.3963 | 51.9514 | 1.0086
+[1, 3, 500, 500] | [256, 256] | True | False | 0.0803 | 0.0759 | 1.0587
+[1, 3, 500, 500] | [800, 800] | True | False | 0.5572 | 0.5416 | 1.0289
+[1, 3, 500, 500] | [256, 256] | False | False | 0.0778 | 0.0762 | 1.0210
+[1, 3, 500, 500] | [800, 800] | False | False | 0.5596 | 0.5433 | 1.0301
+[1, 3, 500, 500] | [256, 256] | False | True | 1.2074 | 0.0830 | 14.5468
+[1, 3, 500, 500] | [800, 800] | False | True | 12.1512 | 0.5517 | 22.0256
+
+
+</details>
+
+<details>
+<summary>
+Interpolation 1d - 6 thread(s)
+</summary>
+
+
+In | Out | Is contiguous | Channels last | master | this PR | speed-up
+---|---|---|---|---|---|---
+[4, 512, 320] | 256 | True | False | 0.1034 | 0.1052 | 0.9830
+[4, 512, 320] | 512 | True | False | 0.1882 | 0.1948 | 0.9661
+
+
+</details>
+
+<details>
+<summary>
+Interpolation 3d - 6 thread(s)
+</summary>
+
+
+In | Out | Is contiguous | Channels last | master | this PR | speed-up
+---|---|---|---|---|---|---
+[1, 3, 16, 320, 320] | [8, 256, 256] | True | False | 2.0967 | 0.9988 | 2.0992
+[1, 3, 16, 320, 320] | [32, 512, 512] | True | False | 42.6287 | 24.8555 | 1.7151
+[1, 3, 16, 320, 320] | [8, 256, 256] | False | True | 15.5660 | 1.2703 | 12.2542
+[1, 3, 16, 320, 320] | [32, 512, 512] | False | True | 273.1997 | 25.2100 | 10.8370
+
+
+</details>
+
+
+<details>
+<summary>
+Versions and build configs
+</summary>
+
+PyTorch master: 1.9.0.dev20210302+cpu
+PyTorch master build setting:
+```
+BLAS_INFO=mkl, BUILD_TYPE=Release, CXX_COMPILER=/opt/rh/devtoolset-7/root/usr/bin/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.0, USE_CUDA=0, USE_CUDNN=OFF, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=ON, USE_OPENMP=ON,
+```
+
+PR : 1.9.0a0+git66f07c0
+PR build setting:
+```
+BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON,
+```
+</details>
