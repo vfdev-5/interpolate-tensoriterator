@@ -13,8 +13,8 @@
 
 
 // #define INSPECT_ASSEMBLY_CODE
-#define BENCH_3D_ONLY
-#define USE_ALWAYS_INDEX64
+// #define BENCH_3D_ONLY
+// #define USE_ALWAYS_INDEX64
 
 
 using namespace at;
@@ -31,7 +31,7 @@ int main(int argc, char** argv)
     c10::optional<IntArrayRef> output_size = osizes;
     c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
 
-    auto out = ti_upsample_trilinear3d_kernel_impl(input, output_size, false, scale_factors);    
+    auto out = ti_upsample_nearest3d_kernel_impl(input, output_size, false, scale_factors);    
 
     return 0;
 
@@ -71,10 +71,10 @@ int main(int argc, char** argv)
         c10::optional<IntArrayRef> output_size = osizes;
         c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
 
-        std::cout << "- ti_upsample_bilinear2d_kernel_impl" << std::endl;
-        auto out = ti_upsample_bilinear2d_kernel_impl(input, output_size, false, scale_factors);
-        std::cout << "- upsample_bilinear2d_cpu" << std::endl;
-        auto ref_out = upsample_bilinear2d_cpu(input, output_size, false, scale_factors);
+        std::cout << "- ti_upsample_nearest2d_kernel_impl" << std::endl;
+        auto out = ti_upsample_nearest2d_kernel_impl(input, output_size, false, scale_factors);
+        std::cout << "- upsample_nearest2d_cpu" << std::endl;
+        auto ref_out = upsample_nearest2d_cpu(input, output_size, false, scale_factors);
 
         if (!ref_out.allclose(out)){
             auto mse = (ref_out - out).pow(2.0).mean();
@@ -114,6 +114,7 @@ int main(int argc, char** argv)
 #endif
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
+    // assert_consistency_2d(320, 256, 512);
     bench_2d(n, full_bench, 320, 256, 512);
     if (full_bench) {
         bench_2d(n, false, 500, 256, 800);

@@ -1,3 +1,8 @@
+#
+# export PR_TORCH_PATH=/workspace/pth-linear-interp/
+# sh run_python_pr_bench.sh
+# > pr_vs_pth_results.md
+#
 import sys
 import time
 import torch
@@ -66,11 +71,11 @@ def bench_2d(n, full_bench, isize, dn_osize, up_osize):
 
     sub_bench_2d_contiguous_channel_first(n, isize, dn_osize, up_osize)
     sub_bench_2d_non_contiguous_channel_first(n, isize, dn_osize, up_osize)
+    sub_bench_2d_non_contiguous_channel_last(n, isize, dn_osize, up_osize)
 
     if not full_bench:
         return
 
-    sub_bench_2d_non_contiguous_channel_last(n, isize, dn_osize, up_osize)
     sub_bench_2d_mingfeima_channel_last(n // 10)
 
 

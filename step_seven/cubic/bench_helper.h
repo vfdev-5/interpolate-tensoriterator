@@ -278,11 +278,10 @@ inline void bench_2d(int n, bool full_bench, int isize, int dn_osize, int up_osi
 
     sub_bench_2d_contiguous_channel_first(n, isize, dn_osize, up_osize);
     sub_bench_2d_non_contiguous_channel_first(n, isize, dn_osize, up_osize);
+    sub_bench_2d_non_contiguous_channel_last(n, isize, dn_osize, up_osize);
 
     if (!full_bench)
         return;
-
-    sub_bench_2d_non_contiguous_channel_last(n, isize, dn_osize, up_osize);
 
     sub_bench_2d_mingfeima_channel_last(n, isize, dn_osize, up_osize);
 }

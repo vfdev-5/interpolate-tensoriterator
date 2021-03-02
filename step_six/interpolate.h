@@ -1,6 +1,6 @@
 #pragma once
 
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <ATen/TypeDefault.h>
 #include <ATen/native/TensorIterator.h>
@@ -160,9 +160,6 @@ std::vector<Tensor> ti_compute_indices_weights_linear(
   auto input_index1_ptr = output[2].data_ptr<index_t>();
   auto lambda1_ptr = output[3].data_ptr<scalar_t>();
 
-  double xd;
-  int64_t xl;
-  
   for (int64_t i=0; i<output_size; i++) {
 
     compute_source_index_and_lambda<scalar_t, index_t>(
@@ -198,6 +195,11 @@ void ti_upsample_linearNd_kernel_impl(
   auto shape = input.sizes().vec();
   auto strides = input.strides().vec();
   auto oshape = output.sizes();
+
+  TORCH_INTERNAL_ASSERT(
+    shape.size() == oshape.size() && shape.size() == 2 + out_ndims
+  );
+  TORCH_INTERNAL_ASSERT(strides.size() == 2 + out_ndims);
 
   for (int i=0; i<out_ndims; i++) {
     shape[i + 2] = oshape[i + 2];
@@ -280,7 +282,7 @@ using at::native::upsample::compute_output_size;
 using at::native::upsample::get_scale_value;
 
 
-Tensor ti_upsample_bilinear2d_kernel_impl(
+Tensor ti_upsample_bilinear2d_cpu(
     const Tensor& input,
     c10::optional<IntArrayRef> output_size,
     bool align_corners,
@@ -292,35 +294,15 @@ Tensor ti_upsample_bilinear2d_kernel_impl(
   auto scale_h = get_scale_value(scale_factors, 0);
   auto scale_w = get_scale_value(scale_factors, 1);
 
+  auto full_output_size = native::upsample_2d_common_check(input.sizes(), osize);
+
+  // Allow for empty batch size but not other dimensions
   TORCH_CHECK(
-      osize.size() == 2,
-      "It is expected output_size equals to 2, but got size ",
-      osize.size());
+      input.numel() != 0 || c10::multiply_integers(input.sizes().begin() + 1, input.sizes().end()),
+      "Non-empty 4D data tensor expected but got a tensor with sizes ",
+      input.sizes());
 
-  int64_t output_height = osize[0];
-  int64_t output_width = osize[1];
-
-  int64_t nbatch = input.size(0);
-  int64_t channels = input.size(1);
-  int64_t input_height = input.size(2);
-  int64_t input_width = input.size(3);
-
-  upsample_2d_shape_check(
-      input,
-      Tensor(),
-      nbatch,
-      channels,
-      input_height,
-      input_width,
-      output_height,
-      output_width);
-
-  output.resize_({nbatch, channels, output_height, output_width}, input.suggest_memory_format());
-
-  TORCH_INTERNAL_ASSERT(
-      input_height > 0 && input_width > 0 && output_height > 0 &&
-      output_width > 0);
-
+  output.resize_(full_output_size, input.suggest_memory_format());
   _ti_upsample_bilinear2d_kernel_impl(output, input, align_corners, scale_h, scale_w);
   return output;
 }
@@ -347,7 +329,7 @@ void _ti_upsample_linear1d_kernel_impl(
 }
 
 
-Tensor ti_upsample_linear1d_kernel_impl(
+Tensor ti_upsample_linear1d_cpu(
     const Tensor& input,
     c10::optional<IntArrayRef> output_size,
     bool align_corners,
@@ -358,26 +340,15 @@ Tensor ti_upsample_linear1d_kernel_impl(
   auto osize = compute_output_size(input.sizes(), output_size, scale_factors);
   auto scale_w = get_scale_value(scale_factors, 0);
 
+  auto full_output_size = native::upsample_1d_common_check(input.sizes(), osize);
+
+  // Allow for empty batch size but not other dimensions
   TORCH_CHECK(
-      osize.size() == 1,
-      "It is expected output_size equals to 1, but got size ",
-      osize.size());
+      (input.size(1) != 0 && input.size(2) != 0) && input.dim() == 3,
+      "Non-empty 3D data tensor expected but got a tensor with sizes ",
+      input.sizes());
 
-  int64_t output_width = osize[0];
-  int64_t nbatch = input.size(0);
-  int64_t channels = input.size(1);
-  int64_t input_width = input.size(2);
-
-  upsample_1d_shape_check(
-      input,
-      Tensor(),
-      nbatch,
-      channels,
-      input_width,
-      output_width);
-
-  output.resize_({nbatch, channels, output_width});
-  TORCH_INTERNAL_ASSERT(input_width > 0 && output_width > 0);  
+  output.resize_(full_output_size);
   _ti_upsample_linear1d_kernel_impl(output, input, align_corners, scale_w);
   return output;
 }
@@ -406,7 +377,7 @@ void _ti_upsample_trilinear3d_kernel_impl(
 }
 
 
-Tensor ti_upsample_trilinear3d_kernel_impl(
+Tensor ti_upsample_trilinear3d_cpu(
     const Tensor& input,
     c10::optional<IntArrayRef> output_size,
     bool align_corners,
@@ -419,38 +390,15 @@ Tensor ti_upsample_trilinear3d_kernel_impl(
   auto scale_h = get_scale_value(scale_factors, 1);
   auto scale_w = get_scale_value(scale_factors, 2);
 
+  auto full_output_size = native::upsample_3d_common_check(input.sizes(), osize);
+
+  // Allow for empty batch size but not other dimensions
   TORCH_CHECK(
-      osize.size() == 3,
-      "It is expected output_size equals to 3, but got size ",
-      osize.size());
+      input.numel() != 0 || c10::multiply_integers(input.sizes().begin() + 1, input.sizes().end()),
+      "Non-empty 5D data tensor expected but got a tensor with sizes ",
+      input.sizes());
 
-  int64_t output_depth = osize[0];
-  int64_t output_height = osize[1];
-  int64_t output_width = osize[2];
-
-  int64_t nbatch = input.size(0);
-  int64_t channels = input.size(1);
-  int64_t input_depth = input.size(2);
-  int64_t input_height = input.size(3);
-  int64_t input_width = input.size(4);
-
-  upsample_3d_shape_check(
-      input,
-      Tensor(),
-      nbatch,
-      channels,
-      input_depth,
-      input_height,
-      input_width,
-      output_depth,
-      output_height,
-      output_width);
-
-  output.resize_({nbatch, channels, output_depth, output_height, output_width}, input.suggest_memory_format());
-  TORCH_INTERNAL_ASSERT(
-      input_depth > 0 && input_height > 0 && input_width > 0 &&
-      output_depth > 0 && output_height > 0 && output_width > 0);
-
+  output.resize_(full_output_size, input.suggest_memory_format());
   _ti_upsample_trilinear3d_kernel_impl(output, input, align_corners, scale_d, scale_h, scale_w);
   return output;
 }

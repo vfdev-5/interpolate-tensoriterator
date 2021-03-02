@@ -6,7 +6,8 @@ export PR_TORCH_PATH=/workspace/pth-linear-interp
 export n=20000
 
 # # Run benchmark PyTorch nightly
-filepath1="pth_nightly_results.log.save"
+version=`python -c "import torch; print(torch.__version__)"`
+filepath1="pth_nightly_results_$version.log.save"
 echo "" > $filepath1
 python -u run_pytorch_bench.py $n 1 1 6 >> $filepath1
 echo "\n\n" >> $filepath1

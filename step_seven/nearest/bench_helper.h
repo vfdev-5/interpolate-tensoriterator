@@ -7,13 +7,7 @@
 // Torch
 #include <ATen/ATen.h>
 #include <ATen/Parallel.h>
-// Fails with original pytorch as UpSample.h is missing #pragma once
-// #include <ATen/native/UpSample.h>
-
-#ifdef WITH_OPENCV
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#endif
+#include <ATen/native/UpSample.h>
 
 // Local
 #include "interpolate.h"
@@ -23,8 +17,8 @@ using namespace at;
 using namespace at::indexing;
 
 
-inline void assert_consistency_bilinear2d(
-    Tensor t_input, int isize, int osize, bool align_corners=false,
+inline void assert_consistency_nearest2d(
+    Tensor t_input, int isize, int osize,
     c10::optional<double> s_h = c10::nullopt, c10::optional<double> s_w = c10::nullopt
 ) {
 
@@ -43,8 +37,8 @@ inline void assert_consistency_bilinear2d(
         scale_factors = sfs;
     }
 
-    auto ref_out = native::upsample_bilinear2d(t_input, output_size, align_corners, scale_factors);
-    auto out = native::ti_upsample_bilinear2d_cpu(t_input, output_size, align_corners, scale_factors);
+    auto ref_out = native::upsample_nearest2d(t_input, output_size, scale_factors);
+    auto out = native::ti_upsample_nearest2d_cpu(t_input, output_size, scale_factors);
 
     if (!ref_out.allclose(out)){
         auto mse = (ref_out - out).pow(2.0).mean();
@@ -53,7 +47,6 @@ inline void assert_consistency_bilinear2d(
         std::cout << "Configuration: "
             << isize << " "
             << osize << " "
-            << align_corners << " "
             << (s_h.has_value() ? *s_h : 0.0) << " "
             << (s_w.has_value() ? *s_w : 0.0) << " "
             << t_input.dtype() << " "
@@ -74,8 +67,8 @@ inline void assert_consistency_bilinear2d(
 }
 
 
-inline void assert_consistency_linear1d(
-    Tensor t_input, int isize, int osize, bool align_corners=false,
+inline void assert_consistency_nearest1d(
+    Tensor t_input, int isize, int osize,
     c10::optional<double> s_w = c10::nullopt
 ) {
 
@@ -94,8 +87,8 @@ inline void assert_consistency_linear1d(
         scale_factors = sfs;
     }
 
-    auto ref_out = native::upsample_linear1d(t_input, output_size, align_corners, scale_factors);
-    auto out = native::ti_upsample_linear1d_cpu(t_input, output_size, align_corners, scale_factors);
+    auto ref_out = native::upsample_nearest1d(t_input, output_size, scale_factors);
+    auto out = native::ti_upsample_nearest1d_cpu(t_input, output_size, scale_factors);
 
     if (!ref_out.allclose(out)){
         auto mse = (ref_out - out).pow(2.0).mean();
@@ -104,7 +97,6 @@ inline void assert_consistency_linear1d(
         std::cout << "Configuration: "
             << isize << " "
             << osize << " "
-            << align_corners << " "
             << (s_w.has_value() ? *s_w : 0.0) << " "
             << t_input.dtype() << " "
             << std::endl;
@@ -113,8 +105,8 @@ inline void assert_consistency_linear1d(
 }
 
 
-inline void assert_consistency_trilinear3d(
-    Tensor t_input, int isize, int osize, bool align_corners=false,
+inline void assert_consistency_nearest3d(
+    Tensor t_input, int isize, int osize,
     c10::optional<double> s_d = c10::nullopt, c10::optional<double> s_h = c10::nullopt, c10::optional<double> s_w = c10::nullopt
 ) {
 
@@ -134,8 +126,8 @@ inline void assert_consistency_trilinear3d(
         scale_factors = sfs;
     }
 
-    auto ref_out = native::upsample_trilinear3d(t_input, output_size, align_corners, scale_factors);
-    auto out = native::ti_upsample_trilinear3d_cpu(t_input, output_size, align_corners, scale_factors);
+    auto ref_out = native::upsample_nearest3d_cpu(t_input, output_size, scale_factors);
+    auto out = native::ti_upsample_nearest3d_cpu(t_input, output_size, scale_factors);
 
     if (!ref_out.allclose(out)){
         auto mse = (ref_out - out).pow(2.0).mean();
@@ -144,7 +136,6 @@ inline void assert_consistency_trilinear3d(
         std::cout << "Configuration: "
             << isize << " "
             << osize << " "
-            << align_corners << " "
             << (s_d.has_value() ? *s_d : 0.0) << " "
             << (s_h.has_value() ? *s_h : 0.0) << " "
             << (s_w.has_value() ? *s_w : 0.0) << " "
@@ -158,14 +149,10 @@ inline void assert_consistency_trilinear3d(
 inline void assert_consistency_2d(int isize=320, int dn_osize=256, int up_osize=512) {
 
     auto check = [](const at::Tensor & t, int osize1, int osize2){
-        assert_consistency_bilinear2d(t, -1, osize1);
-        assert_consistency_bilinear2d(t, -1, osize1, true);
-        assert_consistency_bilinear2d(t, -1, -1, false, 1.12, 1.23);
-        assert_consistency_bilinear2d(t, -1, -1, true, 1.12, 1.23);
-        assert_consistency_bilinear2d(t, -1, osize2);
-        assert_consistency_bilinear2d(t, -1, osize2, true);
-        assert_consistency_bilinear2d(t, -1, -1, false, 0.77, 0.88);
-        assert_consistency_bilinear2d(t, -1, -1, true, 0.77, 0.88);        
+        assert_consistency_nearest2d(t, -1, osize1);
+        assert_consistency_nearest2d(t, -1, -1, 1.12, 1.23);
+        assert_consistency_nearest2d(t, -1, osize2);
+        assert_consistency_nearest2d(t, -1, -1, 0.77, 0.88);
     };
 
     for (auto dtype: {kFloat, kDouble}) {
@@ -192,11 +179,11 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         int64_t osizes[2] = {dn_osize, dn_osize};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench upsample_bilinear2d (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
+        std::cout << "\n- Bench upsample_nearest2d (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto ref_out = native::upsample_bilinear2d(t_input, output_size, false, c10::nullopt);
+            auto ref_out = native::upsample_nearest2d(t_input, output_size, c10::nullopt);
             auto result = ref_out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -208,11 +195,11 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         int64_t osizes[2] = {dn_osize, dn_osize};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench ti_upsample_bilinear2d (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
+        std::cout << "\n- Bench ti_upsample_nearest2d (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
+            auto out = native::ti_upsample_nearest2d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -224,11 +211,11 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         int64_t osizes[2] = {up_osize, up_osize};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench upsample_bilinear2d (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
+        std::cout << "\n- Bench upsample_nearest2d (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto ref_out = native::upsample_bilinear2d(t_input, output_size, false, c10::nullopt);
+            auto ref_out = native::upsample_nearest2d(t_input, output_size, c10::nullopt);
             auto result = ref_out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -240,11 +227,11 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         int64_t osizes[2] = {up_osize, up_osize};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench ti_upsample_bilinear2d (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
+        std::cout << "\n- Bench ti_upsample_nearest2d (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
+            auto out = native::ti_upsample_nearest2d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -283,13 +270,13 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
         std::cout << "Input is_contiguous memory_format torch.channels_last: " << (t_input.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
         std::cout << "Input is_contiguous : " << (t_input.is_contiguous() ? "true" : "false") << std::endl;
 
-        assert_consistency_bilinear2d(t_input, -1, 128);
+        assert_consistency_nearest2d(t_input, -1, 128);
         {    
-            std::cout << "\n- Bench upsample_bilinear2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
+            std::cout << "\n- Bench upsample_nearest2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto ref_out = native::upsample_bilinear2d(t_input, output_size, false, c10::nullopt);
+                auto ref_out = native::upsample_nearest2d(t_input, output_size, c10::nullopt);
                 auto result = ref_out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
@@ -298,11 +285,11 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
         }
 
         {
-            std::cout << "\n- Bench ti_upsample_bilinear2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
+            std::cout << "\n- Bench ti_upsample_nearest2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto out = native::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
+                auto out = native::ti_upsample_nearest2d_cpu(t_input, output_size);
                 auto result = out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
@@ -321,13 +308,13 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
         std::cout << "Input is_contiguous memory_format torch.channels_last: " << (t_input.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
         std::cout << "Input is_contiguous : " << (t_input.is_contiguous() ? "true" : "false") << std::endl;
 
-        assert_consistency_bilinear2d(t_input, -1, 128);
+        assert_consistency_nearest2d(t_input, -1, 128);
         {    
-            std::cout << "\n- Bench upsample_bilinear2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
+            std::cout << "\n- Bench upsample_nearest2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto ref_out = native::upsample_bilinear2d(t_input, output_size, false, c10::nullopt);
+                auto ref_out = native::upsample_nearest2d(t_input, output_size, c10::nullopt);
                 auto result = ref_out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
@@ -336,11 +323,11 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
         }
 
         {
-            std::cout << "\n- Bench ti_upsample_bilinear2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
+            std::cout << "\n- Bench ti_upsample_nearest2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto out = native::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
+                auto out = native::ti_upsample_nearest2d_cpu(t_input, output_size);
                 auto result = out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
@@ -376,22 +363,16 @@ inline void bench_2d(int n, bool full_bench, int isize, int dn_osize, int up_osi
 inline void assert_consistency_1d() {
     for (auto dtype: {kFloat, kDouble}) {
         auto t_input = at::rand({4, 512, 320}, at::CPU(dtype));
-        assert_consistency_linear1d(t_input, -1, 256);
-        assert_consistency_linear1d(t_input, -1, 256, true);
-        assert_consistency_linear1d(t_input, -1, -1, false, 1.12);
-        assert_consistency_linear1d(t_input, -1, -1, true, 1.12);
-        assert_consistency_linear1d(t_input, -1, 512);
-        assert_consistency_linear1d(t_input, -1, 512, true);
-        assert_consistency_linear1d(t_input, -1, -1, false, 0.77);
-        assert_consistency_linear1d(t_input, -1, -1, true, 0.77);
+        assert_consistency_nearest1d(t_input, -1, 256);
+        assert_consistency_nearest1d(t_input, -1, -1, 1.12);
+        assert_consistency_nearest1d(t_input, -1, 512);
+        assert_consistency_nearest1d(t_input, -1, -1, 0.77);
 
         auto t_input_channel_last = at::rand({1, 320, 512}, at::CPU(dtype));
         t_input_channel_last = t_input_channel_last.permute({0, 2, 1});
-        assert_consistency_linear1d(t_input_channel_last, -1, 256);
-        assert_consistency_linear1d(t_input_channel_last, -1, -1, true, 0.77);
-        assert_consistency_linear1d(t_input_channel_last, -1, -1, false, 0.77);
-        assert_consistency_linear1d(t_input_channel_last, -1, -1, true, 1.23);
-        assert_consistency_linear1d(t_input_channel_last, -1, -1, false, 1.23);
+        assert_consistency_nearest1d(t_input_channel_last, -1, 256);
+        assert_consistency_nearest1d(t_input_channel_last, -1, -1, 0.77);
+        assert_consistency_nearest1d(t_input_channel_last, -1, -1, 1.23);
     }    
 }
 
@@ -410,11 +391,11 @@ inline int bench_1d(int n, bool full_bench) {
         int64_t osizes[1] = {256, };
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench upsample_linear1d (" << n << " rounds) - downsampling to 256" << std::endl;
+        std::cout << "\n- Bench upsample_nearest1d (" << n << " rounds) - downsampling to 256" << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto ref_out = native::upsample_linear1d(t_input, output_size, false, c10::nullopt);
+            auto ref_out = native::upsample_nearest1d(t_input, output_size, c10::nullopt);
             auto result = ref_out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -426,11 +407,11 @@ inline int bench_1d(int n, bool full_bench) {
         int64_t osizes[1] = {256, };
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench ti_upsample_linear1d (" << n << " rounds) - downsampling to 256" << std::endl;
+        std::cout << "\n- Bench ti_upsample_nearest1d (" << n << " rounds) - downsampling to 256" << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_linear1d_cpu(t_input, output_size, false);
+            auto out = native::ti_upsample_nearest1d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -445,11 +426,11 @@ inline int bench_1d(int n, bool full_bench) {
         int64_t osizes[1] = {512, };
         IntArrayRef output_size(osizes);
         
-        std::cout << "\n- Bench upsample_linear1d (" << n << " rounds) - upsampling to 512" << std::endl;
+        std::cout << "\n- Bench upsample_nearest1d (" << n << " rounds) - upsampling to 512" << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto ref_out = native::upsample_linear1d(t_input, output_size, false, c10::nullopt);
+            auto ref_out = native::upsample_nearest1d(t_input, output_size, c10::nullopt);
             auto result = ref_out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -461,11 +442,11 @@ inline int bench_1d(int n, bool full_bench) {
         int64_t osizes[1] = {512, };
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench ti_upsample_linear1d (" << n << " rounds) - upsampling to 512" << std::endl;
+        std::cout << "\n- Bench ti_upsample_nearest1d (" << n << " rounds) - upsampling to 512" << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_linear1d_cpu(t_input, output_size, false);
+            auto out = native::ti_upsample_nearest1d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -481,22 +462,16 @@ inline void assert_consistency_3d() {
 
     for (auto dtype: {kFloat, kDouble}) {
         auto t_input = at::rand({1, 3, 16, 320, 320}, at::CPU(dtype));
-        assert_consistency_trilinear3d(t_input, -1, 256);
-        assert_consistency_trilinear3d(t_input, -1, 256, true);
-        assert_consistency_trilinear3d(t_input, -1, -1, false, 1.12, 1.12, 1.12);
-        assert_consistency_trilinear3d(t_input, -1, -1, true, 1.12, 1.12, 1.12);
-        assert_consistency_trilinear3d(t_input, -1, 512);
-        assert_consistency_trilinear3d(t_input, -1, 512, true);
-        assert_consistency_trilinear3d(t_input, -1, -1, false, 0.77, 0.77, 0.77);
-        assert_consistency_trilinear3d(t_input, -1, -1, true, 0.77, 0.77, 0.77);
+        assert_consistency_nearest3d(t_input, -1, 256);
+        assert_consistency_nearest3d(t_input, -1, -1, 1.12, 1.12, 1.12);
+        assert_consistency_nearest3d(t_input, -1, 512);
+        assert_consistency_nearest3d(t_input, -1, -1, 0.77, 0.77, 0.77);
 
         auto t_input_channel_last = at::rand({1, 16, 320, 320, 3}, at::CPU(dtype));
         t_input_channel_last = t_input_channel_last.permute({0, 4, 1, 2, 3});
-        assert_consistency_trilinear3d(t_input_channel_last, -1, 256);
-        assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 0.77, 0.77, 0.77);
-        assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 0.77, 0.77, 0.77);
-        assert_consistency_trilinear3d(t_input_channel_last, -1, -1, true, 1.23, 1.23, 1.23);
-        assert_consistency_trilinear3d(t_input_channel_last, -1, -1, false, 1.23, 1.23, 1.23);
+        assert_consistency_nearest3d(t_input_channel_last, -1, 256);
+        assert_consistency_nearest3d(t_input_channel_last, -1, -1, 0.77, 0.77, 0.77);
+        assert_consistency_nearest3d(t_input_channel_last, -1, -1, 1.23, 1.23, 1.23);
     }
 }
 
@@ -515,11 +490,11 @@ inline int bench_3d(int n, bool full_bench) {
         int64_t osizes[3] = {8, 256, 256};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench upsample_trilinear3d (" << n << " rounds) - downsampling to " << output_size << std::endl;
+        std::cout << "\n- Bench upsample_nearest3d (" << n << " rounds) - downsampling to " << output_size << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto ref_out = native::upsample_trilinear3d(t_input, output_size, false, c10::nullopt);
+            auto ref_out = native::upsample_nearest3d_cpu(t_input, output_size, c10::nullopt);
             auto result = ref_out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -531,11 +506,11 @@ inline int bench_3d(int n, bool full_bench) {
         int64_t osizes[3] = {8, 256, 256};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench ti_upsample_trilinear3d_cpu (" << n << " rounds) - downsampling to " << output_size << std::endl;
+        std::cout << "\n- Bench ti_upsample_nearest3d_cpu (" << n << " rounds) - downsampling to " << output_size << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_trilinear3d_cpu(t_input, output_size, false);
+            auto out = native::ti_upsample_nearest3d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -550,11 +525,11 @@ inline int bench_3d(int n, bool full_bench) {
         int64_t osizes[3] = {32, 512, 512};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench upsample_trilinear3d (" << n << " rounds) - upsampling to " << output_size << std::endl;
+        std::cout << "\n- Bench upsample_nearest3d (" << n << " rounds) - upsampling to " << output_size << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto ref_out = native::upsample_trilinear3d(t_input, output_size, false, c10::nullopt);
+            auto ref_out = native::upsample_nearest3d_cpu(t_input, output_size, c10::nullopt);
             auto result = ref_out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -566,11 +541,11 @@ inline int bench_3d(int n, bool full_bench) {
         int64_t osizes[3] = {32, 512, 512};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench ti_upsample_trilinear3d_cpu (" << n << " rounds) - upsampling to " << output_size << std::endl;
+        std::cout << "\n- Bench ti_upsample_nearest3d_cpu (" << n << " rounds) - upsampling to " << output_size << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_trilinear3d_cpu(t_input, output_size, false);
+            auto out = native::ti_upsample_nearest3d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -580,89 +555,3 @@ inline int bench_3d(int n, bool full_bench) {
 
     return 0;
 }
-
-#ifdef WITH_OPENCV
-
-inline int bench_opencv_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osize=512) {
-
-    cv::Mat t_input(isize, isize, CV_32FC3);
-    cv::::randu(t_input, 0.0, 1.0);
-    std::cout << "\nInput tensor: " << t_input.size() << std::endl;
- 
-    // Time benchmark
-    {
-        std::cout << "\n- Bench cv::resize (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
-        cv::Mat dst;
-        auto start = std::chrono::steady_clock::now();
-        for (int i=0; i<n; i++)
-        {
-            cv::resize(t_input, dst, cv::Size(dn_osize, dn_osize), 0.0, 0.0, cv::INTER_LINEAR);
-            auto result = dst.size[0];
-        }
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    }
-
-    if (!full_bench)
-        return 1;
-
-    {
-        std::cout << "\n- Bench cv::resize (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
-        cv::Mat dst;
-        auto start = std::chrono::steady_clock::now();
-        for (int i=0; i<n; i++)
-        {
-            cv::resize(t_input, dst, cv::Size(up_osize, up_osize), 0.0, 0.0, cv::INTER_LINEAR);
-            auto result = dst.size[0];
-        }
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    }
-
-    return 0;
-}
-
-inline int bench_opencv_2d_uint8(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osize=512) {
-
-    cv::Mat t_input(isize, isize, CV_8UC3);
-    cv::::randu(t_input, 0, 256);
-    std::cout << "\nInput tensor: " << t_input.size() << std::endl;
- 
-    // Time benchmark
-    {
-        std::cout << "\n- Bench cv::resize (" << n << " rounds) - uint8 downsampling to " << dn_osize << "x" << dn_osize << std::endl;
-        cv::Mat dst;
-        auto start = std::chrono::steady_clock::now();
-        for (int i=0; i<n; i++)
-        {
-            cv::resize(t_input, dst, cv::Size(dn_osize, dn_osize), 0.0, 0.0, cv::INTER_LINEAR);
-            auto result = dst.size[0];
-        }
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    }
-
-    if (!full_bench)
-        return 1;
-
-    {
-        std::cout << "\n- Bench cv::resize (" << n << " rounds) - uint8 upsampling to " << up_osize << "x" << up_osize << std::endl;
-        cv::Mat dst;
-        auto start = std::chrono::steady_clock::now();
-        for (int i=0; i<n; i++)
-        {
-            cv::resize(t_input, dst, cv::Size(up_osize, up_osize), 0.0, 0.0, cv::INTER_LINEAR);
-            auto result = dst.size[0];
-        }
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    }
-
-    return 0;
-}
-
-#endif
