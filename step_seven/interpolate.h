@@ -48,32 +48,28 @@ static inline void compute_source_index_and_lambda(
 template <int n, typename scalar_t, typename index_t, int interp_size>
 struct Interpolate {
     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
-      constexpr int half_interp_size = int(interp_size / 2);
-
       index_t ids = *(index_t*)&data[0][i * strides[0]];
       scalar_t wts = *(scalar_t*)&data[1][i * strides[1]];
-      scalar_t t = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids, &data[interp_size], &strides[interp_size], i);
+      scalar_t t = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids, &data[2 * interp_size], &strides[2 * interp_size], i);
       scalar_t output = t * wts;
-      for (int j=1; j<half_interp_size; j++) {
+      for (int j=1; j<interp_size; j++) {
         ids = *(index_t*)&data[2 * j + 0][i * strides[2 * j + 0]];
         wts = *(scalar_t*)&data[2 * j + 1][i * strides[2 * j + 1]];
-        t = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids, &data[interp_size], &strides[interp_size], i);
+        t = Interpolate<n - 1, scalar_t, index_t, interp_size>::eval(src + ids, &data[2 * interp_size], &strides[2 * interp_size], i);
         output += t * wts;
       }
       return output;
   }
 };
 
-
 template <typename scalar_t, typename index_t, int interp_size>
 struct Interpolate<1, scalar_t, index_t, interp_size> {
-    static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
-      constexpr int half_interp_size = int(interp_size / 2);
+    static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {      
       index_t ids = *(index_t*)&data[0][i * strides[0]];
       scalar_t wts = *(scalar_t*)&data[1][i * strides[1]];
       scalar_t t = *(scalar_t *)&src[ids];
       scalar_t output = t * wts;
-      for (int j=1; j<half_interp_size; j++) {
+      for (int j=1; j<interp_size; j++) {
         ids = *(index_t*)&data[2 * j + 0][i * strides[2 * j + 0]];
         wts = *(scalar_t*)&data[2 * j + 1][i * strides[2 * j + 1]];
         t = *(scalar_t *)&src[ids];
@@ -83,18 +79,16 @@ struct Interpolate<1, scalar_t, index_t, interp_size> {
     }
 };
 
-
 template <int n, typename scalar_t, typename index_t>
-struct Interpolate<n, scalar_t, index_t, 2> {
+struct Interpolate<n, scalar_t, index_t, 1> {
     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
       index_t ids = *(index_t*)&data[0][i * strides[0]];
-      return Interpolate<n - 1, scalar_t, index_t, 2>::eval(src + ids, &data[2], &strides[2], i);
+      return Interpolate<n - 1, scalar_t, index_t, 1>::eval(src + ids, &data[2], &strides[2], i);
   }
 };
 
-
 template <typename scalar_t, typename index_t>
-struct Interpolate<1, scalar_t, index_t, 2> {
+struct Interpolate<1, scalar_t, index_t, 1> {
     static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
       index_t ids = *(index_t*)&data[0][i * strides[0]];
       return *(scalar_t *)&src[ids];
@@ -109,7 +103,7 @@ static inline scalar_t interpolate(char* src, char** data, const int64_t* stride
 template<int interp_size>
 static inline bool is_zero_stride(const int64_t* strides) {
   bool output = strides[0] == 0;
-  for (int i=1; i<interp_size; i++) {
+  for (int i=1; i<2 * interp_size; i++) {
     output &= (strides[i] == 0);
   }
   return output;
@@ -118,7 +112,7 @@ static inline bool is_zero_stride(const int64_t* strides) {
 template <typename scalar_t, typename index_t, int interp_size>
 static inline bool is_contiguous_stride(const int64_t* strides) {
   bool output = (strides[0] == sizeof(index_t)) && (strides[1] == sizeof(scalar_t));
-  for (int i=2; i<interp_size; i+=2) {
+  for (int i=2; i<2 * interp_size; i+=2) {
     output &= (strides[i] == sizeof(index_t)) && (strides[i + 1] == sizeof(scalar_t));
   }
   return output;
@@ -135,7 +129,7 @@ struct CheckAlmostAllZeroStrides {
     }    
     return output && 
       CheckAlmostAllZeroStrides<N - 1, non_zero_stride_dim, scalar_t, index_t, interp_size>::eval(
-        &strides[interp_size]);
+        &strides[2 * interp_size]);
   }
 };
 
@@ -184,206 +178,177 @@ void ti_cpu_upsample_generic(at::TensorIterator& iter)
 }
 
 
-// Compute indices and weights for each interpolated dimension
-// indices_weights = {
-//      {indices_0, 1.0, },  // dim -n
-//      {indices_0, 1.0, },  // dim -(n-1)
-//      ...
-//      {indices_0, 1.0, },  // dim -1
-// }
-// Indices and weights are reshaped as (1, 1, ..., N, ..., 1, 1) to
-// fit input/output tensors.
-// Indices are already containing the strides to optimize the computations
-//
-// Indices dtype can be int32_t or int64_t depending on canUse32BitIndexMath(input)
-// which should not overflow because maximum possible value that it could take is the 
-// product of interpolated input strides: input_size[dim-1] * input_size[dim-2] * ...
-// which is always smaller then the number of input elements checked by canUse32BitIndexMath
-template<typename index_t, typename scalar_t>
-std::vector<Tensor> ti_compute_indices_weights_nearest(
-  int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
-  bool align_corners, const c10::optional<double> opt_scale
-) {
-
-  scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
-
-  std::vector<Tensor> output;
-  auto new_shape = std::vector<int64_t>(ndims, 1);
-  new_shape[reshape_dim] = output_size;
-
-  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
-  // Defines weights for consistency, but not used
-  output.emplace_back(at::ones({1, }, CPU(c10::CppTypeToScalarType<scalar_t>())));
-
-  auto input_index_ptr = output[0].data_ptr<index_t>();
-  
-  int64_t input_index;
-
-  for (int64_t i=0; i<output_size; i++) {
-    const scalar_t real_input_index = area_pixel_compute_source_index<scalar_t>(
-        scale, i, /*align_corners=*/true, /*cubic=*/false);
-    input_index = static_cast<int64_t>(floorf(real_input_index));
-    input_index_ptr[i] = static_cast<index_t>(std::min(input_index, input_size - 1)) * stride;
-  }
-  return output;
-}
-
-
-// Compute indices and weights for each interpolated dimension
-// indices_weights = {
-//      {indices_0, weights_0, indices_1, weights_1},  // dim -n
-//      {indices_0, weights_0, indices_1, weights_1},  // dim -(n-1)
-//      ...
-//      {indices_0, weights_0, indices_1, weights_1},  // dim -1
-// }
-// Indices and weights are reshaped as (1, 1, ..., N, ..., 1, 1) to
-// fit input/output tensors.
-// Indices are already containing the strides to optimize the computations
-//
-// Indices dtype can be int32_t or int64_t depending on canUse32BitIndexMath(input)
-// which should not overflow because maximum possible value that it could take is the 
-// product of interpolated input strides: input_size[dim-1] * input_size[dim-2] * ...
-// which is always smaller then the number of input elements checked by canUse32BitIndexMath
-template<typename index_t, typename scalar_t>
-std::vector<Tensor> ti_compute_indices_weights_linear(
-  int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
-  bool align_corners, const c10::optional<double> opt_scale
-) {
-
-  scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
-
-  std::vector<Tensor> output;
-  auto new_shape = std::vector<int64_t>(ndims, 1);
-  new_shape[reshape_dim] = output_size;
-
-  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
-  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
-  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
-  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
-
-  auto input_index0_ptr = output[0].data_ptr<index_t>();
-  auto lambda0_ptr = output[1].data_ptr<scalar_t>();
-  auto input_index1_ptr = output[2].data_ptr<index_t>();
-  auto lambda1_ptr = output[3].data_ptr<scalar_t>();
-  
-  for (int64_t i=0; i<output_size; i++) {
-
-    compute_source_index_and_lambda<scalar_t, index_t>(
-      input_index0_ptr[i], input_index1_ptr[i],
-      lambda0_ptr[i], lambda1_ptr[i],
-      scale, i, input_size, output_size, align_corners
-    );
-    // put stride into indices
-    // index values correspond to input indices (0, 1, 2, 3, ...)
-    // when multiplied by input stride, maximum possible value
-    // input_size[dim-1] * input_size[dim-2] * ... for the given dimension.
-    input_index0_ptr[i] *= stride;
-    input_index1_ptr[i] *= stride;
-  }
-  return output;
-}
-
-
-// Compute indices and weights for each interpolated dimension
-// indices_weights = {
-//      {indices_0, weights_0, indices_1, weights_1, ..., indices_3, weights_3},  // dim -n
-//      {indices_0, weights_0, indices_1, weights_1, ..., indices_3, weights_3},  // dim -(n-1)
-//      ...
-//      {indices_0, weights_0, indices_1, weights_1, ..., indices_3, weights_3},  // dim -1
-// }
-// Indices and weights are reshaped as (1, 1, ..., N, ..., 1, 1) to
-// fit input/output tensors.
-// Indices are already containing the strides to optimize the computations
-//
-// Indices dtype can be int32_t or int64_t depending on canUse32BitIndexMath(input)
-// which should not overflow because maximum possible value that it could take is the 
-// product of interpolated input strides: input_size[dim-1] * input_size[dim-2] * ...
-// which is always smaller then the number of input elements checked by canUse32BitIndexMath
-template<typename index_t, typename scalar_t>
-std::vector<Tensor> ti_compute_indices_weights_cubic(
-  int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
-  bool align_corners, const c10::optional<double> opt_scale
-) {
-
-  scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
-
-  std::vector<Tensor> output;
-  auto new_shape = std::vector<int64_t>(ndims, 1);
-  new_shape[reshape_dim] = output_size;
-
-  constexpr int interp_size = 8;
-  constexpr int half_interp_size = int(interp_size / 2);
-  for (int j=0; j<half_interp_size; j++) {
-    output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
-    output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
-  }
-
-  int64_t input_index;
-  int64_t zero = static_cast<int64_t>(0);
-  scalar_t coeffs[4];
-
-  index_t * idx_ptr;
-  scalar_t * wt_ptr;
-
-  for (int64_t i=0; i<output_size; i++) {
-
-    const scalar_t real_input_index = area_pixel_compute_source_index<scalar_t>(
-        scale, i, align_corners, /*cubic=*/true);
-    input_index = static_cast<int64_t>(floorf(real_input_index));
-    get_cubic_upsample_coefficients<scalar_t>(coeffs, real_input_index - input_index);
-
-    for (int j=0; j<half_interp_size; j++) {
-      idx_ptr = output[2 * j + 0].data_ptr<index_t>();
-      idx_ptr[i] = static_cast<index_t>(std::max(std::min(input_index + j - 1, input_size - 1), zero)) * stride;
-      wt_ptr = output[2 * j + 1].data_ptr<scalar_t>();
-      wt_ptr[i] = coeffs[j];
-    }
-  }
-  return output;
-}
-
-
 // Helper structs to use with ti_upsample_generic_Nd_kernel_impl
 template<typename index_t, typename scalar_t>
-struct HelperInterpNearest {
+struct HelperInterpBase {
+
+  static inline void init_indices_weights(
+    std::vector<Tensor> & output, int64_t output_size, int64_t ndims, int64_t reshape_dim, int interp_size
+  ) {
+    auto new_shape = std::vector<int64_t>(ndims, 1);
+    new_shape[reshape_dim] = output_size;
+
+    for (int j=0; j<interp_size; j++) {
+      output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
+      output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
+    }
+  }
+ 
+};
+
+template<typename index_t, typename scalar_t>
+struct HelperInterpNearest : public HelperInterpBase<index_t, scalar_t> {
+
+  static const int interp_size = 1;
+
+  static inline void init_indices_weights(
+    std::vector<Tensor> & output, int64_t output_size, int64_t ndims, int64_t reshape_dim, int interp_size
+  ) {
+    auto new_shape = std::vector<int64_t>(ndims, 1);
+    new_shape[reshape_dim] = output_size;
+
+    for (int j=0; j<interp_size; j++) {
+      output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
+      // Defines weights for consistency, but not used
+      output.emplace_back(at::ones({1, }, CPU(c10::CppTypeToScalarType<scalar_t>())));
+    }
+  }
+
+  // Compute indices and weights for each interpolated dimension
+  // indices_weights = {
+  //      {indices_0, 1.0, },  // dim -n
+  //      {indices_0, 1.0, },  // dim -(n-1)
+  //      ...
+  //      {indices_0, 1.0, },  // dim -1
+  // }
+  // Indices and weights are reshaped as (1, 1, ..., N, ..., 1, 1) to
+  // fit input/output tensors.
+  // Indices are already containing the strides to optimize the computations
+  static inline std::vector<Tensor> compute_indices_weights(
+    int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
+    bool align_corners, const c10::optional<double> opt_scale
+  ) {
+
+    std::vector<Tensor> output;
+    HelperInterpNearest<index_t, scalar_t>::init_indices_weights(
+      output, output_size, ndims, reshape_dim, HelperInterpNearest<index_t, scalar_t>::interp_size);
+
+    scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
+
+    auto input_index_ptr = output[0].data_ptr<index_t>();  
+    int64_t input_index;
+
+    for (int64_t i=0; i<output_size; i++) {
+      const scalar_t real_input_index = area_pixel_compute_source_index<scalar_t>(
+          scale, i, /*align_corners=*/true, /*cubic=*/false);
+      input_index = static_cast<int64_t>(floorf(real_input_index));
+      input_index_ptr[i] = static_cast<index_t>(std::min(input_index, input_size - 1)) * stride;
+    }
+    return output;
+  }
+
+};
+
+
+template<typename index_t, typename scalar_t>
+struct HelperInterpLinear : public HelperInterpBase<index_t, scalar_t> {
 
   static const int interp_size = 2;
 
+  // Compute indices and weights for each interpolated dimension
+  // indices_weights = {
+  //      {indices_0, weights_0, indices_1, weights_1},  // dim -n
+  //      {indices_0, weights_0, indices_1, weights_1},  // dim -(n-1)
+  //      ...
+  //      {indices_0, weights_0, indices_1, weights_1},  // dim -1
+  // }
+  // Indices and weights are reshaped as (1, 1, ..., N, ..., 1, 1) to
+  // fit input/output tensors.
+  // Indices are already containing the strides to optimize the computations
   static inline std::vector<Tensor> compute_indices_weights(
     int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
-    bool align_corners, const c10::optional<double> opt_scale) {
-      return ti_compute_indices_weights_nearest<index_t, scalar_t>(
-        input_size, output_size, stride, ndims, reshape_dim, align_corners, opt_scale);
+    bool align_corners, const c10::optional<double> opt_scale
+  ) {
+
+    std::vector<Tensor> output;
+    HelperInterpLinear<index_t, scalar_t>::init_indices_weights(
+      output, output_size, ndims, reshape_dim, HelperInterpLinear<index_t, scalar_t>::interp_size);
+
+    scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
+
+    auto input_index0_ptr = output[0].data_ptr<index_t>();
+    auto lambda0_ptr = output[1].data_ptr<scalar_t>();
+    auto input_index1_ptr = output[2].data_ptr<index_t>();
+    auto lambda1_ptr = output[3].data_ptr<scalar_t>();
+
+    for (int64_t i=0; i<output_size; i++) {
+
+      compute_source_index_and_lambda<scalar_t, index_t>(
+        input_index0_ptr[i], input_index1_ptr[i],
+        lambda0_ptr[i], lambda1_ptr[i],
+        scale, i, input_size, output_size, align_corners
+      );
+      // put stride into indices
+      // index values correspond to input indices (0, 1, 2, 3, ...)
+      // when multiplied by input stride, maximum possible value
+      // input_size[dim-1] * input_size[dim-2] * ... for the given dimension.
+      input_index0_ptr[i] *= stride;
+      input_index1_ptr[i] *= stride;
+    }
+    return output;
   }
 
 };
 
 
 template<typename index_t, typename scalar_t>
-struct HelperInterpLinear {
+struct HelperInterpCubic : public HelperInterpBase<index_t, scalar_t> {
 
   static const int interp_size = 4;
 
+  // Compute indices and weights for each interpolated dimension
+  // indices_weights = {
+  //      {indices_0, weights_0, indices_1, weights_1, ..., indices_3, weights_3},  // dim -n
+  //      {indices_0, weights_0, indices_1, weights_1, ..., indices_3, weights_3},  // dim -(n-1)
+  //      ...
+  //      {indices_0, weights_0, indices_1, weights_1, ..., indices_3, weights_3},  // dim -1
+  // }
+  // Indices and weights are reshaped as (1, 1, ..., N, ..., 1, 1) to
+  // fit input/output tensors.
+  // Indices are already containing the strides to optimize the computations
   static inline std::vector<Tensor> compute_indices_weights(
     int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
-    bool align_corners, const c10::optional<double> opt_scale) {
-      return ti_compute_indices_weights_linear<index_t, scalar_t>(
-        input_size, output_size, stride, ndims, reshape_dim, align_corners, opt_scale);
-  }
+    bool align_corners, const c10::optional<double> opt_scale
+  ) {
 
-};
+    std::vector<Tensor> output;
+    HelperInterpCubic<index_t, scalar_t>::init_indices_weights(
+      output, output_size, ndims, reshape_dim, HelperInterpCubic<index_t, scalar_t>::interp_size);
 
+    scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
 
-template<typename index_t, typename scalar_t>
-struct HelperInterpCubic {
+    int64_t input_index;
+    int64_t zero = static_cast<int64_t>(0);
+    scalar_t coeffs[4];
 
-  static const int interp_size = 8;
+    index_t * idx_ptr;
+    scalar_t * wt_ptr;
 
-  static inline std::vector<Tensor> compute_indices_weights(
-    int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
-    bool align_corners, const c10::optional<double> opt_scale) {
-      return ti_compute_indices_weights_cubic<index_t, scalar_t>(
-        input_size, output_size, stride, ndims, reshape_dim, align_corners, opt_scale);
+    for (int64_t i=0; i<output_size; i++) {
+
+      const scalar_t real_input_index = area_pixel_compute_source_index<scalar_t>(
+          scale, i, align_corners, /*cubic=*/true);
+      input_index = static_cast<int64_t>(floorf(real_input_index));
+      get_cubic_upsample_coefficients<scalar_t>(coeffs, real_input_index - input_index);
+
+      for (int j=0; j<interp_size; j++) {
+        idx_ptr = output[2 * j + 0].data_ptr<index_t>();
+        idx_ptr[i] = static_cast<index_t>(std::max(std::min(input_index + j - 1, input_size - 1), zero)) * stride;
+        wt_ptr = output[2 * j + 1].data_ptr<scalar_t>();
+        wt_ptr[i] = coeffs[j];
+      }
+    }
+    return output;
   }
 };
 
