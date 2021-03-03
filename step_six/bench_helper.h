@@ -507,7 +507,7 @@ inline int bench_3d(int n, bool full_bench) {
 
     auto t_input = at::rand({1, 3, 16, 320, 320}, at::CPU(at::kFloat));
     std::cout << "\nInput tensor: " << t_input.sizes() << std::endl;
-    std::cout << "Input is_contiguous memory_format torch.channels_last: " << (t_input.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
+    std::cout << "Input is_contiguous memory_format torch.channels_last: " << (t_input.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
     std::cout << "Input is_contiguous : " << (t_input.is_contiguous() ? "true" : "false") << std::endl;
 
     // Time benchmark

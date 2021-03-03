@@ -343,6 +343,197 @@ std::vector<Tensor> ti_compute_indices_weights_cubic(
 }
 
 
+// Upsampling linear interpolation kernel for N-d case.
+// Internally, it uses TensorIterator to optimize the computations.
+// Output is constructed inside the function and is a contiguous tensor.
+// - index_t is template type for input index: int32_t or int64_t
+// - out_ndims is the number of interpolated dims: 1, 2, 3
+// - scale_type is template type for scales, typically c10::optional<double>
+template <typename index_t, int out_ndims, typename scale_type>
+void ti_upsample_linearNd_kernel_impl(
+    Tensor& output,
+    const Tensor& input,
+    bool align_corners,
+    const scale_type& scales) {
+
+  // input can be NCHW, NCL or NCKHW
+  auto shape = input.sizes().vec();
+  auto strides = input.strides().vec();
+  auto oshape = output.sizes();
+
+  TORCH_INTERNAL_ASSERT(
+    shape.size() == oshape.size() && shape.size() == 2 + out_ndims
+  );
+  TORCH_INTERNAL_ASSERT(strides.size() == 2 + out_ndims);
+
+  for (int i=0; i<out_ndims; i++) {
+    shape[i + 2] = oshape[i + 2];
+    strides[i + 2] = 0;
+  }
+  auto restrided_input = input.as_strided(shape, strides);
+
+  std::vector<std::vector<Tensor>> indices_weights;
+  AT_DISPATCH_FLOATING_TYPES(
+    input.scalar_type(), "compute_indices_weights_linear", [&] {
+      for (int i=0; i<out_ndims; i++) {
+        indices_weights.emplace_back(
+          ti_compute_indices_weights_linear<index_t, scalar_t>(
+            input.size(i + 2), oshape[i + 2], input.stride(i + 2) * input.element_size(), input.dim(), i + 2, align_corners, scales[i])
+        );
+      }
+    }
+  );
+
+  TensorIteratorConfig config;
+  config.check_all_same_dtype(false)
+    .declare_static_dtype_and_device(input.scalar_type(), input.device())
+    .add_output(output)
+    .add_input(restrided_input);
+  
+  for (auto iter=indices_weights.begin(); iter!=indices_weights.end(); iter++) { 
+    for (auto& tensor : *iter) {
+      config.add_input(tensor);
+    }
+  }
+
+  auto iter = config.build();
+
+  AT_DISPATCH_FLOATING_TYPES(
+      iter.dtype(), "upsample_linearNd", [&] {
+      ti_cpu_upsample_generic<scalar_t, index_t, out_ndims, 4>(iter);
+  });
+}
+
+
+// ADAPTED COPY OF ABOVE METHOD
+// TODO: TO REFACTOR LATER
+template <typename index_t, int out_ndims, typename scale_type>
+void ti_upsample_cubicNd_kernel_impl(
+    Tensor& output,
+    const Tensor& input,
+    bool align_corners,
+    const scale_type& scales) {
+
+  // input can be NCHW, NCL or NCKHW
+  auto shape = input.sizes().vec();
+  auto strides = input.strides().vec();
+  auto oshape = output.sizes();
+
+  TORCH_INTERNAL_ASSERT(
+    shape.size() == oshape.size() && shape.size() == 2 + out_ndims
+  );
+  TORCH_INTERNAL_ASSERT(strides.size() == 2 + out_ndims);
+
+  for (int i=0; i<out_ndims; i++) {
+    shape[i + 2] = oshape[i + 2];
+    strides[i + 2] = 0;
+  }
+  auto restrided_input = input.as_strided(shape, strides);
+
+  std::vector<std::vector<Tensor>> indices_weights;
+  AT_DISPATCH_FLOATING_TYPES(
+    input.scalar_type(), "compute_indices_weights_cubic", [&] {
+      for (int i=0; i<out_ndims; i++) {
+        indices_weights.emplace_back(
+          ti_compute_indices_weights_cubic<index_t, scalar_t>(
+            input.size(i + 2), oshape[i + 2], input.stride(i + 2) * input.element_size(), input.dim(), i + 2, align_corners, scales[i])
+        );
+      }
+    }
+  );
+
+  TensorIteratorConfig config;
+  config.check_all_same_dtype(false)
+    .declare_static_dtype_and_device(input.scalar_type(), input.device())
+    .add_output(output)
+    .add_input(restrided_input);
+  
+  for (auto iter=indices_weights.begin(); iter!=indices_weights.end(); iter++) { 
+    for (auto& tensor : *iter) {
+      config.add_input(tensor);
+    }
+  }
+
+  auto iter = config.build();
+
+  AT_DISPATCH_FLOATING_TYPES(
+      iter.dtype(), "upsample_cubicNd", [&] {
+      ti_cpu_upsample_generic<scalar_t, index_t, out_ndims, 8>(iter);
+  });
+}
+
+
+template <typename index_t, int out_ndims, typename scale_type>
+void ti_upsample_nearestNd_kernel_impl(
+    Tensor& output,
+    const Tensor& input,
+    bool align_corners,
+    const scale_type& scales) {
+
+  // input can be NCHW, NCL or NCKHW
+  auto shape = input.sizes().vec();
+  auto strides = input.strides().vec();
+  auto oshape = output.sizes();
+
+  TORCH_INTERNAL_ASSERT(
+    shape.size() == oshape.size() && shape.size() == 2 + out_ndims
+  );
+  TORCH_INTERNAL_ASSERT(strides.size() == 2 + out_ndims);
+
+  for (int i=0; i<out_ndims; i++) {
+    shape[i + 2] = oshape[i + 2];
+    strides[i + 2] = 0;
+  }
+  auto restrided_input = input.as_strided(shape, strides);
+
+  // Compute indices and weights for each interpolated dimension
+  // indices_weights = {
+  //      {indices_0, 1.0, },  // dim -n
+  //      {indices_0, 1.0, },  // dim -(n-1)
+  //      ...
+  //      {indices_0, 1.0, },  // dim -1
+  // }
+  // Indices and weights are reshaped as (1, 1, ..., N, ..., 1, 1) to
+  // fit input/output tensors.
+  // Indices are already containing the strides to optimize the computations
+  //
+  // Indices dtype can be int32_t or int64_t depending on canUse32BitIndexMath(input)
+  // which should not overflow because maximum possible value that it could take is the 
+  // product of interpolated input strides: input_size[dim-1] * input_size[dim-2] * ...
+  // which is always smaller then the number of input elements checked by canUse32BitIndexMath
+  std::vector<std::vector<Tensor>> indices_weights;
+  AT_DISPATCH_FLOATING_TYPES(
+    input.scalar_type(), "compute_indices_weights_nearest", [&] {
+      for (int i=0; i<out_ndims; i++) {
+        indices_weights.emplace_back(
+          ti_compute_indices_weights_nearest<index_t, scalar_t>(
+            input.size(i + 2), oshape[i + 2], input.stride(i + 2) * input.element_size(), input.dim(), i + 2, align_corners, scales[i])
+        );
+      }
+    }
+  );
+
+  TensorIteratorConfig config;
+  config.check_all_same_dtype(false)
+    .declare_static_dtype_and_device(input.scalar_type(), input.device())
+    .add_output(output)
+    .add_input(restrided_input);
+  
+  for (auto iter=indices_weights.begin(); iter!=indices_weights.end(); iter++) { 
+    for (auto& tensor : *iter) {
+      config.add_input(tensor);
+    }
+  }
+
+  auto iter = config.build();
+
+  AT_DISPATCH_FLOATING_TYPES(
+      iter.dtype(), "upsample_nearestNd", [&] {
+      ti_cpu_upsample_generic<scalar_t, index_t, out_ndims, 2>(iter);
+  });
+}
+
+
 // Helper structs to use with ti_upsample_generic_Nd_kernel_impl
 template<typename index_t, typename scalar_t>
 struct HelperInterpNearest {
@@ -385,8 +576,8 @@ struct HelperInterpCubic {
       return ti_compute_indices_weights_cubic<index_t, scalar_t>(
         input_size, output_size, stride, ndims, reshape_dim, align_corners, opt_scale);
   }
-};
 
+};
 
 template <typename index_t, int out_ndims, typename scale_type, template<typename, typename> class F>
 void ti_upsample_generic_Nd_kernel_impl(
@@ -618,14 +809,14 @@ void _ti_upsample_nearest1d_kernel_impl(
 
 #ifndef USE_ALWAYS_INDEX64
   if (canUse32BitIndexMath(input)){
-    ti_upsample_generic_Nd_kernel_impl<int32_t, 1, scale_t, HelperInterpNearest>(
+    ti_upsample_generic_Nd_kernel_impl<int32_t, 1, scale_t, HelperInterpLinear>(
       output, input, align_corners, {scales_w});
   } else {
-    ti_upsample_generic_Nd_kernel_impl<int64_t, 1, scale_t, HelperInterpNearest>(
+    ti_upsample_generic_Nd_kernel_impl<int64_t, 1, scale_t, HelperInterpLinear>(
       output, input, align_corners, {scales_w});
   }
 #else
-  ti_upsample_generic_Nd_kernel_impl<int64_t, 1, scale_t, HelperInterpNearest>(
+  ti_upsample_generic_Nd_kernel_impl<int64_t, 1, scale_t, HelperInterpLinear>(
     output, input, align_corners, {scales_w});
 #endif
 }
