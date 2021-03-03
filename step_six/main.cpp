@@ -2,11 +2,6 @@
 #include <ATen/ATen.h>
 #include <ATen/Parallel.h>
 
-#ifdef WITH_OPENCV
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#endif
-
 // Local
 #include "bench_helper.h"
 #include "interpolate.h"
@@ -14,7 +9,7 @@
 
 // #define INSPECT_ASSEMBLY_CODE
 // #define BENCH_3D_ONLY
-#define USE_ALWAYS_INDEX64
+// #define USE_ALWAYS_INDEX64
 
 
 using namespace at;
@@ -86,12 +81,6 @@ int main(int argc, char** argv)
     }
 #endif
 
-#ifdef WITH_OPENCV
-    cv::setNumThreads(num_threads);
-    auto cv_build_info = cv::getBuildInformation();
-    std::cout << cv_build_info.substr(0, 2280) << std::endl;
-#endif
-
 
 #ifdef WITH_ASAN
 
@@ -119,16 +108,6 @@ int main(int argc, char** argv)
         bench_2d(n, false, 500, 256, 800);
     }
     std::cout << "\n---- END Benchmark 2D ----" << std::endl;
-
-#ifdef WITH_OPENCV
-    std::cout << "\n\n---- Benchmark OpenCV 2D ----" << std::endl;
-    bench_opencv_2d(n, full_bench, 320, 256, 512);
-    bench_opencv_2d_uint8(n, full_bench, 320, 256, 512);
-    bench_opencv_2d(n, full_bench, 500, 256, 800);
-    bench_opencv_2d_uint8(n, full_bench, 500, 256, 800);
-    std::cout << "\n---- END Benchmark OpenCV 2D ----" << std::endl;
-
-#endif
 
     if (!test_all_dims) return 0;
 

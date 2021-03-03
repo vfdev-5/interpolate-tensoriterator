@@ -7,13 +7,7 @@
 // Torch
 #include <ATen/ATen.h>
 #include <ATen/Parallel.h>
-// Fails with original pytorch as UpSample.h is missing #pragma once
-// #include <ATen/native/UpSample.h>
-
-#ifdef WITH_OPENCV
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#endif
+#include <ATen/native/UpSample.h>
 
 // Local
 #include "interpolate.h"
@@ -501,19 +495,16 @@ inline void assert_consistency_3d() {
 }
 
 
-inline int bench_3d(int n, bool full_bench) {
-
-    assert_consistency_3d();
-
-    auto t_input = at::rand({1, 3, 16, 320, 320}, at::CPU(at::kFloat));
+inline void sub_bench_3d(int n, at::Tensor t_input, int dn_osize, int up_osize) {
     std::cout << "\nInput tensor: " << t_input.sizes() << std::endl;
-    std::cout << "Input is_contiguous memory_format torch.channels_last: " << (t_input.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
+    std::cout << "Input is_contiguous memory_format torch.channels_last_3d: " << (t_input.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
     std::cout << "Input is_contiguous : " << (t_input.is_contiguous() ? "true" : "false") << std::endl;
 
-    // Time benchmark
+
     {
-        int64_t osizes[3] = {8, 256, 256};
-        IntArrayRef output_size(osizes);
+        int osize_2 = (float(t_input.size(3)) / dn_osize > 1.0) ? t_input.size(2) / 2 : t_input.size(2) * 2;
+        int64_t osizes[3] = {osize_2, dn_osize, dn_osize};
+        IntArrayRef output_size(osizes);    
 
         std::cout << "\n- Bench upsample_trilinear3d (" << n << " rounds) - downsampling to " << output_size << std::endl;
         auto start = std::chrono::steady_clock::now();
@@ -528,8 +519,9 @@ inline int bench_3d(int n, bool full_bench) {
     }
 
     {
-        int64_t osizes[3] = {8, 256, 256};
-        IntArrayRef output_size(osizes);
+        int osize_2 = (float(t_input.size(3)) / dn_osize > 1.0) ? t_input.size(2) / 2 : t_input.size(2) * 2;
+        int64_t osizes[3] = {osize_2, dn_osize, dn_osize};
+        IntArrayRef output_size(osizes);    
 
         std::cout << "\n- Bench ti_upsample_trilinear3d_cpu (" << n << " rounds) - downsampling to " << output_size << std::endl;
         auto start = std::chrono::steady_clock::now();
@@ -543,12 +535,10 @@ inline int bench_3d(int n, bool full_bench) {
         std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
-    if (!full_bench)
-        return 1;
-
     {
-        int64_t osizes[3] = {32, 512, 512};
-        IntArrayRef output_size(osizes);
+        int osize_2 = (float(t_input.size(3)) / up_osize > 1.0) ? t_input.size(2) / 2 : t_input.size(2) * 2;
+        int64_t osizes[3] = {osize_2, up_osize, up_osize};
+        IntArrayRef output_size(osizes);    
 
         std::cout << "\n- Bench upsample_trilinear3d (" << n << " rounds) - upsampling to " << output_size << std::endl;
         auto start = std::chrono::steady_clock::now();
@@ -563,8 +553,9 @@ inline int bench_3d(int n, bool full_bench) {
     }
 
     {
-        int64_t osizes[3] = {32, 512, 512};
-        IntArrayRef output_size(osizes);
+        int osize_2 = (float(t_input.size(3)) / up_osize > 1.0) ? t_input.size(2) / 2 : t_input.size(2) * 2;
+        int64_t osizes[3] = {osize_2, up_osize, up_osize};
+        IntArrayRef output_size(osizes);    
 
         std::cout << "\n- Bench ti_upsample_trilinear3d_cpu (" << n << " rounds) - upsampling to " << output_size << std::endl;
         auto start = std::chrono::steady_clock::now();
@@ -577,92 +568,19 @@ inline int bench_3d(int n, bool full_bench) {
         std::chrono::duration<double> elapsed_seconds = end - start;
         std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
+}
+
+
+inline int bench_3d(int n, bool full_bench) {
+
+    assert_consistency_3d();
+
+    auto t_input = at::rand({1, 3, 16, 320, 320}, at::CPU(at::kFloat));
+    sub_bench_3d(n, t_input, 256, 512);
+
+    t_input = at::rand({1, 16, 320, 320, 3}, at::CPU(at::kFloat));    
+    t_input = t_input.permute({0, 4, 1, 2, 3});
+    sub_bench_3d(n, t_input, 256, 512);
 
     return 0;
 }
-
-#ifdef WITH_OPENCV
-
-inline int bench_opencv_2d(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osize=512) {
-
-    cv::Mat t_input(isize, isize, CV_32FC3);
-    cv::::randu(t_input, 0.0, 1.0);
-    std::cout << "\nInput tensor: " << t_input.size() << std::endl;
- 
-    // Time benchmark
-    {
-        std::cout << "\n- Bench cv::resize (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
-        cv::Mat dst;
-        auto start = std::chrono::steady_clock::now();
-        for (int i=0; i<n; i++)
-        {
-            cv::resize(t_input, dst, cv::Size(dn_osize, dn_osize), 0.0, 0.0, cv::INTER_LINEAR);
-            auto result = dst.size[0];
-        }
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    }
-
-    if (!full_bench)
-        return 1;
-
-    {
-        std::cout << "\n- Bench cv::resize (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
-        cv::Mat dst;
-        auto start = std::chrono::steady_clock::now();
-        for (int i=0; i<n; i++)
-        {
-            cv::resize(t_input, dst, cv::Size(up_osize, up_osize), 0.0, 0.0, cv::INTER_LINEAR);
-            auto result = dst.size[0];
-        }
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    }
-
-    return 0;
-}
-
-inline int bench_opencv_2d_uint8(int n, bool full_bench, int isize=320, int dn_osize=256, int up_osize=512) {
-
-    cv::Mat t_input(isize, isize, CV_8UC3);
-    cv::::randu(t_input, 0, 256);
-    std::cout << "\nInput tensor: " << t_input.size() << std::endl;
- 
-    // Time benchmark
-    {
-        std::cout << "\n- Bench cv::resize (" << n << " rounds) - uint8 downsampling to " << dn_osize << "x" << dn_osize << std::endl;
-        cv::Mat dst;
-        auto start = std::chrono::steady_clock::now();
-        for (int i=0; i<n; i++)
-        {
-            cv::resize(t_input, dst, cv::Size(dn_osize, dn_osize), 0.0, 0.0, cv::INTER_LINEAR);
-            auto result = dst.size[0];
-        }
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    }
-
-    if (!full_bench)
-        return 1;
-
-    {
-        std::cout << "\n- Bench cv::resize (" << n << " rounds) - uint8 upsampling to " << up_osize << "x" << up_osize << std::endl;
-        cv::Mat dst;
-        auto start = std::chrono::steady_clock::now();
-        for (int i=0; i<n; i++)
-        {
-            cv::resize(t_input, dst, cv::Size(up_osize, up_osize), 0.0, 0.0, cv::INTER_LINEAR);
-            auto result = dst.size[0];
-        }
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    }
-
-    return 0;
-}
-
-#endif

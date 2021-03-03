@@ -8,9 +8,9 @@ export TORCH_PATH=/workspace/pth-linear-interp/torch
 filepath=$PWD/pth_vs_this_full_results.log.save
 echo "" > $filepath
 
-n_cubic=2000
-n_linear=20000
-n_nearest=20000
+n_cubic=1200
+n_linear=12000
+n_nearest=12000
 
 
 

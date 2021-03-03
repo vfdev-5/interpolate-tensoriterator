@@ -7,6 +7,7 @@
 #include "interpolate.h"
 
 // #define INSPECT_ASSEMBLY_CODE
+// #define USE_ALWAYS_INDEX64
 
 using namespace at;
 using namespace at::native;

@@ -244,3 +244,8 @@ Elapsed time (ms): 3.62022
 ```
 
 </details>
+
+
+#### Result 1
+
+[PyTorch nightly (66f07c0) vs This Prototype](step_seven/pth_vs_this_full_results.log.save)

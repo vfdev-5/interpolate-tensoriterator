@@ -184,7 +184,7 @@ inline void sub_bench_2d_contiguous_channel_first(int n, int isize, int dn_osize
 
 inline void sub_bench_2d_mingfeima_channel_last(int n, int isize, int dn_osize, int up_osize) {
     // ---- Test size as in https://github.com/mingfeima/op_bench-py
-    n = n / 10;
+    n = n / 20;
 
     {
         int64_t osizes[2] = {128, 128};

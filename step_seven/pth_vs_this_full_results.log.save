@@ -27,49 +27,49 @@ Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_bicubic2d (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 6.18672
+- Bench upsample_bicubic2d (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 6.54097
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.408931
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.413871
 
-- Bench upsample_bicubic2d (2000 rounds) - upsampling to 512x512
-Elapsed time (ms): 24.0019
+- Bench upsample_bicubic2d (1200 rounds) - upsampling to 512x512
+Elapsed time (ms): 25.42
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - upsampling to 512x512
-Elapsed time (ms): 1.51268
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.52492
 
 Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : false
 
-- Bench upsample_bicubic2d (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 6.22408
+- Bench upsample_bicubic2d (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 6.58615
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.409628
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.414361
 
-- Bench upsample_bicubic2d (2000 rounds) - upsampling to 512x512
-Elapsed time (ms): 24.0493
+- Bench upsample_bicubic2d (1200 rounds) - upsampling to 512x512
+Elapsed time (ms): 25.4794
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - upsampling to 512x512
-Elapsed time (ms): 1.51262
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - upsampling to 512x512
+Elapsed time (ms): 1.52795
 
 Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: true
 Input is_contiguous : false
 
-- Bench upsample_bicubic2d (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 6.2507
+- Bench upsample_bicubic2d (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 6.59987
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.747632
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.752475
 
-- Bench upsample_bicubic2d (2000 rounds) - upsampling to 512x512
-Elapsed time (ms): 24.085
+- Bench upsample_bicubic2d (1200 rounds) - upsampling to 512x512
+Elapsed time (ms): 25.6739
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - upsampling to 512x512
-Elapsed time (ms): 2.87648
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - upsampling to 512x512
+Elapsed time (ms): 3.63655
 
 1 - Test size as in https://github.com/mingfeima/op_bench-py
 
@@ -77,11 +77,11 @@ Input tensor: [32, 128, 64, 64]
 Input is_contiguous memory_format torch.channels_last: true
 Input is_contiguous : false
 
-- Bench upsample_bicubic2d (200 rounds) - upsampling to 128x128
-Elapsed time (ms): 7243.47
+- Bench upsample_bicubic2d (60 rounds) - upsampling to 128x128
+Elapsed time (ms): 7201.88
 
-- Bench ti_upsample_bicubic2d_cpu (200 rounds) - upsampling to 128x128
-Elapsed time (ms): 163.982
+- Bench ti_upsample_bicubic2d_cpu (60 rounds) - upsampling to 128x128
+Elapsed time (ms): 163.894
 
 2 - Test size as in https://github.com/mingfeima/op_bench-py
 
@@ -89,59 +89,59 @@ Input tensor: [32, 128, 64, 64]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_bicubic2d (200 rounds) - upsampling to 128x128
-Elapsed time (ms): 7123.39
+- Bench upsample_bicubic2d (60 rounds) - upsampling to 128x128
+Elapsed time (ms): 7073.62
 
-- Bench ti_upsample_bicubic2d_cpu (200 rounds) - upsampling to 128x128
-Elapsed time (ms): 156.758
+- Bench ti_upsample_bicubic2d_cpu (60 rounds) - upsampling to 128x128
+Elapsed time (ms): 158.062
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_bicubic2d (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 6.21212
+- Bench upsample_bicubic2d (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 6.55823
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.414717
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.417813
 
-- Bench upsample_bicubic2d (2000 rounds) - upsampling to 800x800
-Elapsed time (ms): 58.0869
+- Bench upsample_bicubic2d (1200 rounds) - upsampling to 800x800
+Elapsed time (ms): 61.5324
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - upsampling to 800x800
-Elapsed time (ms): 3.6221
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - upsampling to 800x800
+Elapsed time (ms): 3.6366
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : false
 
-- Bench upsample_bicubic2d (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 6.32355
+- Bench upsample_bicubic2d (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 6.67858
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.414114
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.421004
 
-- Bench upsample_bicubic2d (2000 rounds) - upsampling to 800x800
-Elapsed time (ms): 58.3182
+- Bench upsample_bicubic2d (1200 rounds) - upsampling to 800x800
+Elapsed time (ms): 61.7275
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - upsampling to 800x800
-Elapsed time (ms): 3.62544
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - upsampling to 800x800
+Elapsed time (ms): 3.63395
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: true
 Input is_contiguous : false
 
-- Bench upsample_bicubic2d (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 6.35041
+- Bench upsample_bicubic2d (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 6.7027
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.751768
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.749336
 
-- Bench upsample_bicubic2d (2000 rounds) - upsampling to 800x800
-Elapsed time (ms): 58.3097
+- Bench upsample_bicubic2d (1200 rounds) - upsampling to 800x800
+Elapsed time (ms): 61.7234
 
-- Bench ti_upsample_bicubic2d_cpu (2000 rounds) - upsampling to 800x800
-Elapsed time (ms): 6.89027
+- Bench ti_upsample_bicubic2d_cpu (1200 rounds) - upsampling to 800x800
+Elapsed time (ms): 6.89709
 
 ---- END Benchmark 2D ----
 
@@ -172,49 +172,49 @@ Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0701992
+- Bench upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0702914
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0689041
+- Bench ti_upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0690217
 
-- Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.22812
+- Bench upsample_bilinear2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.22848
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.222603
+- Bench ti_upsample_bilinear2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.222409
 
 Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: true
 Input is_contiguous : false
 
-- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0716982
+- Bench upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 1.18934
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.243545
+- Bench ti_upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.240117
 
-- Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.228471
+- Bench upsample_bilinear2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 4.80456
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.920502
+- Bench ti_upsample_bilinear2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.909851
 
 Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : false
 
-- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0714807
+- Bench upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0710109
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0693175
+- Bench ti_upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0698735
 
-- Bench upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.229039
+- Bench upsample_bilinear2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.228976
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.223102
+- Bench ti_upsample_bilinear2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.223118
 
 1 - Test size as in https://github.com/mingfeima/op_bench-py
 
@@ -222,11 +222,11 @@ Input tensor: [32, 128, 64, 64]
 Input is_contiguous memory_format torch.channels_last: true
 Input is_contiguous : false
 
-- Bench upsample_bilinear2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 67.9285
+- Bench upsample_bilinear2d (1200 rounds) - upsampling to 128x128
+Elapsed time (ms): 165.41
 
-- Bench ti_upsample_bilinear2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 48.5447
+- Bench ti_upsample_bilinear2d (1200 rounds) - upsampling to 128x128
+Elapsed time (ms): 48.3824
 
 2 - Test size as in https://github.com/mingfeima/op_bench-py
 
@@ -234,59 +234,59 @@ Input tensor: [32, 128, 64, 64]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_bilinear2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 51.9211
+- Bench upsample_bilinear2d (1200 rounds) - upsampling to 128x128
+Elapsed time (ms): 51.7495
 
-- Bench ti_upsample_bilinear2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 51.6896
+- Bench ti_upsample_bilinear2d (1200 rounds) - upsampling to 128x128
+Elapsed time (ms): 51.4878
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.071907
+- Bench upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0727774
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0703333
+- Bench ti_upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0704728
 
-- Bench upsample_bilinear2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 0.53266
+- Bench upsample_bilinear2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.532036
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 0.516399
+- Bench ti_upsample_bilinear2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.516163
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: true
 Input is_contiguous : false
 
-- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0791156
+- Bench upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 1.19138
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.247254
+- Bench ti_upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.24079
 
-- Bench upsample_bilinear2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 0.539583
+- Bench upsample_bilinear2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 11.9761
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 2.29445
+- Bench ti_upsample_bilinear2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 2.19082
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : false
 
-- Bench upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.073583
+- Bench upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0719485
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.071031
+- Bench ti_upsample_bilinear2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0711055
 
-- Bench upsample_bilinear2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 0.533953
+- Bench upsample_bilinear2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.533719
 
-- Bench ti_upsample_bilinear2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 0.51814
+- Bench ti_upsample_bilinear2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.518083
 
 ---- END Benchmark 2D ----
 
@@ -297,17 +297,17 @@ Input tensor: [4, 512, 320]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_linear1d (20000 rounds) - downsampling to 256
-Elapsed time (ms): 0.10233
+- Bench upsample_linear1d (12000 rounds) - downsampling to 256
+Elapsed time (ms): 0.10238
 
-- Bench ti_upsample_linear1d (20000 rounds) - downsampling to 256
-Elapsed time (ms): 0.099849
+- Bench ti_upsample_linear1d (12000 rounds) - downsampling to 256
+Elapsed time (ms): 0.105906
 
-- Bench upsample_linear1d (20000 rounds) - upsampling to 512
-Elapsed time (ms): 0.190023
+- Bench upsample_linear1d (12000 rounds) - upsampling to 512
+Elapsed time (ms): 0.190655
 
-- Bench ti_upsample_linear1d (20000 rounds) - upsampling to 512
-Elapsed time (ms): 0.184155
+- Bench ti_upsample_linear1d (12000 rounds) - upsampling to 512
+Elapsed time (ms): 0.185245
 
 ---- END Benchmark 1D ----
 
@@ -315,20 +315,36 @@ Elapsed time (ms): 0.184155
 ---- Benchmark 3D ----
 
 Input tensor: [1, 3, 16, 320, 320]
-Input is_contiguous memory_format torch.channels_last: false
+Input is_contiguous memory_format torch.channels_last_3d: false
 Input is_contiguous : true
 
-- Bench upsample_trilinear3d (2000 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 0.992625
+- Bench upsample_trilinear3d (1200 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 2.22833
 
-- Bench ti_upsample_trilinear3d_cpu (2000 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 2.03044
+- Bench ti_upsample_trilinear3d_cpu (1200 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 2.04854
 
-- Bench upsample_trilinear3d (2000 rounds) - upsampling to [32, 512, 512]
-Elapsed time (ms): 24.5371
+- Bench upsample_trilinear3d (1200 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 43.9293
 
-- Bench ti_upsample_trilinear3d_cpu (2000 rounds) - upsampling to [32, 512, 512]
-Elapsed time (ms): 41.6863
+- Bench ti_upsample_trilinear3d_cpu (1200 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 47.4983
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last_3d: true
+Input is_contiguous : false
+
+- Bench upsample_trilinear3d (1200 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 15.9948
+
+- Bench ti_upsample_trilinear3d_cpu (1200 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 4.67452
+
+- Bench upsample_trilinear3d (1200 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 280.812
+
+- Bench ti_upsample_trilinear3d_cpu (1200 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 82.9873
 
 ---- END Benchmark 3D ----
 
@@ -359,49 +375,49 @@ Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.119971
+- Bench upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.119543
 
-- Bench ti_upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0410756
+- Bench ti_upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0415518
 
-- Bench upsample_nearest2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.469504
+- Bench upsample_nearest2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.46666
 
-- Bench ti_upsample_nearest2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.12516
+- Bench ti_upsample_nearest2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.125886
 
 Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: true
 Input is_contiguous : false
 
-- Bench upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.227641
+- Bench upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.232275
 
-- Bench ti_upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.12935
+- Bench ti_upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.12873
 
-- Bench upsample_nearest2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.856018
+- Bench upsample_nearest2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.887217
 
-- Bench ti_upsample_nearest2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.470748
+- Bench ti_upsample_nearest2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.470743
 
 Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : false
 
-- Bench upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.141635
+- Bench upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.138965
 
-- Bench ti_upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0416906
+- Bench ti_upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0420617
 
-- Bench upsample_nearest2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.487744
+- Bench upsample_nearest2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.487461
 
-- Bench ti_upsample_nearest2d (20000 rounds) - upsampling to 512x512
-Elapsed time (ms): 0.125517
+- Bench ti_upsample_nearest2d (12000 rounds) - upsampling to 512x512
+Elapsed time (ms): 0.129816
 
 1 - Test size as in https://github.com/mingfeima/op_bench-py
 
@@ -409,11 +425,11 @@ Input tensor: [32, 128, 64, 64]
 Input is_contiguous memory_format torch.channels_last: true
 Input is_contiguous : false
 
-- Bench upsample_nearest2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 166.54
+- Bench upsample_nearest2d (1200 rounds) - upsampling to 128x128
+Elapsed time (ms): 163.733
 
-- Bench ti_upsample_nearest2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 32.488
+- Bench ti_upsample_nearest2d (1200 rounds) - upsampling to 128x128
+Elapsed time (ms): 32.0287
 
 2 - Test size as in https://github.com/mingfeima/op_bench-py
 
@@ -421,59 +437,59 @@ Input tensor: [32, 128, 64, 64]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_nearest2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 50.6269
+- Bench upsample_nearest2d (1200 rounds) - upsampling to 128x128
+Elapsed time (ms): 51.1873
 
-- Bench ti_upsample_nearest2d (2000 rounds) - upsampling to 128x128
-Elapsed time (ms): 43.0594
+- Bench ti_upsample_nearest2d (1200 rounds) - upsampling to 128x128
+Elapsed time (ms): 42.9832
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.120655
+- Bench upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.120865
 
-- Bench ti_upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0425167
+- Bench ti_upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0437429
 
-- Bench upsample_nearest2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 1.13598
+- Bench upsample_nearest2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 1.13515
 
-- Bench ti_upsample_nearest2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 0.285542
+- Bench ti_upsample_nearest2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.286562
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: true
 Input is_contiguous : false
 
-- Bench upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.22634
+- Bench upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.233014
 
-- Bench ti_upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.130369
+- Bench ti_upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.130726
 
-- Bench upsample_nearest2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 2.14895
+- Bench upsample_nearest2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 2.2181
 
-- Bench ti_upsample_nearest2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 1.13716
+- Bench ti_upsample_nearest2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 1.13406
 
 Input tensor: [1, 3, 500, 500]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : false
 
-- Bench upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.174386
+- Bench upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.174142
 
-- Bench ti_upsample_nearest2d (20000 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.0433273
+- Bench ti_upsample_nearest2d (12000 rounds) - downsampling to 256x256
+Elapsed time (ms): 0.0431833
 
-- Bench upsample_nearest2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 1.22065
+- Bench upsample_nearest2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 1.20549
 
-- Bench ti_upsample_nearest2d (20000 rounds) - upsampling to 800x800
-Elapsed time (ms): 0.285828
+- Bench ti_upsample_nearest2d (12000 rounds) - upsampling to 800x800
+Elapsed time (ms): 0.286051
 
 ---- END Benchmark 2D ----
 
@@ -484,17 +500,17 @@ Input tensor: [4, 512, 320]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_nearest1d (20000 rounds) - downsampling to 256
-Elapsed time (ms): 0.160762
+- Bench upsample_nearest1d (12000 rounds) - downsampling to 256
+Elapsed time (ms): 0.160878
 
-- Bench ti_upsample_nearest1d (20000 rounds) - downsampling to 256
-Elapsed time (ms): 0.0828946
+- Bench ti_upsample_nearest1d (12000 rounds) - downsampling to 256
+Elapsed time (ms): 0.0699685
 
-- Bench upsample_nearest1d (20000 rounds) - upsampling to 512
-Elapsed time (ms): 0.314874
+- Bench upsample_nearest1d (12000 rounds) - upsampling to 512
+Elapsed time (ms): 0.31456
 
-- Bench ti_upsample_nearest1d (20000 rounds) - upsampling to 512
-Elapsed time (ms): 0.125416
+- Bench ti_upsample_nearest1d (12000 rounds) - upsampling to 512
+Elapsed time (ms): 0.125914
 
 ---- END Benchmark 1D ----
 
@@ -505,16 +521,16 @@ Input tensor: [1, 3, 16, 320, 320]
 Input is_contiguous memory_format torch.channels_last: false
 Input is_contiguous : true
 
-- Bench upsample_nearest3d (2000 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 1.45614
+- Bench upsample_nearest3d (1200 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 1.44854
 
-- Bench ti_upsample_nearest3d_cpu (2000 rounds) - downsampling to [8, 256, 256]
-Elapsed time (ms): 0.359086
+- Bench ti_upsample_nearest3d_cpu (1200 rounds) - downsampling to [8, 256, 256]
+Elapsed time (ms): 0.345593
 
-- Bench upsample_nearest3d (2000 rounds) - upsampling to [32, 512, 512]
-Elapsed time (ms): 29.1081
+- Bench upsample_nearest3d (1200 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 28.2198
 
-- Bench ti_upsample_nearest3d_cpu (2000 rounds) - upsampling to [32, 512, 512]
-Elapsed time (ms): 15.7856
+- Bench ti_upsample_nearest3d_cpu (1200 rounds) - upsampling to [32, 512, 512]
+Elapsed time (ms): 15.5696
 
 ---- END Benchmark 3D ----
