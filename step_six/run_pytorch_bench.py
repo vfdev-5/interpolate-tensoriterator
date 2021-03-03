@@ -48,8 +48,7 @@ def sub_bench_2d_contiguous_channel_first(n, isize, dn_osize, up_osize):
     sub_bench_2d(n, t_input, dn_osize, up_osize)
 
 
-def sub_bench_2d_mingfeima_channel_last(n):        
-    output_size = (128, 128)
+def sub_bench_2d_mingfeima_channel_last(n):
 
     print(f"\n1 - Test size as in https://github.com/mingfeima/op_bench-py")
     t_input = torch.rand(32, 64, 64, 128, dtype=torch.float, device="cpu")

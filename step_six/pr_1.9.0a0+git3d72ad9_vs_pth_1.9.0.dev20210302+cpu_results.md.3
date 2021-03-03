@@ -1,0 +1,136 @@
+
+
+<details>
+<summary>
+Interpolation 2d - 6 thread(s)
+</summary>
+
+
+In | Out | Is contiguous | Channels last | master | this PR | speed-up
+---|---|---|---|---|---|---
+[1, 3, 320, 320] | [256, 256] | True | False | 0.1081 | 0.0751 | 1.4388
+[1, 3, 320, 320] | [512, 512] | True | False | 0.3380 | 0.2326 | 1.4531
+[1, 3, 320, 320] | [256, 256] | False | False | 0.0757 | 0.0745 | 1.0161
+[1, 3, 320, 320] | [512, 512] | False | False | 0.3853 | 0.4051 | 0.9510
+[1, 3, 320, 320] | [256, 256] | False | True | 1.2061 | 0.0754 | 16.0017
+[1, 3, 320, 320] | [512, 512] | False | True | 4.8571 | 0.4026 | 12.0629
+[32, 128, 64, 64] | [32, 32] | False | True | 6.4191 | 8.9945 | 0.7137
+[32, 128, 64, 64] | [128, 128] | False | True | 164.4186 | 67.4578 | 2.4374
+[32, 128, 64, 64] | [32, 32] | True | False | 2.3113 | 2.3300 | 0.9920
+[32, 128, 64, 64] | [128, 128] | True | False | 52.5961 | 51.9378 | 1.0127
+[1, 3, 500, 500] | [256, 256] | True | False | 0.0781 | 0.0765 | 1.0221
+[1, 3, 500, 500] | [800, 800] | True | False | 0.5584 | 0.5408 | 1.0325
+[1, 3, 500, 500] | [256, 256] | False | False | 0.0774 | 0.0753 | 1.0287
+[1, 3, 500, 500] | [800, 800] | False | False | 0.5607 | 0.5441 | 1.0305
+[1, 3, 500, 500] | [256, 256] | False | True | 1.2072 | 0.0818 | 14.7502
+[1, 3, 500, 500] | [800, 800] | False | True | 12.1309 | 0.5503 | 22.0435
+
+
+</details>
+
+<details>
+<summary>
+Interpolation 1d - 6 thread(s)
+</summary>
+
+
+In | Out | Is contiguous | Channels last | master | this PR | speed-up
+---|---|---|---|---|---|---
+[4, 512, 320] | 256 | True | False | 0.1028 | 0.1050 | 0.9790
+[4, 512, 320] | 512 | True | False | 0.1881 | 0.1942 | 0.9685
+
+
+</details>
+
+<details>
+<summary>
+Interpolation 3d - 6 thread(s)
+</summary>
+
+
+In | Out | Is contiguous | Channels last | master | this PR | speed-up
+---|---|---|---|---|---|---
+[1, 3, 16, 320, 320] | [8, 256, 256] | True | False | 2.0943 | 1.0007 | 2.0929
+[1, 3, 16, 320, 320] | [32, 512, 512] | True | False | 42.7768 | 24.8880 | 1.7188
+[1, 3, 16, 320, 320] | [8, 256, 256] | False | True | 15.5705 | 1.2826 | 12.1394
+[1, 3, 16, 320, 320] | [32, 512, 512] | False | True | 271.9735 | 25.1804 | 10.8010
+
+
+</details>
+
+<details>
+<summary>
+Interpolation 2d - 1 thread(s)
+</summary>
+
+
+In | Out | Is contiguous | Channels last | master | this PR | speed-up
+---|---|---|---|---|---|---
+[1, 3, 320, 320] | [256, 256] | True | False | 0.4534 | 0.3250 | 1.3949
+[1, 3, 320, 320] | [512, 512] | True | False | 1.7552 | 1.7204 | 1.0202
+[1, 3, 320, 320] | [256, 256] | False | False | 0.3283 | 0.3188 | 1.0295
+[1, 3, 320, 320] | [512, 512] | False | False | 1.7657 | 1.1888 | 1.4852
+[1, 3, 320, 320] | [256, 256] | False | True | 1.5425 | 0.3242 | 4.7578
+[1, 3, 320, 320] | [512, 512] | False | True | 6.2044 | 1.6701 | 3.7151
+[32, 128, 64, 64] | [32, 32] | False | True | 27.6637 | 44.8813 | 0.6164
+[32, 128, 64, 64] | [128, 128] | False | True | 465.7710 | 284.7859 | 1.6355
+[32, 128, 64, 64] | [32, 32] | True | False | 9.9654 | 13.8053 | 0.7219
+[32, 128, 64, 64] | [128, 128] | True | False | 205.2611 | 204.0933 | 1.0057
+[1, 3, 500, 500] | [256, 256] | True | False | 0.3387 | 0.3362 | 1.0075
+[1, 3, 500, 500] | [800, 800] | True | False | 2.9574 | 2.8687 | 1.0309
+[1, 3, 500, 500] | [256, 256] | False | False | 0.3391 | 0.3318 | 1.0218
+[1, 3, 500, 500] | [800, 800] | False | False | 2.9628 | 2.8723 | 1.0315
+[1, 3, 500, 500] | [256, 256] | False | True | 1.5461 | 0.3591 | 4.3060
+[1, 3, 500, 500] | [800, 800] | False | True | 15.3655 | 2.9365 | 5.2326
+
+
+</details>
+
+<details>
+<summary>
+Interpolation 1d - 1 thread(s)
+</summary>
+
+
+In | Out | Is contiguous | Channels last | master | this PR | speed-up
+---|---|---|---|---|---|---
+[4, 512, 320] | 256 | True | False | 0.5040 | 0.5325 | 0.9465
+[4, 512, 320] | 512 | True | False | 0.9769 | 1.0061 | 0.9710
+
+
+</details>
+
+<details>
+<summary>
+Interpolation 3d - 1 thread(s)
+</summary>
+
+
+In | Out | Is contiguous | Channels last | master | this PR | speed-up
+---|---|---|---|---|---|---
+[1, 3, 16, 320, 320] | [8, 256, 256] | True | False | 11.2827 | 5.1836 | 2.1766
+[1, 3, 16, 320, 320] | [32, 512, 512] | True | False | 209.6445 | 111.0017 | 1.8887
+[1, 3, 16, 320, 320] | [8, 256, 256] | False | True | 17.9978 | 6.0110 | 2.9942
+[1, 3, 16, 320, 320] | [32, 512, 512] | False | True | 381.1965 | 112.3014 | 3.3944
+
+
+</details>
+
+
+<details>
+<summary>
+Versions and build configs
+</summary>
+
+PyTorch master: 1.9.0.dev20210302+cpu
+PyTorch master build setting:
+```
+BLAS_INFO=mkl, BUILD_TYPE=Release, CXX_COMPILER=/opt/rh/devtoolset-7/root/usr/bin/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.0, USE_CUDA=0, USE_CUDNN=OFF, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=ON, USE_OPENMP=ON,
+```
+
+PR : 1.9.0a0+git3d72ad9
+PR build setting:
+```
+BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON,
+```
+</details>
