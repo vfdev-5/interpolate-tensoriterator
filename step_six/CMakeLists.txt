@@ -19,7 +19,7 @@ else()
 endif()
 
 # Enable vec256 with AVX2 implementations
-add_definitions(-DCPU_CAPABILITY_AVX2)
+# add_definitions(-DCPU_CAPABILITY_AVX2)
 
 include_directories(${TORCH_DIR}/include ${TORCH_DIR}/include/torch/csrc/api/include)
 set(TORCH_LIBRARIES 

@@ -9,7 +9,8 @@
 
 // #define INSPECT_ASSEMBLY_CODE
 // #define BENCH_3D_ONLY
-// #define USE_ALWAYS_INDEX64
+#define USE_ALWAYS_INDEX64
+#define BENCH_2D_SLOWDOWN_CASE_ONLY
 
 
 using namespace at;
@@ -101,6 +102,23 @@ int main(int argc, char** argv)
     std::cout << "\n---- END Benchmark 3D ----" << std::endl;
     return 1;
 #endif
+
+
+#ifdef BENCH_2D_SLOWDOWN_CASE_ONLY
+    auto t_input = at::rand({1, 3, 320, 320}, at::CPU(at::kFloat));
+    sub_bench_2d(n, t_input, 256, 512);
+
+    t_input = at::rand({2, 64, 64, 128}, at::CPU(at::kFloat));
+    t_input = t_input.permute({0, 3, 1, 2});
+    sub_bench_2d(n / 10, t_input, 32, 128);
+
+    t_input = at::rand({32, 64, 64, 128}, at::CPU(at::kFloat));
+    t_input = t_input.permute({0, 3, 1, 2});
+    sub_bench_2d(n / 10, t_input, 32, 128);
+
+    return 1;
+#endif
+
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256, 512);

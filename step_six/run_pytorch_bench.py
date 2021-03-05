@@ -55,6 +55,11 @@ def sub_bench_2d_mingfeima_channel_last(n):
     t_input = t_input.permute(0, 3, 1, 2)
     sub_bench_2d(n, t_input, 32, 128)
 
+    print(f"\n1.2 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py")
+    t_input = torch.rand(2, 64, 46, 128, dtype=torch.float, device="cpu")
+    t_input = t_input.permute(0, 3, 1, 2)
+    sub_bench_2d(n, t_input, 32, 128)
+
     print(f"\n2 - Test size as in https://github.com/mingfeima/op_bench-py")
     t_input = torch.rand(32, 128, 64, 64, dtype=torch.float, device="cpu")
     sub_bench_2d(n, t_input, 32, 128)

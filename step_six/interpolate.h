@@ -240,8 +240,8 @@ void ti_upsample_linearNd_kernel_impl(
     .add_output(output)
     .add_input(restrided_input);
   
-  for (auto iter=indices_weights.begin(); iter!=indices_weights.end(); iter++) { 
-    for (auto& tensor : *iter) {
+  for (auto & idx_weight: indices_weights) {
+    for (auto& tensor : idx_weight) {
       config.add_input(tensor);
     }
   }
@@ -252,6 +252,7 @@ void ti_upsample_linearNd_kernel_impl(
       iter.dtype(), "upsample_linearNd", [&] {
       ti_cpu_upsample_linear<scalar_t, index_t, out_ndims>(iter);
   });
+
 }
 
 
