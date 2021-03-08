@@ -3,6 +3,7 @@
 // STD
 #include <iostream>
 #include <chrono>
+#include <thread>
 
 // Torch
 #include <ATen/ATen.h>
@@ -15,6 +16,7 @@
 
 using namespace at;
 using namespace at::indexing;
+using namespace at::native;
 
 
 inline void assert_consistency_bilinear2d(
@@ -38,7 +40,7 @@ inline void assert_consistency_bilinear2d(
     }
 
     auto ref_out = native::upsample_bilinear2d(t_input, output_size, align_corners, scale_factors);
-    auto out = native::ti_upsample_bilinear2d_cpu(t_input, output_size, align_corners, scale_factors);
+    auto out = ti_upsample::ti_upsample_bilinear2d_cpu(t_input, output_size, align_corners, scale_factors);
 
     if (!ref_out.allclose(out)){
         auto mse = (ref_out - out).pow(2.0).mean();
@@ -89,7 +91,7 @@ inline void assert_consistency_linear1d(
     }
 
     auto ref_out = native::upsample_linear1d(t_input, output_size, align_corners, scale_factors);
-    auto out = native::ti_upsample_linear1d_cpu(t_input, output_size, align_corners, scale_factors);
+    auto out = ti_upsample::ti_upsample_linear1d_cpu(t_input, output_size, align_corners, scale_factors);
 
     if (!ref_out.allclose(out)){
         auto mse = (ref_out - out).pow(2.0).mean();
@@ -129,7 +131,7 @@ inline void assert_consistency_trilinear3d(
     }
 
     auto ref_out = native::upsample_trilinear3d(t_input, output_size, align_corners, scale_factors);
-    auto out = native::ti_upsample_trilinear3d_cpu(t_input, output_size, align_corners, scale_factors);
+    auto out = ti_upsample::ti_upsample_trilinear3d_cpu(t_input, output_size, align_corners, scale_factors);
 
     if (!ref_out.allclose(out)){
         auto mse = (ref_out - out).pow(2.0).mean();
@@ -186,39 +188,22 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         int64_t osizes[2] = {dn_osize, dn_osize};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench upsample_bilinear2d (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
-        auto start = std::chrono::steady_clock::now();
-        for (int i=0; i<n; i++)
-        {
-            auto ref_out = native::upsample_bilinear2d(t_input, output_size, false, c10::nullopt);
-            auto result = ref_out.size(0);
-        }
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    }
-
-    {
-        int64_t osizes[2] = {dn_osize, dn_osize};
-        IntArrayRef output_size(osizes);
-
         std::cout << "\n- Bench ti_upsample_bilinear2d (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
+            auto out = ti_upsample::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
         std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
-
     {
-        int64_t osizes[2] = {up_osize, up_osize};
+        int64_t osizes[2] = {dn_osize, dn_osize};
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench upsample_bilinear2d (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
+        std::cout << "\n- Bench upsample_bilinear2d (" << n << " rounds) - downsampling to " << dn_osize << "x" << dn_osize << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
@@ -238,8 +223,23 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
+            auto out = ti_upsample::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
             auto result = out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+    {
+        int64_t osizes[2] = {up_osize, up_osize};
+        IntArrayRef output_size(osizes);
+
+        std::cout << "\n- Bench upsample_bilinear2d (" << n << " rounds) - upsampling to " << up_osize << "x" << up_osize << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto ref_out = native::upsample_bilinear2d(t_input, output_size, false, c10::nullopt);
+            auto result = ref_out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
@@ -278,6 +278,18 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
         std::cout << "Input is_contiguous : " << (t_input.is_contiguous() ? "true" : "false") << std::endl;
 
         assert_consistency_bilinear2d(t_input, -1, 128);
+        {
+            std::cout << "\n- Bench ti_upsample_bilinear2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
+            auto start = std::chrono::steady_clock::now();
+            for (int i=0; i<n; i++)
+            {
+                auto out = ti_upsample::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
+                auto result = out.size(0);
+            }
+            auto end = std::chrono::steady_clock::now();
+            std::chrono::duration<double> elapsed_seconds = end - start;
+            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+        }        
         {    
             std::cout << "\n- Bench upsample_bilinear2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
@@ -285,19 +297,6 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
             {
                 auto ref_out = native::upsample_bilinear2d(t_input, output_size, false, c10::nullopt);
                 auto result = ref_out.size(0);
-            }
-            auto end = std::chrono::steady_clock::now();
-            std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-        }
-
-        {
-            std::cout << "\n- Bench ti_upsample_bilinear2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
-            auto start = std::chrono::steady_clock::now();
-            for (int i=0; i<n; i++)
-            {
-                auto out = native::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
-                auto result = out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
@@ -316,6 +315,18 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
         std::cout << "Input is_contiguous : " << (t_input.is_contiguous() ? "true" : "false") << std::endl;
 
         assert_consistency_bilinear2d(t_input, -1, 128);
+        {
+            std::cout << "\n- Bench ti_upsample_bilinear2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
+            auto start = std::chrono::steady_clock::now();
+            for (int i=0; i<n; i++)
+            {
+                auto out = ti_upsample::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
+                auto result = out.size(0);
+            }
+            auto end = std::chrono::steady_clock::now();
+            std::chrono::duration<double> elapsed_seconds = end - start;
+            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+        }        
         {    
             std::cout << "\n- Bench upsample_bilinear2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
@@ -323,19 +334,6 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
             {
                 auto ref_out = native::upsample_bilinear2d(t_input, output_size, false, c10::nullopt);
                 auto result = ref_out.size(0);
-            }
-            auto end = std::chrono::steady_clock::now();
-            std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-        }
-
-        {
-            std::cout << "\n- Bench ti_upsample_bilinear2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
-            auto start = std::chrono::steady_clock::now();
-            for (int i=0; i<n; i++)
-            {
-                auto out = native::ti_upsample_bilinear2d_cpu(t_input, output_size, false);
-                auto result = out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
@@ -404,6 +402,21 @@ inline int bench_1d(int n, bool full_bench) {
         int64_t osizes[1] = {256, };
         IntArrayRef output_size(osizes);
 
+        std::cout << "\n- Bench ti_upsample_linear1d (" << n << " rounds) - downsampling to 256" << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto out = ti_upsample::ti_upsample_linear1d_cpu(t_input, output_size, false);
+            auto result = out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }    
+    {
+        int64_t osizes[1] = {256, };
+        IntArrayRef output_size(osizes);
+
         std::cout << "\n- Bench upsample_linear1d (" << n << " rounds) - downsampling to 256" << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
@@ -416,25 +429,24 @@ inline int bench_1d(int n, bool full_bench) {
         std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
 
+    if (!full_bench)
+        return 1;
+
     {
-        int64_t osizes[1] = {256, };
+        int64_t osizes[1] = {512, };
         IntArrayRef output_size(osizes);
 
-        std::cout << "\n- Bench ti_upsample_linear1d (" << n << " rounds) - downsampling to 256" << std::endl;
+        std::cout << "\n- Bench ti_upsample_linear1d (" << n << " rounds) - upsampling to 512" << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_linear1d_cpu(t_input, output_size, false);
+            auto out = ti_upsample::ti_upsample_linear1d_cpu(t_input, output_size, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
         std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
-
-    if (!full_bench)
-        return 1;
-
     {
         int64_t osizes[1] = {512, };
         IntArrayRef output_size(osizes);
@@ -445,22 +457,6 @@ inline int bench_1d(int n, bool full_bench) {
         {
             auto ref_out = native::upsample_linear1d(t_input, output_size, false, c10::nullopt);
             auto result = ref_out.size(0);
-        }
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    }
-
-    {
-        int64_t osizes[1] = {512, };
-        IntArrayRef output_size(osizes);
-
-        std::cout << "\n- Bench ti_upsample_linear1d (" << n << " rounds) - upsampling to 512" << std::endl;
-        auto start = std::chrono::steady_clock::now();
-        for (int i=0; i<n; i++)
-        {
-            auto out = native::ti_upsample_linear1d_cpu(t_input, output_size, false);
-            auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
@@ -500,24 +496,6 @@ inline void sub_bench_3d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
     std::cout << "Input is_contiguous memory_format torch.channels_last_3d: " << (t_input.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
     std::cout << "Input is_contiguous : " << (t_input.is_contiguous() ? "true" : "false") << std::endl;
 
-
-    {
-        int osize_2 = (float(t_input.size(3)) / dn_osize > 1.0) ? t_input.size(2) / 2 : t_input.size(2) * 2;
-        int64_t osizes[3] = {osize_2, dn_osize, dn_osize};
-        IntArrayRef output_size(osizes);    
-
-        std::cout << "\n- Bench upsample_trilinear3d (" << n << " rounds) - downsampling to " << output_size << std::endl;
-        auto start = std::chrono::steady_clock::now();
-        for (int i=0; i<n; i++)
-        {
-            auto ref_out = native::upsample_trilinear3d(t_input, output_size, false, c10::nullopt);
-            auto result = ref_out.size(0);
-        }
-        auto end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
-    }
-
     {
         int osize_2 = (float(t_input.size(3)) / dn_osize > 1.0) ? t_input.size(2) / 2 : t_input.size(2) * 2;
         int64_t osizes[3] = {osize_2, dn_osize, dn_osize};
@@ -527,20 +505,19 @@ inline void sub_bench_3d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_trilinear3d_cpu(t_input, output_size, false);
+            auto out = ti_upsample::ti_upsample_trilinear3d_cpu(t_input, output_size, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
         std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
-
     {
-        int osize_2 = (float(t_input.size(3)) / up_osize > 1.0) ? t_input.size(2) / 2 : t_input.size(2) * 2;
-        int64_t osizes[3] = {osize_2, up_osize, up_osize};
+        int osize_2 = (float(t_input.size(3)) / dn_osize > 1.0) ? t_input.size(2) / 2 : t_input.size(2) * 2;
+        int64_t osizes[3] = {osize_2, dn_osize, dn_osize};
         IntArrayRef output_size(osizes);    
 
-        std::cout << "\n- Bench upsample_trilinear3d (" << n << " rounds) - upsampling to " << output_size << std::endl;
+        std::cout << "\n- Bench upsample_trilinear3d (" << n << " rounds) - downsampling to " << output_size << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
@@ -561,13 +538,30 @@ inline void sub_bench_3d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_trilinear3d_cpu(t_input, output_size, false);
+            auto out = ti_upsample::ti_upsample_trilinear3d_cpu(t_input, output_size, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
         std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
     }
+    {
+        int osize_2 = (float(t_input.size(3)) / up_osize > 1.0) ? t_input.size(2) / 2 : t_input.size(2) * 2;
+        int64_t osizes[3] = {osize_2, up_osize, up_osize};
+        IntArrayRef output_size(osizes);    
+
+        std::cout << "\n- Bench upsample_trilinear3d (" << n << " rounds) - upsampling to " << output_size << std::endl;
+        auto start = std::chrono::steady_clock::now();
+        for (int i=0; i<n; i++)
+        {
+            auto ref_out = native::upsample_trilinear3d(t_input, output_size, false, c10::nullopt);
+            auto result = ref_out.size(0);
+        }
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
+    }
+
 }
 
 

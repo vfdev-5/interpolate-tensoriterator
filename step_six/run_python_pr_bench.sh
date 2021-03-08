@@ -29,3 +29,7 @@ PYTHONPATH=$PR_TORCH_PATH python -u run_pytorch_bench.py $n 1 1 1 >> $filepath2
 output="pr_${version2}_vs_pth_${version1}_results.md$postfix"
 rm -rf $output
 python make_results_table.py $output $filepath1 $filepath2
+
+echo "\n\nIntermediate benchmark sources:\n" >> $output
+echo "- $filepath1" >> $output
+echo "- $filepath2" >> $output
