@@ -5,6 +5,7 @@
 new_build*
 asan_build*
 build*
+*.pickle
 
 ### C++ ###
 # Prerequisites
