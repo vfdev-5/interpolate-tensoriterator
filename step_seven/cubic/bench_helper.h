@@ -7,8 +7,7 @@
 // Torch
 #include <ATen/ATen.h>
 #include <ATen/Parallel.h>
-// Fails with original pytorch as UpSample.h is missing #pragma once
-// #include <ATen/native/UpSample.h>
+#include <ATen/native/UpSample.h>
 
 // Local
 #include "interpolate.h"
@@ -16,6 +15,7 @@
 
 using namespace at;
 using namespace at::indexing;
+using namespace at::native;
 
 
 inline void assert_consistency_bicubic2d(
@@ -39,7 +39,7 @@ inline void assert_consistency_bicubic2d(
     }
 
     auto ref_out = native::upsample_bicubic2d(t_input, output_size, align_corners, scale_factors);
-    auto out = native::ti_upsample_bicubic2d_cpu(t_input, output_size, align_corners, scale_factors);
+    auto out = ti_upsample::ti_upsample_bicubic2d_cpu(t_input, output_size, align_corners, scale_factors);
 
     if (!ref_out.allclose(out, 5e-6, 5e-6)){
         auto mse = (ref_out - out).pow(2.0).mean();
@@ -126,7 +126,7 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_bicubic2d_cpu(t_input, output_size, false);
+            auto out = ti_upsample::ti_upsample_bicubic2d_cpu(t_input, output_size, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -158,7 +158,7 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_bicubic2d_cpu(t_input, output_size, false);
+            auto out = ti_upsample::ti_upsample_bicubic2d_cpu(t_input, output_size, false);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -216,7 +216,7 @@ inline void sub_bench_2d_mingfeima_channel_last(int n, int isize, int dn_osize, 
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto out = native::ti_upsample_bicubic2d_cpu(t_input, output_size, false);
+                auto out = ti_upsample::ti_upsample_bicubic2d_cpu(t_input, output_size, false);
                 auto result = out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
@@ -254,7 +254,7 @@ inline void sub_bench_2d_mingfeima_channel_last(int n, int isize, int dn_osize, 
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto out = native::ti_upsample_bicubic2d_cpu(t_input, output_size, false);
+                auto out = ti_upsample::ti_upsample_bicubic2d_cpu(t_input, output_size, false);
                 auto result = out.size(0);
             }
             auto end = std::chrono::steady_clock::now();

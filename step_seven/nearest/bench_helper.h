@@ -15,6 +15,7 @@
 
 using namespace at;
 using namespace at::indexing;
+using namespace at::native;
 
 
 inline void assert_consistency_nearest2d(
@@ -38,7 +39,7 @@ inline void assert_consistency_nearest2d(
     }
 
     auto ref_out = native::upsample_nearest2d(t_input, output_size, scale_factors);
-    auto out = native::ti_upsample_nearest2d_cpu(t_input, output_size, scale_factors);
+    auto out = ti_upsample::ti_upsample_nearest2d_cpu(t_input, output_size, scale_factors);
 
     if (!ref_out.allclose(out)){
         auto mse = (ref_out - out).pow(2.0).mean();
@@ -88,7 +89,7 @@ inline void assert_consistency_nearest1d(
     }
 
     auto ref_out = native::upsample_nearest1d(t_input, output_size, scale_factors);
-    auto out = native::ti_upsample_nearest1d_cpu(t_input, output_size, scale_factors);
+    auto out = ti_upsample::ti_upsample_nearest1d_cpu(t_input, output_size, scale_factors);
 
     if (!ref_out.allclose(out)){
         auto mse = (ref_out - out).pow(2.0).mean();
@@ -127,7 +128,7 @@ inline void assert_consistency_nearest3d(
     }
 
     auto ref_out = native::upsample_nearest3d_cpu(t_input, output_size, scale_factors);
-    auto out = native::ti_upsample_nearest3d_cpu(t_input, output_size, scale_factors);
+    auto out = ti_upsample::ti_upsample_nearest3d_cpu(t_input, output_size, scale_factors);
 
     if (!ref_out.allclose(out)){
         auto mse = (ref_out - out).pow(2.0).mean();
@@ -199,7 +200,7 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_nearest2d_cpu(t_input, output_size);
+            auto out = ti_upsample::ti_upsample_nearest2d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -231,7 +232,7 @@ inline void sub_bench_2d(int n, at::Tensor t_input, int dn_osize, int up_osize) 
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_nearest2d_cpu(t_input, output_size);
+            auto out = ti_upsample::ti_upsample_nearest2d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -289,7 +290,7 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto out = native::ti_upsample_nearest2d_cpu(t_input, output_size);
+                auto out = ti_upsample::ti_upsample_nearest2d_cpu(t_input, output_size);
                 auto result = out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
@@ -327,7 +328,7 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
             {
-                auto out = native::ti_upsample_nearest2d_cpu(t_input, output_size);
+                auto out = ti_upsample::ti_upsample_nearest2d_cpu(t_input, output_size);
                 auto result = out.size(0);
             }
             auto end = std::chrono::steady_clock::now();
@@ -411,7 +412,7 @@ inline int bench_1d(int n, bool full_bench) {
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_nearest1d_cpu(t_input, output_size);
+            auto out = ti_upsample::ti_upsample_nearest1d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -446,7 +447,7 @@ inline int bench_1d(int n, bool full_bench) {
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_nearest1d_cpu(t_input, output_size);
+            auto out = ti_upsample::ti_upsample_nearest1d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -510,7 +511,7 @@ inline int bench_3d(int n, bool full_bench) {
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_nearest3d_cpu(t_input, output_size);
+            auto out = ti_upsample::ti_upsample_nearest3d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();
@@ -545,7 +546,7 @@ inline int bench_3d(int n, bool full_bench) {
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
         {
-            auto out = native::ti_upsample_nearest3d_cpu(t_input, output_size);
+            auto out = ti_upsample::ti_upsample_nearest3d_cpu(t_input, output_size);
             auto result = out.size(0);
         }
         auto end = std::chrono::steady_clock::now();

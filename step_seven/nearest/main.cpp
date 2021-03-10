@@ -14,6 +14,7 @@
 
 using namespace at;
 using namespace at::native;
+using namespace at::native::ti_upsample;
 
 
 int main(int argc, char** argv)

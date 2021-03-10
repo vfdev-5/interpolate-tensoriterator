@@ -49,7 +49,7 @@ inline void assert_consistency_bilinear2d(
         std::cout << "Configuration: "
             << isize << " "
             << osize << " "
-            << align_corners << " "
+            << (align_corners ? "true" : "false") << " "
             << (s_h.has_value() ? *s_h : 0.0) << " "
             << (s_w.has_value() ? *s_w : 0.0) << " "
             << t_input.dtype() << " "

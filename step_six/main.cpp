@@ -10,7 +10,8 @@
 // #define INSPECT_ASSEMBLY_CODE
 // #define BENCH_3D_ONLY
 // #define BENCH_2D_SLOWDOWN_CASE_ONLY
-#define INSPECT_2D_SLOWDOWN_CASE_ONLY
+#define BENCH_2D_SLOWDOWN_CL_CASE_ONLY
+// #define INSPECT_2D_SLOWDOWN_CASE_ONLY
 // #define INSPECT_3D_CASE_ONLY
 
 
@@ -176,6 +177,13 @@ int main(int argc, char** argv)
     return 1;
 #endif
 
+
+#ifdef BENCH_2D_SLOWDOWN_CL_CASE_ONLY
+
+    sub_bench_2d_non_contiguous_channel_last(n, 320, 256, 512);
+
+    return 1;
+#endif
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256, 512);
