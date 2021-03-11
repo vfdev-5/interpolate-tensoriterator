@@ -7,7 +7,7 @@
 
 
 // #define USE_ALWAYS_INDEX64
-// #define VERBOSE
+#define VERBOSE
 
 namespace at {
 namespace native {
@@ -133,6 +133,7 @@ void ti_cpu_upsample_linear(at::TensorIterator& iter)
 
 #ifdef VERBOSE
     if (TI_SHOW_STRIDES) {
+      std::cout << "TI_SHOW: N=" << n << std::endl;
       std::cout << "TI_SHOW_STRIDES: "
         << strides[0] << " "
         << strides[1] << " ";

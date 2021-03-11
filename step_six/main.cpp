@@ -10,8 +10,9 @@
 // #define INSPECT_ASSEMBLY_CODE
 // #define BENCH_3D_ONLY
 // #define BENCH_2D_SLOWDOWN_CASE_ONLY
-#define BENCH_2D_SLOWDOWN_CL_CASE_ONLY
+// #define BENCH_2D_SLOWDOWN_CL_CASE_ONLY
 // #define INSPECT_2D_SLOWDOWN_CASE_ONLY
+#define INSPECT_2D_SLOWDOWN_CASE2_ONLY
 // #define INSPECT_3D_CASE_ONLY
 
 
@@ -133,6 +134,38 @@ int main(int argc, char** argv)
 
     {
         auto t_input = at::rand({2, 64, 64, 128}, at::CPU(at::kFloat));
+        t_input = t_input.permute({0, 3, 1, 2});
+        int64_t osizes[2] = {256, 256};
+        c10::optional<IntArrayRef> output_size = osizes;
+        c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
+        
+        std::cout << "\n- upsample_bilinear2d on channels last" << std::endl;
+        native::upsample_bilinear2d(t_input, output_size, false, scale_factors);
+
+        std::cout << "\n- ti_upsample_bilinear2d_cpu on channels last" << std::endl;
+        ti_upsample::ti_upsample_bilinear2d_cpu(t_input, output_size, false, scale_factors);
+    }
+
+    {
+        auto t_input = at::rand({1, 3, 320, 320}, at::CPU(at::kFloat));
+        int64_t osizes[2] = {256, 256};
+        c10::optional<IntArrayRef> output_size = osizes;
+        c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
+
+        std::cout << "\n- upsample_bilinear2d on channels first" << std::endl;
+        native::upsample_bilinear2d(t_input, output_size, false, scale_factors);
+        std::cout << "\n- ti_upsample_bilinear2d_cpu on channels first" << std::endl;
+        ti_upsample::ti_upsample_bilinear2d_cpu(t_input, output_size, false, scale_factors);
+    }
+
+    return 1;
+#endif
+
+
+#ifdef INSPECT_2D_SLOWDOWN_CASE2_ONLY
+
+    {
+        auto t_input = at::rand({1, 320, 320, 3}, at::CPU(at::kFloat));
         t_input = t_input.permute({0, 3, 1, 2});
         int64_t osizes[2] = {256, 256};
         c10::optional<IntArrayRef> output_size = osizes;

@@ -186,7 +186,7 @@ def bench_3d(min_run_time, full_bench, args):
     if not full_bench:
         return
 
-    if "3dcf" in args.custom:
+    if "3dcl" in args.custom:
         t_input = torch.rand(1, 16, 320, 320, 3, dtype=torch.float, device="cpu")
         t_input = t_input.permute(0, 4, 1, 2, 3)
         sub_bench_3d(min_run_time, t_input, [8, 256, 256], [32, 512, 512])
