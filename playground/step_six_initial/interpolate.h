@@ -1,4 +1,4 @@
-#include <cmath>
+#include <math.h>
 #include <vector>
 #include <ATen/TypeDefault.h>
 #include <ATen/native/TensorIterator.h>
@@ -6,21 +6,10 @@
 #include <ATen/native/UpSample.h>
 
 
-// #define USE_ALWAYS_INDEX64
-// #define VERBOSE
-
 namespace at {
 namespace native {
-namespace ti_upsample {
+namespace {
 
-using scale_t = std::vector<c10::optional<double>>;  
-
-#ifdef VERBOSE
-static int TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED = 0;
-static int TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED = 0;
-static int TI_BASIC_LOOP_FALLBACK_TRIGGERED = 0;
-static bool TI_SHOW_STRIDES = true;
-#endif
 
 // Copied from aten/src/ATen/native/cpu/UpSampleMoreKernel.cpp
 // for reuse if goes as a PR in PyTorch
@@ -96,28 +85,30 @@ static inline bool is_contiguous_stride(const int64_t* strides) {
          (strides[2] == sizeof(index_t)) && (strides[3] == sizeof(scalar_t));
 }
 
-template <int N, int non_zero_stride_dim, typename scalar_t, typename index_t>
-struct CheckAlmostAllZeroStrides {
+// TODO: semantics of s are a bit weird maybe?
+template <int N, int s, typename scalar_t, typename index_t>
+struct IsAllZeroStride {
   static inline bool eval(const int64_t* strides) {
-    return (N == non_zero_stride_dim ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides)) &&
-            CheckAlmostAllZeroStrides<N - 1, non_zero_stride_dim, scalar_t, index_t>::eval(&strides[4]);
+    return (N == s ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides)) &&
+            IsAllZeroStride<N - 1, s, scalar_t, index_t>::eval(&strides[4]);
   }
 };
 
-template <int non_zero_stride_dim, typename scalar_t, typename index_t>
-struct CheckAlmostAllZeroStrides<0, non_zero_stride_dim, scalar_t, index_t> {
+template <int s, typename scalar_t, typename index_t>
+struct IsAllZeroStride<1, s, scalar_t, index_t> {
   static inline bool eval(const int64_t* strides) {
-    return true;
+    return (s == 1 ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides));
   }
 };
 
 template <int n, int s, typename scalar_t, typename index_t>
 static inline bool is_all_zero_stride(const int64_t* strides) {
-  return CheckAlmostAllZeroStrides<n, s, scalar_t, index_t>::eval(strides);
+  return IsAllZeroStride<n, s, scalar_t, index_t>::eval(strides);
 }
 
 template <typename scalar_t, typename index_t, int out_ndims>
-static inline void basic_loop(char** data, const int64_t* strides, int64_t n) {
+static inline void
+basic_loop(char** data, const int64_t* strides, int64_t n) {
   char* dst = data[0];
   char* src = data[1];
   for (int64_t i = 0; i < n; i++) {
@@ -130,50 +121,17 @@ template <typename scalar_t, typename index_t, int out_ndims>
 void ti_cpu_upsample_linear(at::TensorIterator& iter)
 {
   auto loop = [&](char** data, const int64_t* strides, int64_t n) {
-
-#ifdef VERBOSE
-    if (TI_SHOW_STRIDES) {
-      std::cout << "TI_SHOW_STRIDES: "
-        << strides[0] << " "
-        << strides[1] << " ";
-      for (int i=0; i<out_ndims; i++) {
-        std::cout << strides[4 * i + 0 + 2] << " " << strides[4 * i + 1 + 2] << " ";
-        std::cout << strides[4 * i + 2 + 2] << " " << strides[4 * i + 3 + 2] << " ";
-      }
-      std::cout << std::endl;
-      TI_SHOW_STRIDES = false;
-    }
-#endif
-
     // special-cases to let the compiler apply compile-time input-specific optimizations
     if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
         is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
       // contiguous channels-first case
-#ifdef VERBOSE
-      if (TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED < 1) {
-        std::cout << "TI_BASIC_LOOP -> CHANNELS_FIRST" << std::endl << std::flush;
-        TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED += 1;
-      }
-#endif
       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
                is_all_zero_stride<out_ndims, -1, scalar_t, index_t>(&strides[2]))) {
       // contiguous channels-last case
-#ifdef VERBOSE
-      if (TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED < 1) {
-        std::cout << "TI_BASIC_LOOP -> CHANNELS_LAST" << std::endl << std::flush;
-        TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED += 1;
-      }
-#endif
       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     } else {
       // fallback
-#ifdef VERBOSE
-      if (TI_BASIC_LOOP_FALLBACK_TRIGGERED < 1) {
-        std::cout << "TI_BASIC_LOOP -> FALLBACK" << std::endl << std::flush;
-        TI_BASIC_LOOP_FALLBACK_TRIGGERED += 1;
-      }
-#endif
       basic_loop<scalar_t, index_t, out_ndims>(data, strides, n);
     }
   };
@@ -202,6 +160,9 @@ std::vector<Tensor> ti_compute_indices_weights_linear(
   auto input_index1_ptr = output[2].data_ptr<index_t>();
   auto lambda1_ptr = output[3].data_ptr<scalar_t>();
 
+  double xd;
+  int64_t xl;
+  
   for (int64_t i=0; i<output_size; i++) {
 
     compute_source_index_and_lambda<scalar_t, index_t>(
@@ -227,38 +188,16 @@ std::vector<Tensor> ti_compute_indices_weights_linear(
 // - out_ndims is the number of interpolated dims: 1, 2, 3
 // - scale_type is template type for scales, typically c10::optional<double>
 template <typename index_t, int out_ndims, typename scale_type>
-void ti_upsample_linearNd_kernel_impl(
+Tensor ti_upsample_linearNd_kernel_impl(
     Tensor& output,
     const Tensor& input,
     bool align_corners,
     const scale_type& scales) {
 
-#ifdef VERBOSE
-  TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED = 0;
-  TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED = 0;
-  TI_BASIC_LOOP_FALLBACK_TRIGGERED = 0;
-  TI_SHOW_STRIDES = true;
-
-  std::cout << "\nInput tensor: " << input.sizes() << std::endl;
-  std::cout << "Input is_contiguous memory_format torch.channels_last: " << (input.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
-  std::cout << "Input is_contiguous memory_format torch.channels_last_3d: " << (input.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
-  std::cout << "Input is_contiguous : " << (input.is_contiguous() ? "true" : "false") << std::endl;
-
-  std::cout << "\nOutput tensor: " << output.sizes() << std::endl;
-  std::cout << "Output is_contiguous memory_format torch.channels_last: " << (output.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
-  std::cout << "Output is_contiguous memory_format torch.channels_last_3d: " << (output.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
-  std::cout << "Output is_contiguous : " << (output.is_contiguous() ? "true" : "false") << std::endl;
-#endif
-
   // input can be NCHW, NCL or NCKHW
   auto shape = input.sizes().vec();
   auto strides = input.strides().vec();
   auto oshape = output.sizes();
-
-  TORCH_INTERNAL_ASSERT(
-    shape.size() == oshape.size() && shape.size() == 2 + out_ndims
-  );
-  TORCH_INTERNAL_ASSERT(strides.size() == 2 + out_ndims);
 
   for (int i=0; i<out_ndims; i++) {
     shape[i + 2] = oshape[i + 2];
@@ -283,7 +222,7 @@ void ti_upsample_linearNd_kernel_impl(
   // which is always smaller then the number of input elements checked by canUse32BitIndexMath
   std::vector<std::vector<Tensor>> indices_weights;
   AT_DISPATCH_FLOATING_TYPES(
-    input.scalar_type(), "ti_compute_indices_weights_linear", [&] {
+    input.scalar_type(), "compute_indices_weights_linear", [&] {
       for (int i=0; i<out_ndims; i++) {
         indices_weights.emplace_back(
           ti_compute_indices_weights_linear<index_t, scalar_t>(
@@ -299,8 +238,8 @@ void ti_upsample_linearNd_kernel_impl(
     .add_output(output)
     .add_input(restrided_input);
   
-  for (auto & idx_weight: indices_weights) {
-    for (auto& tensor : idx_weight) {
+  for (auto iter=indices_weights.begin(); iter!=indices_weights.end(); iter++) { 
+    for (auto& tensor : *iter) {
       config.add_input(tensor);
     }
   }
@@ -308,13 +247,15 @@ void ti_upsample_linearNd_kernel_impl(
   auto iter = config.build();
 
   AT_DISPATCH_FLOATING_TYPES(
-      iter.dtype(), "ti_upsample_linearNd", [&] {
+      iter.dtype(), "upsample_linearNd", [&] {
       ti_cpu_upsample_linear<scalar_t, index_t, out_ndims>(iter);
   });
 
+  return iter.output();
 }
 
 
+using scale_t = std::vector<c10::optional<double>>;
 void _ti_upsample_bilinear2d_kernel_impl(
     Tensor& output,
     const Tensor& input,
@@ -322,7 +263,6 @@ void _ti_upsample_bilinear2d_kernel_impl(
     c10::optional<double> scales_h,
     c10::optional<double> scales_w) {
 
-#ifndef USE_ALWAYS_INDEX64
   if (canUse32BitIndexMath(input)) {
     ti_upsample_linearNd_kernel_impl<int32_t, 2, scale_t>(
       output, input, align_corners, {scales_h, scales_w});
@@ -330,10 +270,6 @@ void _ti_upsample_bilinear2d_kernel_impl(
     ti_upsample_linearNd_kernel_impl<int64_t, 2, scale_t>(
       output, input, align_corners, {scales_h, scales_w});  
   }
-#else
-  ti_upsample_linearNd_kernel_impl<int64_t, 2, scale_t>(
-    output, input, align_corners, {scales_h, scales_w});
-#endif
 }
 
 
@@ -341,11 +277,11 @@ using at::native::upsample::compute_output_size;
 using at::native::upsample::get_scale_value;
 
 
-Tensor ti_upsample_bilinear2d_cpu(
+Tensor ti_upsample_bilinear2d_kernel_impl(
     const Tensor& input,
     c10::optional<IntArrayRef> output_size,
     bool align_corners,
-    c10::optional<c10::ArrayRef<double>> scale_factors) {
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt) {
 
   // UpSampleBilinear2d.cpp
   auto output = at::empty({0}, input.options());
@@ -373,7 +309,6 @@ void _ti_upsample_linear1d_kernel_impl(
     bool align_corners,
     c10::optional<double> scales_w) {
 
-#ifndef USE_ALWAYS_INDEX64
   if (canUse32BitIndexMath(input)){
     ti_upsample_linearNd_kernel_impl<int32_t, 1, scale_t>(
       output, input, align_corners, {scales_w});
@@ -381,18 +316,14 @@ void _ti_upsample_linear1d_kernel_impl(
     ti_upsample_linearNd_kernel_impl<int64_t, 1, scale_t>(
       output, input, align_corners, {scales_w});
   }
-#else
-  ti_upsample_linearNd_kernel_impl<int64_t, 1, scale_t>(
-    output, input, align_corners, {scales_w});
-#endif
 }
 
 
-Tensor ti_upsample_linear1d_cpu(
+Tensor ti_upsample_linear1d_kernel_impl(
     const Tensor& input,
     c10::optional<IntArrayRef> output_size,
     bool align_corners,
-    c10::optional<c10::ArrayRef<double>> scale_factors) {
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt) {
 
   // UpSampleLinear1d.cpp
   auto output = at::empty({0}, input.options());
@@ -421,7 +352,6 @@ void _ti_upsample_trilinear3d_kernel_impl(
     c10::optional<double> scales_h,
     c10::optional<double> scales_w) {
 
-#ifndef USE_ALWAYS_INDEX64
   if (canUse32BitIndexMath(input)) {
     ti_upsample_linearNd_kernel_impl<int32_t, 3, scale_t>(
       output, input, align_corners, {scales_d, scales_h, scales_w});
@@ -429,18 +359,14 @@ void _ti_upsample_trilinear3d_kernel_impl(
     ti_upsample_linearNd_kernel_impl<int64_t, 3, scale_t>(
       output, input, align_corners, {scales_d, scales_h, scales_w});
   }
-#else
-  ti_upsample_linearNd_kernel_impl<int64_t, 3, scale_t>(
-    output, input, align_corners, {scales_d, scales_h, scales_w});
-#endif
 }
 
 
-Tensor ti_upsample_trilinear3d_cpu(
+Tensor ti_upsample_trilinear3d_kernel_impl(
     const Tensor& input,
     c10::optional<IntArrayRef> output_size,
     bool align_corners,
-    c10::optional<c10::ArrayRef<double>> scale_factors) {
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt) {
 
   // UpSampleTrilinear3d.cpp
   auto output = at::empty({0}, input.options());
@@ -458,11 +384,11 @@ Tensor ti_upsample_trilinear3d_cpu(
       input.sizes());
 
   output.resize_(full_output_size, input.suggest_memory_format());
-  _ti_upsample_trilinear3d_kernel_impl(output, input, align_corners, scale_d, scale_h, scale_w);  
+  _ti_upsample_trilinear3d_kernel_impl(output, input, align_corners, scale_d, scale_h, scale_w);
   return output;
 }
 
 
-} // namespace ti_upsample
+} // anonymous namespace
 } // namespace native
 } // namespace at

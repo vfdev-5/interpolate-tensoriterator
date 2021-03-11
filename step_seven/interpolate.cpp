@@ -6,6 +6,10 @@
 #include <ATen/native/UpSample.h>
 
 
+#define USE_ALWAYS_INDEX64
+// #define VERBOSE
+
+
 namespace at {
 namespace native {
 namespace ti_upsample {

@@ -105,9 +105,9 @@ struct CheckAlmostAllZeroStrides {
 };
 
 template <int non_zero_stride_dim, typename scalar_t, typename index_t>
-struct CheckAlmostAllZeroStrides<0, non_zero_stride_dim, scalar_t, index_t> {
+struct CheckAlmostAllZeroStrides<1, non_zero_stride_dim, scalar_t, index_t> {
   static inline bool eval(const int64_t* strides) {
-    return true;
+    return (non_zero_stride_dim == 1 ? is_contiguous_stride<scalar_t, index_t>(strides) : is_zero_stride(strides));
   }
 };
 
@@ -201,7 +201,7 @@ std::vector<Tensor> ti_compute_indices_weights_linear(
   auto lambda0_ptr = output[1].data_ptr<scalar_t>();
   auto input_index1_ptr = output[2].data_ptr<index_t>();
   auto lambda1_ptr = output[3].data_ptr<scalar_t>();
-
+  
   for (int64_t i=0; i<output_size; i++) {
 
     compute_source_index_and_lambda<scalar_t, index_t>(
@@ -301,7 +301,7 @@ void ti_upsample_linearNd_kernel_impl(
   
   for (auto & idx_weight: indices_weights) {
     for (auto& tensor : idx_weight) {
-      config.add_input(tensor);
+        config.add_input(tensor);
     }
   }
 
@@ -458,7 +458,7 @@ Tensor ti_upsample_trilinear3d_cpu(
       input.sizes());
 
   output.resize_(full_output_size, input.suggest_memory_format());
-  _ti_upsample_trilinear3d_kernel_impl(output, input, align_corners, scale_d, scale_h, scale_w);  
+  _ti_upsample_trilinear3d_kernel_impl(output, input, align_corners, scale_d, scale_h, scale_w);
   return output;
 }
 

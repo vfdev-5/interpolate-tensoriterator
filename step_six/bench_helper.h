@@ -345,7 +345,7 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
 
 inline void sub_bench_2d_non_contiguous_channel_last(int n, int isize, int dn_osize, int up_osize, int n_channels=3) {
     auto t_input = at::rand({1, isize, isize, n_channels}, at::CPU(at::kFloat));
-    t_input = t_input.permute({0, 3, 1, 2});  
+    t_input = t_input.permute({0, 3, 1, 2});
     sub_bench_2d(n, t_input, dn_osize, up_osize);
 } 
 
