@@ -16,6 +16,17 @@ FMassa's code : https://github.com/fmassa/vision-1/commit/407e0430e14ca688b2fb6f
 - [x] Explore C10_RESTRICT : https://en.wikipedia.org/wiki/Restrict
   -  https://wiki.sei.cmu.edu/confluence/display/c/EXP43-C.+Avoid+undefined+behavior+when+using+restrict-qualified+pointers
 
+### Step 7: Generic implementation
+
+Following [results 16/03/2021](step_seven/results/custom_pr_1.9.0a0+git2c06596_vs_pth_1.9.0a0+gite8e570e_results.1.md)
+- [ ] Improve case: `upsample_nearest2d channels_first contiguous [32, 128, 64, 64] -> (128, 128)`
+  - 6 threads `[32, 128, 64, 64] -> (128, 128)  |        50420.0       |        53869.1`
+  - 1 thread  `[32, 128, 64, 64] -> (128, 128)  |       195835.9       |       219061.2`
+- [ ] Improve case: `upsample_trilinear3d channels_first contiguous`
+  - 1 thread  `[1, 3, 16, 320, 320] -> [8, 256, 256]   |          5.4         |         11.5`
+  - 1 thread  `[1, 3, 16, 320, 320] -> [32, 512, 512]  |        114.5         |        210.6`
+  - 6 threads `[1, 3, 16, 320, 320] -> [8, 256, 256]   |          1.0         |          2.1`
+  - 6 threads `[1, 3, 16, 320, 320] -> [32, 512, 512]  |         25.6         |         43.7`
 
 ## Development
 
@@ -249,3 +260,9 @@ Elapsed time (ms): 3.62022
 #### Result 1
 
 [PyTorch nightly (66f07c0) vs This Prototype](step_seven/pth_vs_this_full_results.log.save)
+
+
+#### Any mode / Nd implementation results
+
+[results](step_seven/results)
+
