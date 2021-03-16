@@ -114,20 +114,20 @@ def bench_2d(mode, min_run_time, full_bench, isize, dn_osize, up_osize, test_cas
     if not any(is_in(k, test_cases) for k in ["2dcf", "2dcl"]):
         return
 
-    if is_in("2dcf", test_cases):
+    if is_in(f"{mode}:2dcf", test_cases):
         sub_bench_2d_contiguous_channel_first(mode, min_run_time, isize, dn_osize, up_osize)
         sub_bench_2d_non_contiguous_channel_first(mode, min_run_time, isize, dn_osize, up_osize)
 
-    if is_in("2dcl", test_cases):
+    if is_in(f"{mode}:2dcl", test_cases):
         sub_bench_2d_non_contiguous_channel_last(mode, min_run_time, isize, dn_osize, up_osize)
 
     if not full_bench:
         return
 
-    if is_in("2dcl", test_cases):
+    if is_in(f"{mode}:2dcl", test_cases):
         sub_bench_2d_mingfeima_channel_last(mode, min_run_time)
 
-    if is_in("2dcf", test_cases):
+    if is_in(f"{mode}:2dcf", test_cases):
         sub_bench_2d_mingfeima_channel_first(mode, min_run_time)
 
 
@@ -172,22 +172,20 @@ def bench_3d(mode, min_run_time, full_bench, test_cases):
     if not any(is_in(k, test_cases) for k in ["3dcf", "3dcl"]):
         return
 
-    if is_in("3dcf", test_cases):
+    if is_in(f"{mode}:3dcf", test_cases):
         t_input = torch.rand(1, 3, 16, 320, 320, dtype=torch.float, device="cpu")
         sub_bench_3d(mode, min_run_time, t_input, [8, 256, 256], [32, 512, 512])
 
     if not full_bench:
         return
 
-    if is_in("3dcl", test_cases):
+    if is_in(f"{mode}:3dcl", test_cases):
         t_input = torch.rand(1, 16, 320, 320, 3, dtype=torch.float, device="cpu")
         t_input = t_input.permute(0, 4, 1, 2, 3)
         sub_bench_3d(mode, min_run_time, t_input, [8, 256, 256], [32, 512, 512])
 
 
-def main():
-    torch.manual_seed(10)
-
+def get_args(all_tests):
     parser = argparse.ArgumentParser("Benchmark upsampling/downsampling ops")
     parser.add_argument(
         "output_filepath", type=str,
@@ -209,9 +207,6 @@ def main():
         "num_threads", type=int, default=6,
         help="Sets number of threads", nargs='?'
     )
-    all_dims = ["2dcf", "2dcl", "3dcf", "3dcl", "1d"]
-    all_modes = ["linear", "nearest", "cubic"]
-    all_tests = [f"{mode}:{dim}" for mode, dim in product(all_modes, all_dims)]
     parser.add_argument(
         "--test_cases", type=str,
         choices=all_tests + ["all", ],
@@ -220,20 +215,39 @@ def main():
     )
 
     args = parser.parse_args()
-    output_filepath = args.output_filepath
-    min_run_time = args.min_run_time
+    return args
+
+
+all_dims = ["2dcf", "2dcl", "3dcf", "3dcl", "1d"]
+all_modes = ["linear", "nearest", "cubic"]
+all_tests = [f"{mode}:{dim}" for mode, dim in product(all_modes, all_dims)]
+
+
+def get_test_cases(args):
     full_bench = bool(args.full_bench)
     test_all_dims = bool(args.test_all_dims)
-    num_threads = args.num_threads
+    test_cases = args.test_cases
 
-    if args.test_cases is None:
-        args.test_cases = all_tests
+    if test_cases is None:
+        test_cases = all_tests
     else:
-        if args.test_cases == ["all", ]:
-            args.test_cases = all_tests
-        print("Uses tests cases: ", args.test_cases)
+        if test_cases == ["all", ]:
+            test_cases = all_tests
+        print("Uses tests cases: ", test_cases)
         full_bench = True
         test_all_dims = True
+
+    return test_cases, full_bench, test_all_dims
+
+
+def main():
+    torch.manual_seed(10)
+
+    args = get_args(all_tests)
+    output_filepath = args.output_filepath
+    min_run_time = args.min_run_time
+    num_threads = args.num_threads
+    test_cases, full_bench, test_all_dims = get_test_cases(args)
 
     print(f"Torch config: {torch.__config__.show()}")
 
@@ -242,9 +256,9 @@ def main():
     for mode in all_modes:
 
         print(f"\n\n---- Benchmark {mode} 2D ----")
-        bench_2d(mode, min_run_time, full_bench, 320, 256, 512, args.test_cases)
+        bench_2d(mode, min_run_time, full_bench, 320, 256, 512, test_cases)
         if full_bench:
-            bench_2d(mode, min_run_time, False, 500, 256, 800, args.test_cases)
+            bench_2d(mode, min_run_time, False, 500, 256, 800, test_cases)
         print(f"\n---- END Benchmark {mode} 2D ----")
 
         if not test_all_dims:
@@ -254,16 +268,15 @@ def main():
             continue
 
         print(f"\n\n---- Benchmark {mode} 1D ----")
-        bench_1d(mode, min_run_time, full_bench, args.test_cases)
+        bench_1d(mode, min_run_time, full_bench, test_cases)
         print(f"\n---- END Benchmark {mode} 1D ----")
 
         print(f"\n\n---- Benchmark {mode} 3D ----")
-        bench_3d(mode, min_run_time, full_bench, args.test_cases)
+        bench_3d(mode, min_run_time, full_bench, test_cases)
         print(f"\n---- END Benchmark {mode} 3D ----")
 
     with open(output_filepath, "wb") as handler:
         pickle.dump(test_results, handler)
-    return 0
 
 
 if __name__ == "__main__":
@@ -278,4 +291,4 @@ if __name__ == "__main__":
 
     env += f"PyTorch {torch.version.__version__}"
 
-    exit(main())
+    main()

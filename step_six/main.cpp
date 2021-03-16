@@ -12,8 +12,21 @@
 // #define BENCH_2D_SLOWDOWN_CASE_ONLY
 // #define BENCH_2D_SLOWDOWN_CL_CASE_ONLY
 // #define INSPECT_2D_SLOWDOWN_CASE_ONLY
-#define INSPECT_2D_SLOWDOWN_CASE2_ONLY
+// #define INSPECT_2D_SLOWDOWN_CASE2_ONLY
 // #define INSPECT_3D_CASE_ONLY
+#define PERF_INSPECT_2D_SLOWDOWN_CASE2_ONLY
+// How to execute it with valgrind:
+// valgrind --tool=callgrind --callgrind-out-file=callgrind.out ./bench 0 0 0 1
+// callgrind_annotate callgrind.out > callgrind.out.log
+// valgrind --tool=callgrind --callgrind-out-file=callgrind.out ./bench 0 0 0 1
+// 
+// How to execute it with perf:
+// perf record -g ./bench 0 0 0 1
+// perf report
+//
+// (https://www.slideshare.net/emBO_Conference/profiling-your-applications-using-the-linux-perf-tools)
+// perf record --call-graph dwarf --freq 40 -- ./bench 0 0 0 1
+// perf report
 
 
 using namespace at;
@@ -25,7 +38,7 @@ int main(int argc, char** argv)
 {
 
 #ifdef INSPECT_ASSEMBLY_CODE
-    
+
     auto input = at::rand({1, 3, 16, 320, 320});
     int64_t osizes[3] = {8, 256, 256};
     c10::optional<IntArrayRef> output_size = osizes;
@@ -170,7 +183,7 @@ int main(int argc, char** argv)
         int64_t osizes[2] = {256, 256};
         c10::optional<IntArrayRef> output_size = osizes;
         c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
-        
+
         std::cout << "\n- upsample_bilinear2d on channels last" << std::endl;
         native::upsample_bilinear2d(t_input, output_size, false, scale_factors);
 
@@ -194,18 +207,36 @@ int main(int argc, char** argv)
 #endif
 
 
+#ifdef PERF_INSPECT_2D_SLOWDOWN_CASE2_ONLY
+
+    auto t_input = at::rand({1, 3, 320, 320}, at::CPU(at::kFloat));
+    int64_t osizes[2] = {512, 512};
+    c10::optional<IntArrayRef> output_size = osizes;
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
+
+    if (n == 0) {
+        std::cout << "\n- upsample_bilinear2d on channels first" << std::endl;
+        native::upsample_bilinear2d(t_input, output_size, false, scale_factors);
+    } else {
+        std::cout << "\n- ti_upsample_bilinear2d_cpu on channels last" << std::endl;
+        ti_upsample::ti_upsample_bilinear2d_cpu(t_input, output_size, false, scale_factors);
+    }
+    return 0;
+#endif
+
+
 #ifdef BENCH_2D_SLOWDOWN_CASE_ONLY
 
     auto t_input = at::rand({1, 3, 320, 320}, at::CPU(at::kFloat));
     sub_bench_2d(n, t_input, 256, 512);
 
-    t_input = at::rand({2, 64, 64, 128}, at::CPU(at::kFloat));
-    t_input = t_input.permute({0, 3, 1, 2});
-    sub_bench_2d(n / 10, t_input, 32, 128);
+    // t_input = at::rand({2, 64, 64, 128}, at::CPU(at::kFloat));
+    // t_input = t_input.permute({0, 3, 1, 2});
+    // sub_bench_2d(n / 10, t_input, 32, 128);
 
-    t_input = at::rand({32, 64, 64, 128}, at::CPU(at::kFloat));
-    t_input = t_input.permute({0, 3, 1, 2});
-    sub_bench_2d(n / 10, t_input, 32, 128);
+    // t_input = at::rand({32, 64, 64, 128}, at::CPU(at::kFloat));
+    // t_input = t_input.permute({0, 3, 1, 2});
+    // sub_bench_2d(n / 10, t_input, 32, 128);
 
     return 1;
 #endif

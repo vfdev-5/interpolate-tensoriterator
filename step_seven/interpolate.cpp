@@ -6,7 +6,7 @@
 #include <ATen/native/UpSample.h>
 
 
-#define USE_ALWAYS_INDEX64
+// #define USE_ALWAYS_INDEX64
 // #define VERBOSE
 
 

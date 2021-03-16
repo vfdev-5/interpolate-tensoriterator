@@ -780,8 +780,7 @@ wget https://download.pytorch.org/libtorch/nightly/cpu/libtorch-cxx11-abi-shared
 - Install GCC 5.4
 
 ```bash
-echo "deb http://archive.ubuntu.com/ubuntu/ xenial main\n" >> /etc/apt/sources.list
-echo "deb http://archive.ubuntu.com/ubuntu/ xenial universe\n" >> /etc/apt/sources.list
+echo "deb http://archive.ubuntu.com/ubuntu/ xenial main universe\n" >> /etc/apt/sources.list
 apt-get update
 
 apt-get install -y g++-5 gcc-5
@@ -1047,6 +1046,18 @@ cmake -DTORCH_DIR=$TORCH_PATH -DWITH_ASAN=yes ..
 make && ./bench
 ```
 
+## Install linux perf
+
+On Ubuntu 20.04 docker image, linux kernel is still 4.15, but perf and other tools are for the kernel 5.4.
+
+```bash
+echo "deb http://archive.ubuntu.com/ubuntu/ bionic main universe\n" >> /etc/apt/sources.list
+apt-get update
+apt-get install -y linux-tools-4.15.0-20-generic linux-tools-4.15.0-20 linux-tools-4.15.0-20-lowlatency 
+
+rm -rf /usr/bin/perf
+ln -s /usr/lib/linux-tools-4.15.0-20/perf /usr/bin/perf
+```
 
 ## References:
 
