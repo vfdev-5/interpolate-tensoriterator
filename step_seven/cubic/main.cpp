@@ -7,7 +7,7 @@
 #include "interpolate.h"
 
 // #define INSPECT_ASSEMBLY_CODE
-// #define USE_ALWAYS_INDEX64
+#define INSPECT_2D_CASE_ONLY
 
 using namespace at;
 using namespace at::native;
@@ -63,6 +63,20 @@ int main(int argc, char** argv)
     assert_consistency_3d();
 
 #endif
+
+
+#ifdef INSPECT_2D_CASE_ONLY
+
+    std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
+
+    auto t_input = at::rand({1, 3, 320, 320}, at::CPU(at::kFloat));
+    sub_bench_2d(n, t_input, 256, 512);
+
+    std::cout << "\n---- END Benchmark 2D ----" << std::endl;
+
+    return 1;
+#endif
+
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256, 512);

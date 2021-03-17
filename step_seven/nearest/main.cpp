@@ -9,6 +9,8 @@
 
 // #define INSPECT_ASSEMBLY_CODE
 // #define BENCH_3D_ONLY
+// #define BENCH_2D_CF_MFMA_ONLY
+#define BENCH_2D_CL_ONLY
 // #define USE_ALWAYS_INDEX64
 
 
@@ -102,6 +104,37 @@ int main(int argc, char** argv)
     std::cout << "\n---- END Benchmark 3D ----" << std::endl;
     return 1;
 #endif
+
+
+#ifdef BENCH_2D_CF_MFMA_ONLY
+    std::cout << "\n\n---- Benchmark 2D MingfeiMa CF ----" << std::endl;
+
+    {
+        auto t_input = at::rand({32, 128, 64, 64}, at::CPU(at::kFloat));
+        sub_bench_2d(n, t_input, 32, 128);
+    }
+    {
+        auto t_input = at::rand({1, 3, 320, 320}, at::CPU(at::kFloat));
+        sub_bench_2d(n, t_input, 256, 512);
+    }
+
+    std::cout << "\n---- END Benchmark 2D MingfeiMa CF ----" << std::endl;
+    return 1;
+#endif
+
+#ifdef BENCH_2D_CL_ONLY
+    std::cout << "\n\n---- Benchmark 2D CL ----" << std::endl;
+
+    {
+        auto t_input = at::rand({1, 320, 320, 3}, at::CPU(at::kFloat));
+        t_input = t_input.permute({0, 3, 1, 2});
+        sub_bench_2d(n, t_input, 256, 512);
+    }
+
+    std::cout << "\n---- END Benchmark 2D CL ----" << std::endl;
+    return 1;
+#endif
+
 
     std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
     bench_2d(n, full_bench, 320, 256, 512);

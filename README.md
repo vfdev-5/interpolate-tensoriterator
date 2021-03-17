@@ -22,7 +22,7 @@ Following [results 16/03/2021](step_seven/results/custom_pr_1.9.0a0+git2c06596_v
 - [ ] Improve case: `upsample_nearest2d channels_first contiguous [32, 128, 64, 64] -> (128, 128)`
   - 6 threads `[32, 128, 64, 64] -> (128, 128)  |        50420.0       |        53869.1`
   - 1 thread  `[32, 128, 64, 64] -> (128, 128)  |       195835.9       |       219061.2`
-- [ ] Improve case: `upsample_trilinear3d channels_first contiguous`
+- [ ] Improve case: `upsample_trilinear3d channels_first contiguous`:
   - 1 thread  `[1, 3, 16, 320, 320] -> [8, 256, 256]   |          5.4         |         11.5`
   - 1 thread  `[1, 3, 16, 320, 320] -> [32, 512, 512]  |        114.5         |        210.6`
   - 6 threads `[1, 3, 16, 320, 320] -> [8, 256, 256]   |          1.0         |          2.1`
@@ -266,3 +266,58 @@ Elapsed time (ms): 3.62022
 
 [results](step_seven/results)
 
+#### Notes
+
+- 17/03/2021
+```
+- ti_upsample_bilinear2d_cpu on channels first
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: false
+Input is_contiguous memory_format torch.channels_last_3d: false
+Input is_contiguous : true
+
+Output tensor: [1, 3, 256, 256]
+Output is_contiguous memory_format torch.channels_last: false
+Output is_contiguous memory_format torch.channels_last_3d: false
+Output is_contiguous : true
+TI_SHOW: N=256
+TI_SHOW_STRIDES: 4 0 | 0 0 0 0 | 8 4 8 4 | 
+TI_BASIC_LOOP -> CHANNELS_FIRST
+```
+and
+```
+- Bench ti_upsample_nearest2d (1 rounds) - upsampling to 512x512
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: false
+Input is_contiguous memory_format torch.channels_last_3d: false
+Input is_contiguous : true
+
+Output tensor: [1, 3, 512, 512]
+Output is_contiguous memory_format torch.channels_last: false
+Output is_contiguous memory_format torch.channels_last_3d: false
+Output is_contiguous : true
+TI_SHOW: N=512
+TI_SHOW_STRIDES: 4 0 | 0 0 | 8 4 | 
+TI_BASIC_LOOP -> CHANNELS_FIRST
+Elapsed time (ms): 1.41033
+```
+and
+```
+- Bench ti_upsample_bicubic2d_cpu (1 rounds) - upsampling to 512x512
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: false
+Input is_contiguous memory_format torch.channels_last_3d: false
+Input is_contiguous : true
+
+Output tensor: [1, 3, 512, 512]
+Output is_contiguous memory_format torch.channels_last: false
+Output is_contiguous memory_format torch.channels_last_3d: false
+Output is_contiguous : true
+TI_SHOW: N=512
+TI_SHOW_STRIDES: 4 0 | 0 0 0 0 0 0 0 0 | 8 4 8 4 8 4 8 4 | 
+TI_BASIC_LOOP -> CHANNELS_FIRST
+Elapsed time (ms): 10.8974
+```

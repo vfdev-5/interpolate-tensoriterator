@@ -11,10 +11,10 @@
 // #define BENCH_3D_ONLY
 // #define BENCH_2D_SLOWDOWN_CASE_ONLY
 // #define BENCH_2D_SLOWDOWN_CL_CASE_ONLY
-// #define INSPECT_2D_SLOWDOWN_CASE_ONLY
+#define INSPECT_2D_SLOWDOWN_CASE_ONLY
 // #define INSPECT_2D_SLOWDOWN_CASE2_ONLY
 // #define INSPECT_3D_CASE_ONLY
-#define PERF_INSPECT_2D_SLOWDOWN_CASE2_ONLY
+// #define PERF_INSPECT_2D_SLOWDOWN_CASE2_ONLY
 // How to execute it with valgrind:
 // valgrind --tool=callgrind --callgrind-out-file=callgrind.out ./bench 0 0 0 1
 // callgrind_annotate callgrind.out > callgrind.out.log

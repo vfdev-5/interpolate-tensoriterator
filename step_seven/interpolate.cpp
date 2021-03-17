@@ -6,8 +6,8 @@
 #include <ATen/native/UpSample.h>
 
 
-// #define USE_ALWAYS_INDEX64
-// #define VERBOSE
+#define USE_ALWAYS_INDEX64
+#define VERBOSE
 
 
 namespace at {
@@ -17,6 +17,13 @@ namespace ti_upsample {
 using at::native::upsample::compute_output_size;
 using at::native::upsample::get_scale_value;
 using scale_t = std::vector<c10::optional<double>>;
+
+#ifdef VERBOSE
+static int TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED = 0;
+static int TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED = 0;
+static int TI_BASIC_LOOP_FALLBACK_TRIGGERED = 0;
+static bool TI_SHOW_STRIDES = true;
+#endif
 
 // Copied from aten/src/ATen/native/cpu/UpSampleMoreKernel.cpp
 // for reuse if goes as a PR in PyTorch
@@ -165,17 +172,52 @@ template <typename scalar_t, typename index_t, int out_ndims, int interp_size>
 void ti_cpu_upsample_generic(at::TensorIterator& iter)
 {
   auto loop = [&](char** data, const int64_t* strides, int64_t n) {
+
+#ifdef VERBOSE
+    if (TI_SHOW_STRIDES) {
+      std::cout << "TI_SHOW: N=" << n << std::endl;
+      std::cout << "TI_SHOW_STRIDES: "
+        << strides[0] << " "
+        << strides[1] << " | ";
+      for (int i=0; i<out_ndims; i++) {
+        for (int j=0; j<2 * interp_size; j++) {
+          std::cout << strides[2 * interp_size * i + j + 2] << " ";
+        }
+        std::cout << "| ";
+      }
+      std::cout << std::endl;
+      TI_SHOW_STRIDES = false;
+    }
+#endif
     // special-cases to let the compiler apply compile-time input-specific optimizations
-    if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
-        check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, interp_size>(&strides[2]))) {
+    if ((strides[0] == sizeof(scalar_t)) && (strides[1] == 0) &&
+        check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, interp_size>(&strides[2])) {
       // contiguous channels-first case
+#ifdef VERBOSE
+      if (TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED < 1) {
+        std::cout << "TI_BASIC_LOOP -> CHANNELS_FIRST" << std::endl << std::flush;
+        TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED += 1;
+      }
+#endif
       basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, n);
-    } else if ((strides[0] == sizeof(scalar_t) && (strides[1] == sizeof(scalar_t)) &&
-               check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, interp_size>(&strides[2]))) {
+    } else if ((strides[0] == sizeof(scalar_t)) && (strides[1] == sizeof(scalar_t)) &&
+               check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, interp_size>(&strides[2])) {
       // contiguous channels-last case
+#ifdef VERBOSE
+      if (TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED < 1) {
+        std::cout << "TI_BASIC_LOOP -> CHANNELS_LAST" << std::endl << std::flush;
+        TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED += 1;
+      }
+#endif
       basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, n);
     } else {
       // fallback
+#ifdef VERBOSE
+      if (TI_BASIC_LOOP_FALLBACK_TRIGGERED < 1) {
+        std::cout << "TI_BASIC_LOOP -> FALLBACK" << std::endl << std::flush;
+        TI_BASIC_LOOP_FALLBACK_TRIGGERED += 1;
+      }
+#endif
       basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, n);
     }
   };
@@ -215,7 +257,7 @@ struct HelperInterpNearest : public HelperInterpBase<index_t, scalar_t> {
     for (int j=0; j<interp_size; j++) {
       output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
       // Defines weights for consistency, but not used
-      output.emplace_back(at::ones({1, }, CPU(c10::CppTypeToScalarType<scalar_t>())));
+      output.emplace_back(at::ones(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
     }
   }
 
@@ -364,6 +406,23 @@ void ti_upsample_generic_Nd_kernel_impl(
     const Tensor& input,
     bool align_corners,
     const scale_type& scales) {
+
+#ifdef VERBOSE
+  TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED = 0;
+  TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED = 0;
+  TI_BASIC_LOOP_FALLBACK_TRIGGERED = 0;
+  TI_SHOW_STRIDES = true;
+
+  std::cout << "\nInput tensor: " << input.sizes() << std::endl;
+  std::cout << "Input is_contiguous memory_format torch.channels_last: " << (input.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
+  std::cout << "Input is_contiguous memory_format torch.channels_last_3d: " << (input.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
+  std::cout << "Input is_contiguous : " << (input.is_contiguous() ? "true" : "false") << std::endl;
+
+  std::cout << "\nOutput tensor: " << output.sizes() << std::endl;
+  std::cout << "Output is_contiguous memory_format torch.channels_last: " << (output.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
+  std::cout << "Output is_contiguous memory_format torch.channels_last_3d: " << (output.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
+  std::cout << "Output is_contiguous : " << (output.is_contiguous() ? "true" : "false") << std::endl;
+#endif
 
   // input can be NCHW, NCL or NCKHW  
   auto shape = input.sizes().vec();
