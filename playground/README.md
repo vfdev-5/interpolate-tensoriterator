@@ -1074,3 +1074,5 @@ ln -s /usr/lib/linux-tools-4.15.0-20/perf /usr/bin/perf
 - http://hpac.cs.umu.se/teaching/sem-accg-16/slides/08.Schmitz-GGC_Autovec.pdf
 
 - https://indico.cern.ch/event/771113/contributions/3203712/attachments/1746730/3022094/PracticalVectorization.pres.pdf
+
+- https://software.intel.com/sites/default/files/m/4/8/8/2/a/31848-CompilerAutovectorizationGuide.pdf

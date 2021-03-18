@@ -11,7 +11,7 @@
 // #define BENCH_3D_ONLY
 // #define BENCH_2D_SLOWDOWN_CASE_ONLY
 // #define BENCH_2D_SLOWDOWN_CL_CASE_ONLY
-#define INSPECT_2D_SLOWDOWN_CASE_ONLY
+// #define INSPECT_2D_SLOWDOWN_CASE_ONLY
 // #define INSPECT_2D_SLOWDOWN_CASE2_ONLY
 // #define INSPECT_3D_CASE_ONLY
 // #define PERF_INSPECT_2D_SLOWDOWN_CASE2_ONLY
@@ -25,7 +25,8 @@
 // perf report
 //
 // (https://www.slideshare.net/emBO_Conference/profiling-your-applications-using-the-linux-perf-tools)
-// perf record --call-graph dwarf --freq 40 -- ./bench 0 0 0 1
+// perf record --call-graph dwarf -F 40 -- ./bench 0 0 0 1
+// perf record --call-graph dwarf -F 40 -- ./bench 1 0 0 1
 // perf report
 
 
@@ -210,16 +211,20 @@ int main(int argc, char** argv)
 #ifdef PERF_INSPECT_2D_SLOWDOWN_CASE2_ONLY
 
     auto t_input = at::rand({1, 3, 320, 320}, at::CPU(at::kFloat));
-    int64_t osizes[2] = {512, 512};
+    int64_t osizes[2] = {256, 256};
     c10::optional<IntArrayRef> output_size = osizes;
     c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
 
     if (n == 0) {
         std::cout << "\n- upsample_bilinear2d on channels first" << std::endl;
-        native::upsample_bilinear2d(t_input, output_size, false, scale_factors);
+        for (int i=0; i<100; i++) {
+            native::upsample_bilinear2d(t_input, output_size, false, scale_factors);
+        }
     } else {
         std::cout << "\n- ti_upsample_bilinear2d_cpu on channels last" << std::endl;
-        ti_upsample::ti_upsample_bilinear2d_cpu(t_input, output_size, false, scale_factors);
+        for (int i=0; i<100; i++) {
+            ti_upsample::ti_upsample_bilinear2d_cpu(t_input, output_size, false, scale_factors);
+        }
     }
     return 0;
 #endif
@@ -244,7 +249,8 @@ int main(int argc, char** argv)
 
 #ifdef BENCH_2D_SLOWDOWN_CL_CASE_ONLY
 
-    sub_bench_2d_non_contiguous_channel_last(n, 320, 256, 512);
+    // sub_bench_2d_non_contiguous_channel_last(n, 320, 256, 512);
+    sub_bench_2d_mingfeima_channel_last(n);
 
     return 1;
 #endif

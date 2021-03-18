@@ -11,6 +11,13 @@ from itertools import product
 import torch
 import torch._C as C
 
+try:
+    import cv2
+    import numpy as np
+    has_opencv = True
+except ImportError:
+    has_opencv = False
+
 import torch.utils.benchmark as benchmark
 
 test_results = []
@@ -38,6 +45,8 @@ def sub_bench_Nd_single_op(mode, n, min_run_time, t_input, output_size):
 
     func_name = mode_Nd_fn_map[mode]
     align_corners = "" if mode == "near" else False
+    label = f"{func_name} {mem_format} {is_contiguous}"
+    sub_label = f"{list(t_input.shape)} -> {output_size}"
 
     m = benchmark.Timer(
         stmt=f"{func_name}(t_input, output_size, {align_corners})",
@@ -47,12 +56,48 @@ def sub_bench_Nd_single_op(mode, n, min_run_time, t_input, output_size):
             func_name: getattr(C._nn, func_name)
         },
         num_threads=num_threads,
-        label=f"{func_name} {mem_format} {is_contiguous}",
-        sub_label=f"{list(t_input.shape)} -> {output_size}",
+        label=label,
+        sub_label=sub_label,
         description=f"{torch.version.__version__}",
     ).blocked_autorange(min_run_time=min_run_time)
     print(m)
     test_results.append(m)
+
+    shape = t_input.shape
+    if has_opencv and mem_format == "channels_last" and shape[0] == 1:    
+        shape = (shape[2], shape[3], shape[1])
+        np_input = np.random.rand(*shape).astype('float32')
+        sub_bench_Nd_single_op_opencv(
+            mode, n, min_run_time, np_input, output_size, label, sub_label
+        )
+
+
+def sub_bench_Nd_single_op_opencv(mode, n, min_run_time, np_input, output_size, label, sub_label):
+
+    cv2.setNumThreads(torch.get_num_threads())
+    num_threads = cv2.getNumThreads()
+
+    mode_map = {
+        "linear": cv2.INTER_LINEAR,
+        "nearest": cv2.INTER_NEAREST,
+        "cubic": cv2.INTER_CUBIC,
+    }
+
+    m = benchmark.Timer(
+        stmt=f"cv2.resize(x, dsize=output_size, interpolation=mode)",
+        setup="import cv2",
+        globals={
+            'x': np_input, 
+            'output_size': tuple(output_size),
+            'mode': mode_map[mode]
+        },
+        num_threads=num_threads,
+        label=label,
+        sub_label=sub_label,
+        description=f"opencv {cv2.__version__}",
+    ).blocked_autorange(min_run_time=min_run_time)
+    print("OpenCV: ", m)
+    test_results.append(m)    
 
 
 def sub_bench_2d_single_op(mode, min_run_time, t_input, output_size):
@@ -90,6 +135,11 @@ def sub_bench_2d_mingfeima_channel_last(mode, min_run_time):
 
     print(f"\n1.2 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py")
     t_input = torch.rand(2, 64, 46, 128, dtype=torch.float, device="cpu")
+    t_input = t_input.permute(0, 3, 1, 2)
+    sub_bench_2d(mode, min_run_time, t_input, 32, 128)
+
+    print(f"\n1.3 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py")
+    t_input = torch.rand(1, 64, 46, 128, dtype=torch.float, device="cpu")
     t_input = t_input.permute(0, 3, 1, 2)
     sub_bench_2d(mode, min_run_time, t_input, 32, 128)
 
@@ -213,6 +263,10 @@ def get_args(all_tests):
         nargs='+', default=None,
         help="Run custom benchmarks"
     )
+    parser.add_argument(
+        "--with_opencv", action="store_true",
+        help="Run OpenCV benchmarks"
+    )
 
     args = parser.parse_args()
     return args
@@ -241,6 +295,8 @@ def get_test_cases(args):
 
 
 def main():
+    global has_opencv
+
     torch.manual_seed(10)
 
     args = get_args(all_tests)
@@ -248,6 +304,8 @@ def main():
     min_run_time = args.min_run_time
     num_threads = args.num_threads
     test_cases, full_bench, test_all_dims = get_test_cases(args)
+
+    has_opencv = has_opencv and args.with_opencv
 
     print(f"Torch config: {torch.__config__.show()}")
 
@@ -292,3 +350,12 @@ if __name__ == "__main__":
     env += f"PyTorch {torch.version.__version__}"
 
     main()
+
+    if has_opencv:
+        print("")
+        print("")
+        print("opencv version:", cv2.__version__)
+        print("numpy version:", np.__version__)
+        print("")
+        print("")
+        print(cv2.getBuildInformation())

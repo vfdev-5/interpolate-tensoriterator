@@ -268,7 +268,14 @@ Elapsed time (ms): 3.62022
 
 #### Notes
 
-- 17/03/2021
+<details>
+
+<summary>
+
+17/03/2021
+
+</summary>
+
 ```
 - ti_upsample_bilinear2d_cpu on channels first
 
@@ -321,3 +328,60 @@ TI_SHOW_STRIDES: 4 0 | 0 0 0 0 0 0 0 0 | 8 4 8 4 8 4 8 4 |
 TI_BASIC_LOOP -> CHANNELS_FIRST
 Elapsed time (ms): 10.8974
 ```
+
+</details>
+
+
+<details>
+
+<summary>
+
+18/03/2021 - loop1d vs loop2d
+
+</summary>
+
+```
+# LOOP1D
+Num threads: 1
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: true
+Input is_contiguous : false
+
+- Bench ti_upsample_bilinear2d (1000 rounds) - downsampling to 256x256
+Elapsed time (ms): 1.28927
+
+- Bench upsample_bilinear2d (1000 rounds) - downsampling to 256x256
+Elapsed time (ms): 1.01537
+
+- Bench ti_upsample_bilinear2d (1000 rounds) - upsampling to 512x512
+Elapsed time (ms): 5.06349
+
+- Bench upsample_bilinear2d (1000 rounds) - upsampling to 512x512
+Elapsed time (ms): 4.03706
+```
+vs 
+```
+# LOOP2D
+
+Num threads: 1
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: true
+Input is_contiguous : false
+
+- Bench ti_upsample_bilinear2d (1000 rounds) - downsampling to 256x256
+Elapsed time (ms): 1.14841
+
+- Bench upsample_bilinear2d (1000 rounds) - downsampling to 256x256
+Elapsed time (ms): 1.01576
+
+- Bench ti_upsample_bilinear2d (1000 rounds) - upsampling to 512x512
+Elapsed time (ms): 4.35938
+
+- Bench upsample_bilinear2d (1000 rounds) - upsampling to 512x512
+Elapsed time (ms): 4.03187
+```
+
+</details>
+
+

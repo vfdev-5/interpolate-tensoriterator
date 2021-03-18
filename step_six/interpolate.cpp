@@ -6,8 +6,8 @@
 #include <ATen/native/UpSample.h>
 
 
-// #define USE_ALWAYS_INDEX64
-#define VERBOSE
+#define USE_ALWAYS_INDEX64
+// #define VERBOSE
 
 namespace at {
 namespace native {
