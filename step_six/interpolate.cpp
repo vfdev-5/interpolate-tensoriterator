@@ -148,7 +148,7 @@ void ti_cpu_upsample_linear(at::TensorIterator& iter)
 
     // special-cases to let the compiler apply compile-time input-specific optimizations
     if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
-        is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
+        is_all_zero_stride<out_ndims, out_ndims-1, scalar_t, index_t>(&strides[2]))) {
       // contiguous channels-first case
 #ifdef VERBOSE
       if (TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED < 1) {

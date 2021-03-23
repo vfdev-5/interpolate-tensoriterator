@@ -64,7 +64,7 @@ def sub_bench_Nd_single_op(mode, n, min_run_time, t_input, output_size):
     test_results.append(m)
 
     shape = t_input.shape
-    if has_opencv and mem_format == "channels_last" and shape[0] == 1:    
+    if has_opencv and mem_format == "channels_last" and shape[0] == 1 and n == 2:
         shape = (shape[2], shape[3], shape[1])
         np_input = np.random.rand(*shape).astype('float32')
         sub_bench_Nd_single_op_opencv(

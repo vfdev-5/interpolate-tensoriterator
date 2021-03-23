@@ -14,6 +14,7 @@
 // #define INSPECT_2D_SLOWDOWN_CASE_ONLY
 // #define INSPECT_2D_SLOWDOWN_CASE2_ONLY
 // #define INSPECT_3D_CASE_ONLY
+// #define INSPECT_3D_CASE_CL_ONLY
 // #define PERF_INSPECT_2D_SLOWDOWN_CASE2_ONLY
 // How to execute it with valgrind:
 // valgrind --tool=callgrind --callgrind-out-file=callgrind.out ./bench 0 0 0 1
@@ -127,6 +128,25 @@ int main(int argc, char** argv)
         native::upsample_trilinear3d(t_input, output_size, false, scale_factors);
 
         std::cout << "\n- ti_upsample_trilinear3d_cpu on channels last" << std::endl;
+        ti_upsample::ti_upsample_trilinear3d_cpu(t_input, output_size, false, scale_factors);
+    }
+
+    return 1;
+#endif
+
+#ifdef INSPECT_3D_CASE_CL_ONLY
+
+    {
+        auto t_input = at::rand({1, 3, 16, 320, 320}, at::CPU(at::kFloat));
+        // t_input = t_input.permute({0, 4, 1, 2, 3});
+        int64_t osizes[3] = {8, 256, 256};
+        c10::optional<IntArrayRef> output_size = osizes;
+        c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
+        
+        std::cout << "\n- upsample_trilinear3d on channels first" << std::endl;
+        native::upsample_trilinear3d(t_input, output_size, false, scale_factors);
+
+        std::cout << "\n- ti_upsample_trilinear3d_cpu on channels first" << std::endl;
         ti_upsample::ti_upsample_trilinear3d_cpu(t_input, output_size, false, scale_factors);
     }
 
@@ -249,7 +269,7 @@ int main(int argc, char** argv)
 
 #ifdef BENCH_2D_SLOWDOWN_CL_CASE_ONLY
 
-    // sub_bench_2d_non_contiguous_channel_last(n, 320, 256, 512);
+    sub_bench_2d_non_contiguous_channel_last(n, 320, 256, 512);
     sub_bench_2d_mingfeima_channel_last(n);
 
     return 1;

@@ -134,6 +134,8 @@ static inline bool is_contiguous_stride(const int64_t* strides) {
 template <int N, int non_zero_stride_dim, typename scalar_t, typename index_t, int interp_size>
 struct CheckAlmostAllZeroStrides {
   static inline bool eval(const int64_t* strides) {
+    // N is dim index: N -> dim0, N-1 -> dim1, ... 
+    // non_zero_stride_dim should be out_dims - dim 
     bool output;
     if (N == non_zero_stride_dim) {
       output = is_contiguous_stride<scalar_t, index_t, interp_size>(strides);
@@ -208,7 +210,8 @@ void ti_cpu_upsample_generic(at::TensorIterator& iter)
 
 #ifdef VERBOSE
     if (TI_SHOW_STRIDES) {
-      std::cout << "TI_SHOW: N=" << n << std::endl;
+      std::cout << "TI_SHOW: size0=" << size0 << std::endl;
+      std::cout << "TI_SHOW: size1=" << size1 << std::endl;
       std::cout << "TI_SHOW_STRIDES: "
         << strides[0] << " "
         << strides[1] << " | ";
@@ -219,11 +222,29 @@ void ti_cpu_upsample_generic(at::TensorIterator& iter)
         std::cout << "| ";
       }
       std::cout << std::endl;
+
+      int ntensor = iter.ntensors();
+      const int64_t* outer_strides = &strides[ntensor];      
+      std::cout << " - strides= ";
+      for (int64_t arg = 0; arg < ntensor; arg++) {
+        std::cout << strides[arg] << " ";
+      }
+      std::cout << std::endl;
+      std::cout << " - outer_strides= ";
+      for (int64_t arg = 0; arg < ntensor; arg++) {
+          std::cout << outer_strides[arg] << " ";
+      }
+      std::cout << std::endl;
       TI_SHOW_STRIDES = false;
     }
 #endif
 
+    constexpr int ntensors = 2 + 2 * interp_size * out_ndims;
+
     // special-cases to let the compiler apply compile-time input-specific optimizations
+    // check_almost_all_zero_stride<out_ndims, 1, ...> checks if the last dimension has non-zero strides
+    // N is dim index: N -> dim0, N-1 -> dim1, ... 
+    // non_zero_stride_dim should be out_dims - dim
     if ((strides[0] == sizeof(scalar_t)) && (strides[1] == 0) &&
         check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, interp_size>(&strides[2])) {
       // contiguous channels-first case
@@ -247,8 +268,13 @@ void ti_cpu_upsample_generic(at::TensorIterator& iter)
 //       }
 // #endif
 //       basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, n);
-    } else if ((strides[0] == sizeof(scalar_t)) && (strides[1] == sizeof(scalar_t)) &&
-               check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, interp_size>(&strides[2])) {
+    } else if (
+      (strides[0] == sizeof(scalar_t)) && (strides[1] == sizeof(scalar_t))
+      && check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, interp_size>(&strides[2])
+      // here we check outer_strides
+      && (strides[ntensors + 0] >= sizeof(scalar_t)) && (strides[ntensors + 1] == 0)
+      && check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, interp_size>(&strides[ntensors + 2])
+    ) {
       // contiguous channels-last case
 #ifdef VERBOSE
       if (TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED < 1) {

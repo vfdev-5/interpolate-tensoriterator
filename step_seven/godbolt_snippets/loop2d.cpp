@@ -103,11 +103,12 @@ static inline bool check_almost_all_zero_stride(const int64_t* strides) {
 }
 
 template <typename scalar_t, typename index_t, int out_ndims, int interp_size>
-static inline void basic_loop(char** data, const int64_t* strides, int64_t size0, int64_t size1, int ntensor) {
-  char* dst = data[0];
-  char* src = data[1];
+static inline void basic_loop(char** data, const int64_t* strides, int64_t size0, int64_t size1) {
+
+  constexpr int ntensor = 2 + 2 * out_ndims * interp_size;
   const int64_t* outer_strides = &strides[ntensor];
 
+  char *dst, *src;
   for (int64_t j=0; j < size1; j++) {
 
     if (j > 0) {
@@ -115,6 +116,8 @@ static inline void basic_loop(char** data, const int64_t* strides, int64_t size0
         data[arg] += outer_strides[arg];
       }
     }
+    dst = data[0];
+    src = data[1];
     for (int64_t i = 0; i < size0; i++) {
       *(scalar_t*)&dst[i * strides[0]] = interpolate<out_ndims, scalar_t, index_t, interp_size>(
           src + i * strides[1], &data[2], &strides[2], i);
@@ -129,9 +132,10 @@ constexpr int out_ndims = 2;
 constexpr int interp_size = 2;
 
 
-void func(char** data, const int64_t* strides, int64_t size0, int64_t size1, int ntensors)
+void func(char** data, const int64_t* strides, int64_t size0, int64_t size1)
 {
-  
+
+    constexpr int ntensors = 2 + 2 * interp_size * out_ndims;
     // special-cases to let the compiler apply compile-time input-specific optimizations
     // if ((strides[0] == sizeof(scalar_t)) && (strides[1] == 0) &&
     //     check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, interp_size>(&strides[2])) {
@@ -139,10 +143,14 @@ void func(char** data, const int64_t* strides, int64_t size0, int64_t size1, int
     //   basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, size0, size1, ntensors);
     // } 
     // else 
-    if ((strides[0] == sizeof(scalar_t)) && (strides[1] == sizeof(scalar_t)) &&
-               check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, interp_size>(&strides[2])) {
-      // contiguous channels-last case
-      basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, size0, size1, ntensors);
+    if (
+      (strides[0] == sizeof(scalar_t)) && (strides[1] == sizeof(scalar_t))
+      && check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, interp_size>(&strides[2])
+      // here we check outer_strides
+      && (strides[ntensors + 0] >= sizeof(scalar_t)) && (strides[ntensors + 1] == 0)
+      && check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, interp_size>(&strides[ntensors + 2])
+    ) {      // contiguous channels-last case
+      basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, size0, size1);
     } 
     // else 
     // {

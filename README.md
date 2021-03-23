@@ -382,6 +382,58 @@ Elapsed time (ms): 4.35938
 Elapsed time (ms): 4.03187
 ```
 
+```
+Output tensor: [1, 3, 512, 512]
+Output is_contiguous memory_format torch.channels_last: true
+Output is_contiguous memory_format torch.channels_last_3d: false
+Output is_contiguous : false
+TI_SHOW: size0=3
+TI_SHOW: size1=512
+TI_SHOW_STRIDES: 4 4 | 0 0 0 0 | 0 0 0 0 |
+ - strides= 4 4 0 0 0 0 0 0 0 0
+ - outer_strides= 12 0 0 0 0 0 8 4 8 4
+TI_BASIC_LOOP -> CHANNELS_LAST
+```
+
+```
+Output tensor: [1, 3, 512, 512]
+Output is_contiguous memory_format torch.channels_last: false
+Output is_contiguous memory_format torch.channels_last_3d: false
+Output is_contiguous : true
+TI_SHOW: size0=512
+TI_SHOW: size1=512
+TI_SHOW_STRIDES: 4 0 | 0 0 0 0 | 8 4 8 4 | 
+ - strides= 4 0 0 0 0 0 8 4 8 4 
+ - outer_strides= 2048 0 8 4 8 4 0 0 0 0 
+```
+
+```
+Output tensor: [1, 3, 8, 256, 256]
+Output is_contiguous memory_format torch.channels_last: false
+Output is_contiguous memory_format torch.channels_last_3d: true
+Output is_contiguous : false
+TI_SHOW: size0=3
+TI_SHOW: size1=256
+TI_SHOW_STRIDES: 4 4 | 0 0 0 0 | 0 0 0 0 | 0 0 0 0 | 
+ - strides= 4 4 0 0 0 0 0 0 0 0 0 0 0 0 
+ - outer_strides= 12 0 0 0 0 0 0 0 0 0 8 4 8 4 
+TI_BASIC_LOOP -> CHANNELS_LAST
+```
+
+```
+Output tensor: [1, 3, 8, 256, 256]
+Output is_contiguous memory_format torch.channels_last: false
+Output is_contiguous memory_format torch.channels_last_3d: false
+Output is_contiguous : true
+TI_SHOW: size0=256
+TI_SHOW: size1=256
+TI_SHOW_STRIDES: 4 0 | 0 0 0 0 | 0 0 0 0 | 8 4 8 4 | 
+ - strides= 4 0 0 0 0 0 0 0 0 0 8 4 8 4 
+ - outer_strides= 1024 0 0 0 0 0 8 4 8 4 0 0 0 0 
+TI_BASIC_LOOP -> CHANNELS_FIRST
+```
+
+
 </details>
 
 

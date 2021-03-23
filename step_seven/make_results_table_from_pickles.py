@@ -7,7 +7,7 @@ import torch.utils.benchmark as benchmark
 
 
 if __name__ == "__main__":
-    
+
     parser = argparse.ArgumentParser("Tool to create a table with results as markdown file")
     parser.add_argument("output", default=str, help="Output filename, e.g. output.md")
     parser.add_argument("inputs", default=str, nargs='+', help="Input pickle files")
@@ -24,4 +24,8 @@ if __name__ == "__main__":
     compare = benchmark.Compare(ab_results)
 
     with open(args.output, "w") as handler:
+        handler.write(f"Description:\n")
+        for in_filepath in args.inputs:
+            handler.write(f"- {Path(in_filepath).stem}\n")
+        handler.write(f"\n")
         handler.write(str(compare))
