@@ -11,8 +11,7 @@ export min_run_time=1
 # custom_tests="2dcf 3dcf 1d"
 custom_tests="all"
 
-# prefix=`date "+%Y%d%m-%H%M%S"`
-prefix="20212303-061238"
+prefix=`date "+%Y%d%m-%H%M%S"`
 postfix=".opencv"
 
 output_folder="results"
@@ -24,13 +23,13 @@ version1=`PYTHONPATH=$MASTER_TORCH_PATH python -c "import torch; print(torch.__v
 filepath1="${output_folder}/${prefix}_pth_nightly_results_$version1.log.save$postfix"
 pickle_filepath1="${output_folder}/${prefix}_pth_nightly_results_$version1$postfix"
 
-# echo "" > $filepath1
-# export OMP_NUM_THREADS=6
-# PYTHONPATH=$MASTER_TORCH_PATH python -u run_pytorch_native_bench.py $pickle_filepath1.$OMP_NUM_THREADS.pickle $min_run_time 1 1 --test_cases $custom_tests >> $filepath1
+echo "" > $filepath1
+export OMP_NUM_THREADS=6
+PYTHONPATH=$MASTER_TORCH_PATH python -u run_pytorch_native_bench.py $pickle_filepath1.$OMP_NUM_THREADS.pickle $min_run_time 1 1 --test_cases $custom_tests >> $filepath1
 
-# echo "\n\n" >> $filepath1
-# export OMP_NUM_THREADS=1
-# PYTHONPATH=$MASTER_TORCH_PATH python -u run_pytorch_native_bench.py $pickle_filepath1.$OMP_NUM_THREADS.pickle $min_run_time 1 1 --test_cases $custom_tests >> $filepath1
+echo "\n\n" >> $filepath1
+export OMP_NUM_THREADS=1
+PYTHONPATH=$MASTER_TORCH_PATH python -u run_pytorch_native_bench.py $pickle_filepath1.$OMP_NUM_THREADS.pickle $min_run_time 1 1 --test_cases $custom_tests >> $filepath1
 
 echo "Run benchmark PR"
 version2=`PYTHONPATH=$PR_TORCH_PATH python -c "import torch; print(torch.__version__)"`
@@ -38,13 +37,13 @@ filepath2="${output_folder}/${prefix}_pr_results_$version2.log.save$postfix"
 pickle_filepath2="${output_folder}/${prefix}_pr_results_$version2$postfix"
 echo $filepath2
 
-# echo "" > $filepath2
-# export OMP_NUM_THREADS=6
-# PYTHONPATH=$PR_TORCH_PATH python -u run_pytorch_native_bench.py $pickle_filepath2.$OMP_NUM_THREADS.pickle $min_run_time 1 1 --test_cases $custom_tests --with_opencv >> $filepath2
+echo "" > $filepath2
+export OMP_NUM_THREADS=6
+PYTHONPATH=$PR_TORCH_PATH python -u run_pytorch_native_bench.py $pickle_filepath2.$OMP_NUM_THREADS.pickle $min_run_time 1 1 --test_cases $custom_tests --with_opencv >> $filepath2
 
-# echo "\n\n" >> $filepath2
-# export OMP_NUM_THREADS=1
-# PYTHONPATH=$PR_TORCH_PATH python -u run_pytorch_native_bench.py $pickle_filepath2.$OMP_NUM_THREADS.pickle $min_run_time 1 1 --test_cases $custom_tests --with_opencv >> $filepath2
+echo "\n\n" >> $filepath2
+export OMP_NUM_THREADS=1
+PYTHONPATH=$PR_TORCH_PATH python -u run_pytorch_native_bench.py $pickle_filepath2.$OMP_NUM_THREADS.pickle $min_run_time 1 1 --test_cases $custom_tests --with_opencv >> $filepath2
 
 # Create pr_vs_pth_results.md
 output="${output_folder}/${prefix}_pr_${version2}_vs_pth_${version1}_results${postfix}.md"

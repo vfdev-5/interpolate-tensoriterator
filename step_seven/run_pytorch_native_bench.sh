@@ -4,7 +4,7 @@ set -xeu
 
 export MASTER_TORCH_PATH=/pytorch
 export PR_TORCH_PATH=/workspace/pth-linear-interp
-export min_run_time=15
+export min_run_time=12
 
 # custom_tests="linear:2dcf"
 # custom_tests="2dcf 2dcl 3dcf 3dcl"
@@ -12,7 +12,7 @@ export min_run_time=15
 custom_tests="all"
 
 prefix=`date "+%Y%d%m-%H%M%S"`
-postfix=".1"
+postfix=""
 
 output_folder="results"
 mkdir -p ${output_folder}
