@@ -77,7 +77,7 @@ struct Interpolate {
 
 template <typename scalar_t, typename index_t, int interp_size>
 struct Interpolate<1, scalar_t, index_t, interp_size> {
-    static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {      
+    static inline scalar_t eval(char* src, char** data, const int64_t* strides, int64_t i) {
       index_t ids = *(index_t*)&data[0][i * strides[0]];
       scalar_t wts = *(scalar_t*)&data[1][i * strides[1]];
       scalar_t t = *(scalar_t *)&src[ids];
@@ -134,15 +134,15 @@ static inline bool is_contiguous_stride(const int64_t* strides) {
 template <int N, int non_zero_stride_dim, typename scalar_t, typename index_t, int interp_size>
 struct CheckAlmostAllZeroStrides {
   static inline bool eval(const int64_t* strides) {
-    // N is dim index: N -> dim0, N-1 -> dim1, ... 
-    // non_zero_stride_dim should be out_dims - dim 
+    // N is dim index: N -> dim0, N-1 -> dim1, ...
+    // non_zero_stride_dim should be out_dims - dim
     bool output;
     if (N == non_zero_stride_dim) {
       output = is_contiguous_stride<scalar_t, index_t, interp_size>(strides);
     } else {
       output = is_zero_stride<interp_size>(strides);
-    }    
-    return output && 
+    }
+    return output &&
       CheckAlmostAllZeroStrides<N - 1, non_zero_stride_dim, scalar_t, index_t, interp_size>::eval(
         &strides[2 * interp_size]);
   }
@@ -224,7 +224,7 @@ void ti_cpu_upsample_generic(at::TensorIterator& iter)
       std::cout << std::endl;
 
       int ntensor = iter.ntensors();
-      const int64_t* outer_strides = &strides[ntensor];      
+      const int64_t* outer_strides = &strides[ntensor];
       std::cout << " - strides= ";
       for (int64_t arg = 0; arg < ntensor; arg++) {
         std::cout << strides[arg] << " ";
@@ -243,7 +243,7 @@ void ti_cpu_upsample_generic(at::TensorIterator& iter)
 
     // special-cases to let the compiler apply compile-time input-specific optimizations
     // check_almost_all_zero_stride<out_ndims, 1, ...> checks if the last dimension has non-zero strides
-    // N is dim index: N -> dim0, N-1 -> dim1, ... 
+    // N is dim index: N -> dim0, N-1 -> dim1, ...
     // non_zero_stride_dim should be out_dims - dim
     if ((strides[0] == sizeof(scalar_t)) && (strides[1] == 0) &&
         check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, interp_size>(&strides[2])) {
@@ -314,7 +314,7 @@ struct HelperInterpBase {
       output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
     }
   }
- 
+
 };
 
 template<typename index_t, typename scalar_t>
@@ -346,7 +346,7 @@ struct HelperInterpNearest : public HelperInterpBase<index_t, scalar_t> {
   // fit input/output tensors.
   // Indices are already containing the strides to optimize the computations
   static inline std::vector<Tensor> compute_indices_weights(
-    int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
+    int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim,
     bool align_corners, const c10::optional<double> opt_scale
   ) {
 
@@ -356,7 +356,7 @@ struct HelperInterpNearest : public HelperInterpBase<index_t, scalar_t> {
 
     scalar_t scale = area_pixel_compute_scale<scalar_t>(input_size, output_size, align_corners, opt_scale);
 
-    auto input_index_ptr = output[0].data_ptr<index_t>();  
+    auto input_index_ptr = output[0].data_ptr<index_t>();
     int64_t input_index;
 
     for (int64_t i=0; i<output_size; i++) {
@@ -386,7 +386,7 @@ struct HelperInterpLinear : public HelperInterpBase<index_t, scalar_t> {
   // fit input/output tensors.
   // Indices are already containing the strides to optimize the computations
   static inline std::vector<Tensor> compute_indices_weights(
-    int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
+    int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim,
     bool align_corners, const c10::optional<double> opt_scale
   ) {
 
@@ -436,7 +436,7 @@ struct HelperInterpCubic : public HelperInterpBase<index_t, scalar_t> {
   // fit input/output tensors.
   // Indices are already containing the strides to optimize the computations
   static inline std::vector<Tensor> compute_indices_weights(
-    int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
+    int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim,
     bool align_corners, const c10::optional<double> opt_scale
   ) {
 
@@ -496,7 +496,7 @@ void ti_upsample_generic_Nd_kernel_impl(
   std::cout << "Output is_contiguous : " << (output.is_contiguous() ? "true" : "false") << std::endl;
 #endif
 
-  // input can be NCHW, NCL or NCKHW  
+  // input can be NCHW, NCL or NCKHW
   auto shape = input.sizes().vec();
   auto strides = input.strides().vec();
   auto oshape = output.sizes();
@@ -514,13 +514,22 @@ void ti_upsample_generic_Nd_kernel_impl(
 
   std::vector<std::vector<Tensor>> indices_weights;
 
-  AT_DISPATCH_FLOATING_TYPES(
-    input.scalar_type(), "compute_indices_weights_generic", [&] {
+  constexpr int interp_size = F<index_t, float>::interp_size;
+  auto input_scalar_type = input.scalar_type();
+
+  if (interp_size == 1 && input_scalar_type == at::ScalarType::Byte) {
+    // nearest also supports uint8 tensor, but we have to use float
+    // with compute_indices_weights
+    input_scalar_type = at::ScalarType::Float;
+  }
+
+  AT_DISPATCH_FLOATING_TYPES_AND(at::ScalarType::Byte,
+    input_scalar_type, "compute_indices_weights_generic", [&] {
       for (int i=0; i<out_ndims; i++) {
         indices_weights.emplace_back(
           F<index_t, scalar_t>::compute_indices_weights(
-            input.size(i + 2), oshape[i + 2], 
-            input.stride(i + 2) * input.element_size(), 
+            input.size(i + 2), oshape[i + 2],
+            input.stride(i + 2) * input.element_size(),
             input.dim(), i + 2, align_corners, scales[i]
           )
         );
@@ -533,7 +542,7 @@ void ti_upsample_generic_Nd_kernel_impl(
     .declare_static_dtype_and_device(input.scalar_type(), input.device())
     .add_output(output)
     .add_input(restrided_input);
-  
+
   for (auto & idx_weight: indices_weights) {
     for (auto& tensor : idx_weight) {
       config.add_input(tensor);
@@ -542,11 +551,19 @@ void ti_upsample_generic_Nd_kernel_impl(
 
   auto iter = config.build();
 
-  AT_DISPATCH_FLOATING_TYPES(
-      iter.dtype(), "upsample_generic_Nd", [&] {
-      constexpr int interp_size = F<index_t, scalar_t>::interp_size;
-      ti_cpu_upsample_generic<scalar_t, index_t, out_ndims, interp_size>(iter);
-  });
+  if (interp_size > 1) {
+    // Nearest also supports uint8 tensor, so need to handle it separately
+    AT_DISPATCH_FLOATING_TYPES(
+        iter.dtype(), "upsample_generic_Nd", [&] {
+        constexpr int interp_size = F<index_t, scalar_t>::interp_size;
+        ti_cpu_upsample_generic<scalar_t, index_t, out_ndims, interp_size>(iter);
+    });
+  } else {
+    AT_DISPATCH_FLOATING_TYPES_AND(at::ScalarType::Byte,
+        iter.dtype(), "upsample_generic_Nd", [&] {
+        ti_cpu_upsample_generic<scalar_t, index_t, out_ndims, interp_size>(iter);
+    });
+  }
 }
 
 

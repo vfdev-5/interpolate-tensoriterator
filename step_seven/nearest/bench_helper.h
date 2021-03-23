@@ -58,7 +58,7 @@ inline void assert_consistency_nearest2d(
         std::cout << "Ref output vs TI output (value and diff):" << std::endl;
         auto r1 = ref_out.masked_select(mask);
         auto diff = (ref_out - out).masked_select(mask);
-        auto argmax = diff.argmax();        
+        auto argmax = diff.argmax();
         for (int i=0; i<int(std::min(5, n_err_vals)); i++) {
             std::cout << "\t" << r1[i].item<double>() << ", diff=" << diff[i].item<double>() << std::endl;
         }
@@ -168,6 +168,17 @@ inline void assert_consistency_2d(int isize=320, int dn_osize=256, int up_osize=
         t_input = t_input.index({"...", Slice(None, isize), Slice(None, isize)});
         check(t_input, dn_osize, up_osize);
     }
+
+    auto t_input = at::randint(0, 256, {1, 3, isize, isize}, CPU(kByte));
+    check(t_input, dn_osize, up_osize);
+
+    t_input = at::randint(0, 256, {1, isize, isize, 3}, CPU(kByte));
+    t_input = t_input.permute({0, 3, 1, 2});
+    check(t_input, dn_osize, up_osize);
+
+    t_input = at::randint(0, 256, {1, 3, isize + 100, isize + 100}, CPU(kByte));
+    t_input = t_input.index({"...", Slice(None, isize), Slice(None, isize)});
+    check(t_input, dn_osize, up_osize);
 }
 
 
@@ -272,7 +283,7 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
         std::cout << "Input is_contiguous : " << (t_input.is_contiguous() ? "true" : "false") << std::endl;
 
         assert_consistency_nearest2d(t_input, -1, 128);
-        {    
+        {
             std::cout << "\n- Bench upsample_nearest2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
@@ -310,7 +321,7 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
         std::cout << "Input is_contiguous : " << (t_input.is_contiguous() ? "true" : "false") << std::endl;
 
         assert_consistency_nearest2d(t_input, -1, 128);
-        {    
+        {
             std::cout << "\n- Bench upsample_nearest2d (" << n << " rounds) - upsampling to 128x128" << std::endl;
             auto start = std::chrono::steady_clock::now();
             for (int i=0; i<n; i++)
@@ -336,14 +347,14 @@ inline void sub_bench_2d_mingfeima_channel_last(int n) {
             std::cout << "Elapsed time (ms): " << elapsed_seconds.count() / n * 1000 << std::endl;
         }
     }
-} 
+}
 
 
 inline void sub_bench_2d_non_contiguous_channel_last(int n, int isize, int dn_osize, int up_osize, int n_channels=3) {
     auto t_input = at::rand({1, isize, isize, n_channels}, at::CPU(at::kFloat));
-    t_input = t_input.permute({0, 3, 1, 2});  
+    t_input = t_input.permute({0, 3, 1, 2});
     sub_bench_2d(n, t_input, dn_osize, up_osize);
-} 
+}
 
 
 inline void bench_2d(int n, bool full_bench, int isize, int dn_osize, int up_osize) {
@@ -374,7 +385,19 @@ inline void assert_consistency_1d() {
         assert_consistency_nearest1d(t_input_channel_last, -1, 256);
         assert_consistency_nearest1d(t_input_channel_last, -1, -1, 0.77);
         assert_consistency_nearest1d(t_input_channel_last, -1, -1, 1.23);
-    }    
+    }
+
+    auto t_input = at::randint(0, 256, {4, 512, 320}, at::CPU(kByte));
+    assert_consistency_nearest1d(t_input, -1, 256);
+    assert_consistency_nearest1d(t_input, -1, -1, 1.12);
+    assert_consistency_nearest1d(t_input, -1, 512);
+    assert_consistency_nearest1d(t_input, -1, -1, 0.77);
+
+    auto t_input_channel_last = at::randint(0, 256, {1, 320, 512}, at::CPU(kByte));
+    t_input_channel_last = t_input_channel_last.permute({0, 2, 1});
+    assert_consistency_nearest1d(t_input_channel_last, -1, 256);
+    assert_consistency_nearest1d(t_input_channel_last, -1, -1, 0.77);
+    assert_consistency_nearest1d(t_input_channel_last, -1, -1, 1.23);
 }
 
 
@@ -386,7 +409,7 @@ inline int bench_1d(int n, bool full_bench) {
     std::cout << "\nInput tensor: " << t_input.sizes() << std::endl;
     std::cout << "Input is_contiguous memory_format torch.channels_last: " << (t_input.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
     std::cout << "Input is_contiguous : " << (t_input.is_contiguous() ? "true" : "false") << std::endl;
- 
+
     // Time benchmark
     {
         int64_t osizes[1] = {256, };
@@ -426,7 +449,7 @@ inline int bench_1d(int n, bool full_bench) {
     {
         int64_t osizes[1] = {512, };
         IntArrayRef output_size(osizes);
-        
+
         std::cout << "\n- Bench upsample_nearest1d (" << n << " rounds) - upsampling to 512" << std::endl;
         auto start = std::chrono::steady_clock::now();
         for (int i=0; i<n; i++)
@@ -474,6 +497,17 @@ inline void assert_consistency_3d() {
         assert_consistency_nearest3d(t_input_channel_last, -1, -1, 0.77, 0.77, 0.77);
         assert_consistency_nearest3d(t_input_channel_last, -1, -1, 1.23, 1.23, 1.23);
     }
+    auto t_input = at::randint(0, 256, {1, 3, 16, 320, 320}, at::CPU(kByte));
+    assert_consistency_nearest3d(t_input, -1, 256);
+    assert_consistency_nearest3d(t_input, -1, -1, 1.12, 1.12, 1.12);
+    assert_consistency_nearest3d(t_input, -1, 512);
+    assert_consistency_nearest3d(t_input, -1, -1, 0.77, 0.77, 0.77);
+
+    auto t_input_channel_last = at::randint(0, 256, {1, 16, 320, 320, 3}, at::CPU(kByte));
+    t_input_channel_last = t_input_channel_last.permute({0, 4, 1, 2, 3});
+    assert_consistency_nearest3d(t_input_channel_last, -1, 256);
+    assert_consistency_nearest3d(t_input_channel_last, -1, -1, 0.77, 0.77, 0.77);
+    assert_consistency_nearest3d(t_input_channel_last, -1, -1, 1.23, 1.23, 1.23);
 }
 
 

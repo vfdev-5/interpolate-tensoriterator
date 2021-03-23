@@ -10,7 +10,7 @@
 // #define INSPECT_ASSEMBLY_CODE
 // #define BENCH_3D_ONLY
 // #define BENCH_2D_CF_MFMA_ONLY
-#define BENCH_2D_CL_ONLY
+// #define BENCH_2D_CL_ONLY
 // #define USE_ALWAYS_INDEX64
 
 
@@ -23,13 +23,13 @@ int main(int argc, char** argv)
 {
 
 #ifdef INSPECT_ASSEMBLY_CODE
-    
+
     auto input = at::rand({1, 3, 16, 320, 320});
     int64_t osizes[3] = {8, 256, 256};
     c10::optional<IntArrayRef> output_size = osizes;
     c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
 
-    auto out = ti_upsample_nearest3d_kernel_impl(input, output_size, false, scale_factors);    
+    auto out = ti_upsample_nearest3d_kernel_impl(input, output_size, false, scale_factors);
 
     return 0;
 
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     manual_seed(10);
 
     if (argc >= 2)
-    {        
+    {
         n = std::atoi(argv[1]);
     }
     if (argc >= 3) {

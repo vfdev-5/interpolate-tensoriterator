@@ -30,6 +30,7 @@ def sub_bench_Nd_single_op(mode, n, min_run_time, t_input, output_size):
         mem_format = "channels_last" if t_input.is_contiguous(memory_format=torch.channels_last) else "channels_first"
     is_contiguous = "contiguous" if t_input.is_contiguous() else "non-contiguous"
     num_threads = torch.get_num_threads()
+    dtype = t_input.dtype
 
     ndim_prefix = ""
     if n == 2:
@@ -45,13 +46,13 @@ def sub_bench_Nd_single_op(mode, n, min_run_time, t_input, output_size):
 
     func_name = mode_Nd_fn_map[mode]
     align_corners = "" if mode == "near" else False
-    label = f"{func_name} {mem_format} {is_contiguous}"
+    label = f"{func_name} {mem_format} {is_contiguous} {dtype}"
     sub_label = f"{list(t_input.shape)} -> {output_size}"
 
     m = benchmark.Timer(
         stmt=f"{func_name}(t_input, output_size, {align_corners})",
         globals={
-            't_input': t_input, 
+            't_input': t_input,
             'output_size': output_size,
             func_name: getattr(C._nn, func_name)
         },
@@ -66,7 +67,8 @@ def sub_bench_Nd_single_op(mode, n, min_run_time, t_input, output_size):
     shape = t_input.shape
     if has_opencv and mem_format == "channels_last" and shape[0] == 1 and n == 2:
         shape = (shape[2], shape[3], shape[1])
-        np_input = np.random.rand(*shape).astype('float32')
+        npdtype = str(dtype).replace("torch.", "")
+        np_input = np.random.rand(*shape).astype(npdtype)
         sub_bench_Nd_single_op_opencv(
             mode, n, min_run_time, np_input, output_size, label, sub_label
         )
@@ -87,7 +89,7 @@ def sub_bench_Nd_single_op_opencv(mode, n, min_run_time, np_input, output_size, 
         stmt=f"cv2.resize(x, dsize=output_size, interpolation=mode)",
         setup="import cv2",
         globals={
-            'x': np_input, 
+            'x': np_input,
             'output_size': tuple(output_size),
             'mode': mode_map[mode]
         },
@@ -97,7 +99,7 @@ def sub_bench_Nd_single_op_opencv(mode, n, min_run_time, np_input, output_size, 
         description=f"opencv {cv2.__version__}",
     ).blocked_autorange(min_run_time=min_run_time)
     print("OpenCV: ", m)
-    test_results.append(m)    
+    test_results.append(m)
 
 
 def sub_bench_2d_single_op(mode, min_run_time, t_input, output_size):
@@ -121,10 +123,19 @@ def sub_bench_2d_non_contiguous_channel_first(mode, min_run_time, isize, dn_osiz
     t_input = t_input[..., :isize, :isize]
     sub_bench_2d(mode, min_run_time, t_input, dn_osize, up_osize)
 
+    if mode == "nearest":
+        t_input = torch.randint(0, 256, size=(1, 3, isize + 100, isize + 100), dtype=torch.uint8, device="cpu")
+        t_input = t_input[..., :isize, :isize]
+        sub_bench_2d(mode, min_run_time, t_input, dn_osize, up_osize)
+
 
 def sub_bench_2d_contiguous_channel_first(mode, min_run_time, isize, dn_osize, up_osize):
     t_input = torch.rand(1, 3, isize, isize, dtype=torch.float, device="cpu")
     sub_bench_2d(mode, min_run_time, t_input, dn_osize, up_osize)
+
+    if mode == "nearest":
+        t_input = torch.randint(0, 256, size=(1, 3, isize, isize), dtype=torch.uint8, device="cpu")
+        sub_bench_2d(mode, min_run_time, t_input, dn_osize, up_osize)
 
 
 def sub_bench_2d_mingfeima_channel_last(mode, min_run_time):
@@ -133,15 +144,30 @@ def sub_bench_2d_mingfeima_channel_last(mode, min_run_time):
     t_input = t_input.permute(0, 3, 1, 2)
     sub_bench_2d(mode, min_run_time, t_input, 32, 128)
 
+    if mode == "nearest":
+        t_input = torch.randint(0, 256, size=(32, 64, 64, 128), dtype=torch.uint8, device="cpu")
+        t_input = t_input.permute(0, 3, 1, 2)
+        sub_bench_2d(mode, min_run_time, t_input, 32, 128)
+
     print(f"\n1.2 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py")
     t_input = torch.rand(2, 64, 46, 128, dtype=torch.float, device="cpu")
     t_input = t_input.permute(0, 3, 1, 2)
     sub_bench_2d(mode, min_run_time, t_input, 32, 128)
 
+    if mode == "nearest":
+        t_input = torch.randint(0, 256, size=(2, 64, 46, 128), dtype=torch.uint8, device="cpu")
+        t_input = t_input.permute(0, 3, 1, 2)
+        sub_bench_2d(mode, min_run_time, t_input, 32, 128)
+
     print(f"\n1.3 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py")
     t_input = torch.rand(1, 64, 46, 128, dtype=torch.float, device="cpu")
     t_input = t_input.permute(0, 3, 1, 2)
     sub_bench_2d(mode, min_run_time, t_input, 32, 128)
+
+    if mode == "nearest":
+        t_input = torch.randint(0, 256, size=(1, 64, 46, 128), dtype=torch.uint8, device="cpu")
+        t_input = t_input.permute(0, 3, 1, 2)
+        sub_bench_2d(mode, min_run_time, t_input, 32, 128)
 
 
 def sub_bench_2d_mingfeima_channel_first(mode, min_run_time):
@@ -149,11 +175,21 @@ def sub_bench_2d_mingfeima_channel_first(mode, min_run_time):
     t_input = torch.rand(32, 128, 64, 64, dtype=torch.float, device="cpu")
     sub_bench_2d(mode, min_run_time, t_input, 32, 128)
 
+    if mode == "nearest":
+        t_input = torch.randint(0, 256, size=(32, 128, 64, 64), dtype=torch.uint8, device="cpu")
+        t_input = t_input.permute(0, 3, 1, 2)
+        sub_bench_2d(mode, min_run_time, t_input, 32, 128)
+
 
 def sub_bench_2d_non_contiguous_channel_last(mode, min_run_time, isize, dn_osize, up_osize, n_channels=3):
     t_input = torch.rand(1, isize, isize, n_channels, dtype=torch.float, device="cpu")
     t_input = t_input.permute(0, 3, 1, 2)
     sub_bench_2d(mode, min_run_time, t_input, dn_osize, up_osize)
+
+    if mode == "nearest":
+        t_input = torch.randint(0, 256, size=(1, isize, isize, n_channels), dtype=torch.uint8, device="cpu")
+        t_input = t_input.permute(0, 3, 1, 2)
+        sub_bench_2d(mode, min_run_time, t_input, dn_osize, up_osize)
 
 
 def is_in(case, test_cases):
@@ -185,11 +221,7 @@ def sub_bench_1d_single_op(mode, min_run_time, t_input, output_size):
     sub_bench_Nd_single_op(mode, 1, min_run_time, t_input, output_size)
 
 
-def bench_1d(mode, min_run_time, full_bench, test_cases):
-    if not any(is_in(k, test_cases) for k in ["1d", ]):
-        return
-
-    t_input = torch.rand(4, 512, 320, dtype=torch.float, device="cpu")
+def sub_bench_1d(mode, min_run_time, t_input):
     print(f"\nInput tensor: {list(t_input.shape)}")
     print(f"Input is_contiguous memory_format torch.channels_last: {t_input.is_contiguous(memory_format=torch.channels_last)}")
     print(f"Input is_contiguous : {t_input.is_contiguous()}")
@@ -200,6 +232,18 @@ def bench_1d(mode, min_run_time, full_bench, test_cases):
     output_size = [512, ]
     print(f"\n- Bench upsample {mode} 1d ({min_run_time} min_run_time) - upsampling to 512")
     sub_bench_1d_single_op(mode, min_run_time, t_input, [512, ])
+
+
+def bench_1d(mode, min_run_time, full_bench, test_cases):
+    if not any(is_in(k, test_cases) for k in ["1d", ]):
+        return
+
+    t_input = torch.rand(4, 512, 320, dtype=torch.float, device="cpu")
+    sub_bench_1d(mode, min_run_time, t_input)
+
+    if mode == "nearest":
+        t_input = torch.randint(0, 256, size=(4, 512, 320), dtype=torch.uint8, device="cpu")
+        sub_bench_1d(mode, min_run_time, t_input)
 
 
 def sub_bench_3d_single_op(mode, min_run_time, t_input, output_size):
@@ -226,6 +270,10 @@ def bench_3d(mode, min_run_time, full_bench, test_cases):
         t_input = torch.rand(1, 3, 16, 320, 320, dtype=torch.float, device="cpu")
         sub_bench_3d(mode, min_run_time, t_input, [8, 256, 256], [32, 512, 512])
 
+        if mode == "nearest":
+            t_input = torch.randint(0, 256, size=(1, 3, 16, 320, 320), dtype=torch.uint8, device="cpu")
+            sub_bench_3d(mode, min_run_time, t_input, [8, 256, 256], [32, 512, 512])
+
     if not full_bench:
         return
 
@@ -233,6 +281,11 @@ def bench_3d(mode, min_run_time, full_bench, test_cases):
         t_input = torch.rand(1, 16, 320, 320, 3, dtype=torch.float, device="cpu")
         t_input = t_input.permute(0, 4, 1, 2, 3)
         sub_bench_3d(mode, min_run_time, t_input, [8, 256, 256], [32, 512, 512])
+
+        if mode == "nearest":
+            t_input = torch.randint(0, 256, size=(1, 16, 320, 320, 3), dtype=torch.uint8, device="cpu")
+            t_input = t_input.permute(0, 4, 1, 2, 3)
+            sub_bench_3d(mode, min_run_time, t_input, [8, 256, 256], [32, 512, 512])
 
 
 def get_args(all_tests):
@@ -242,7 +295,7 @@ def get_args(all_tests):
         help="Output file path", nargs='?'
     )
     parser.add_argument(
-        "min_run_time", type=int, default=5, 
+        "min_run_time", type=int, default=5,
         help="Number of rounds", nargs='?'
     )
     parser.add_argument(
