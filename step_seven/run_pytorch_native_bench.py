@@ -287,6 +287,15 @@ def bench_3d(mode, min_run_time, full_bench, test_cases):
             t_input = t_input.permute(0, 4, 1, 2, 3)
             sub_bench_3d(mode, min_run_time, t_input, [8, 256, 256], [32, 512, 512])
 
+        t_input = torch.rand(1, 32, 64, 64, 16, dtype=torch.float, device="cpu")
+        t_input = t_input.permute(0, 4, 1, 2, 3)
+        sub_bench_3d(mode, min_run_time, t_input, [16, 32, 32], [64, 128, 128])
+
+        if mode == "nearest":
+            t_input = torch.randint(0, 256, size=(1, 32, 64, 64, 16), dtype=torch.uint8, device="cpu")
+            t_input = t_input.permute(0, 4, 1, 2, 3)
+            sub_bench_3d(mode, min_run_time, t_input, [16, 32, 32], [64, 128, 128])
+
 
 def get_args(all_tests):
     parser = argparse.ArgumentParser("Benchmark upsampling/downsampling ops")

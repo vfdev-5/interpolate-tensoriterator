@@ -6,10 +6,10 @@ export MASTER_TORCH_PATH=/pytorch
 export PR_TORCH_PATH=/workspace/pth-linear-interp
 export min_run_time=1
 
-# custom_tests="linear:2dcl"
+custom_tests="nearest:3dcl linear:3dcl"
 # custom_tests="2dcf 2dcl 3dcf 3dcl"
 # custom_tests="2dcf 3dcf 1d"
-custom_tests="all"
+# custom_tests="all"
 
 prefix=`date "+%Y%d%m-%H%M%S"`
 postfix=".opencv"
