@@ -7,7 +7,7 @@
 
 
 #define USE_ALWAYS_INDEX64
-#define VERBOSE
+// #define VERBOSE
 
 
 namespace at {
@@ -17,6 +17,7 @@ namespace ti_upsample {
 using at::native::upsample::compute_output_size;
 using at::native::upsample::get_scale_value;
 using scale_t = std::vector<c10::optional<double>>;
+using loop2d_t = TensorIteratorBase::loop2d_t;
 
 #ifdef VERBOSE
 static int TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED = 0;
@@ -160,24 +161,57 @@ static inline bool check_almost_all_zero_stride(const int64_t* strides) {
 }
 
 template <typename scalar_t, typename index_t, int out_ndims, int interp_size>
-static inline void basic_loop(char** data, const int64_t* strides, int64_t n) {
-  char* dst = data[0];
-  char* src = data[1];
-  for (int64_t i = 0; i < n; i++) {
-    *(scalar_t*)&dst[i * strides[0]] = interpolate<out_ndims, scalar_t, index_t, interp_size>(
-        src + i * strides[1], &data[2], &strides[2], i);
+static inline void basic_loop(char** data, const int64_t* strides, int64_t size0, int64_t size1) {
+  // output + input + num(idx, wts)=2 * interp_size * out_ndims
+  constexpr int ntensor = 2 + 2 * interp_size * out_ndims;
+  const int64_t* outer_strides = &strides[ntensor];
+
+  for (int64_t j=0; j < size1; j++) {
+
+    if (j > 0) {
+      for (int arg = 0; arg < ntensor; arg++) {
+        data[arg] += outer_strides[arg];
+      }
+    }
+    char* dst = data[0];
+    char* src = data[1];
+
+    for (int64_t i = 0; i < size0; i++) {
+      *(scalar_t*)&dst[i * strides[0]] = interpolate<out_ndims, scalar_t, index_t, interp_size>(
+          src + i * strides[1], &data[2], &strides[2], i);
+    }
   }
 }
+
+
+// template <typename loop1d_t>
+// auto original_loop_2d_from_1d(const loop1d_t& loop, int iter_ntensors) {
+// return [loop, ntensor=iter_ntensors](
+//     char** base, const int64_t* strides, int64_t size0, int64_t size1) {
+//       at::TensorIterator::PtrVector data(base, base + ntensor);
+//       const int64_t* outer_strides = &strides[ntensor];
+//       for (int64_t i = 0; i < size1; i++) {
+//         if (i > 0) {
+//           for (int64_t arg = 0; arg < ntensor; arg++) {
+//             data[arg] += outer_strides[arg];
+//           }
+//         }
+//         loop(data.data(), strides, size0);
+//       }
+//     };
+// }
 
 
 template <typename scalar_t, typename index_t, int out_ndims, int interp_size>
 void ti_cpu_upsample_generic(at::TensorIterator& iter)
 {
-  auto loop = [&](char** data, const int64_t* strides, int64_t n) {
+
+  auto loop2d = [&](char** data, const int64_t* strides, int64_t size0, int64_t size1) {
 
 #ifdef VERBOSE
     if (TI_SHOW_STRIDES) {
-      std::cout << "TI_SHOW: N=" << n << std::endl;
+      std::cout << "TI_SHOW: size0=" << size0 << std::endl;
+      std::cout << "TI_SHOW: size1=" << size1 << std::endl;
       std::cout << "TI_SHOW_STRIDES: "
         << strides[0] << " "
         << strides[1] << " | ";
@@ -188,10 +222,29 @@ void ti_cpu_upsample_generic(at::TensorIterator& iter)
         std::cout << "| ";
       }
       std::cout << std::endl;
+
+      int ntensor = iter.ntensors();
+      const int64_t* outer_strides = &strides[ntensor];
+      std::cout << " - strides= ";
+      for (int64_t arg = 0; arg < ntensor; arg++) {
+        std::cout << strides[arg] << " ";
+      }
+      std::cout << std::endl;
+      std::cout << " - outer_strides= ";
+      for (int64_t arg = 0; arg < ntensor; arg++) {
+          std::cout << outer_strides[arg] << " ";
+      }
+      std::cout << std::endl;
       TI_SHOW_STRIDES = false;
     }
 #endif
+
+    constexpr int ntensors = 2 + 2 * interp_size * out_ndims;
+
     // special-cases to let the compiler apply compile-time input-specific optimizations
+    // check_almost_all_zero_stride<out_ndims, 1, ...> checks if the last dimension has non-zero strides
+    // N is dim index: N -> dim0, N-1 -> dim1, ...
+    // non_zero_stride_dim should be out_dims - dim
     if ((strides[0] == sizeof(scalar_t)) && (strides[1] == 0) &&
         check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, interp_size>(&strides[2])) {
       // contiguous channels-first case
@@ -201,9 +254,27 @@ void ti_cpu_upsample_generic(at::TensorIterator& iter)
         TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED += 1;
       }
 #endif
-      basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, n);
-    } else if ((strides[0] == sizeof(scalar_t)) && (strides[1] == sizeof(scalar_t)) &&
-               check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, interp_size>(&strides[2])) {
+      basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, size0, size1);
+//     } else if (
+//       (strides[0] == sizeof(scalar_t)) &&
+//       (strides[1] == sizeof(scalar_t)) &&
+//       check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, interp_size>(&strides[2]) &&
+//       n > 256 / sizeof(scalar_t)) {
+//       // contiguous vectorized channels-last case
+// #ifdef VERBOSE
+//       if (TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED < 1) {
+//         std::cout << "TI_BASIC_LOOP -> VECTORIZED CHANNELS_LAST" << std::endl << std::flush;
+//         TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED += 1;
+//       }
+// #endif
+//       basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, n);
+    } else if (
+      (strides[0] == sizeof(scalar_t)) && (strides[1] == sizeof(scalar_t))
+      && check_almost_all_zero_stride<out_ndims, -1, scalar_t, index_t, interp_size>(&strides[2])
+      // here we check outer_strides
+      && (strides[ntensors + 0] >= sizeof(scalar_t)) && (strides[ntensors + 1] == 0)
+      && check_almost_all_zero_stride<out_ndims, 1, scalar_t, index_t, interp_size>(&strides[ntensors + 2])
+    ) {
       // contiguous channels-last case
 #ifdef VERBOSE
       if (TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED < 1) {
@@ -211,7 +282,7 @@ void ti_cpu_upsample_generic(at::TensorIterator& iter)
         TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED += 1;
       }
 #endif
-      basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, n);
+      basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, size0, size1);
     } else {
       // fallback
 #ifdef VERBOSE
@@ -220,10 +291,11 @@ void ti_cpu_upsample_generic(at::TensorIterator& iter)
         TI_BASIC_LOOP_FALLBACK_TRIGGERED += 1;
       }
 #endif
-      basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, n);
+      basic_loop<scalar_t, index_t, out_ndims, interp_size>(data, strides, size0, size1);
     }
   };
-  iter.for_each(loop);
+
+  iter.for_each(loop2d);
 }
 
 
@@ -442,7 +514,7 @@ void ti_upsample_generic_Nd_kernel_impl(
 
   std::vector<std::vector<Tensor>> indices_weights;
 
-constexpr int interp_size = F<index_t, float>::interp_size;
+  constexpr int interp_size = F<index_t, float>::interp_size;
   auto input_scalar_type = input.scalar_type();
 
   if (interp_size == 1 && input_scalar_type == at::ScalarType::Byte) {

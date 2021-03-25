@@ -13,7 +13,7 @@ namespace at {
 namespace native {
 namespace ti_upsample {
 
-using scale_t = std::vector<c10::optional<double>>;  
+using scale_t = std::vector<c10::optional<double>>;
 
 #ifdef VERBOSE
 static int TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED = 0;
@@ -148,7 +148,7 @@ void ti_cpu_upsample_linear(at::TensorIterator& iter)
 
     // special-cases to let the compiler apply compile-time input-specific optimizations
     if ((strides[0] == sizeof(scalar_t) && (strides[1] == 0) &&
-        is_all_zero_stride<out_ndims, out_ndims-1, scalar_t, index_t>(&strides[2]))) {
+        is_all_zero_stride<out_ndims, 1, scalar_t, index_t>(&strides[2]))) {
       // contiguous channels-first case
 #ifdef VERBOSE
       if (TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED < 1) {
@@ -183,7 +183,7 @@ void ti_cpu_upsample_linear(at::TensorIterator& iter)
 
 template<typename index_t, typename scalar_t>
 std::vector<Tensor> ti_compute_indices_weights_linear(
-  int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim, 
+  int64_t input_size, int64_t output_size, int64_t stride, int64_t ndims, int64_t reshape_dim,
   bool align_corners, const c10::optional<double> opt_scale
 ) {
 
@@ -194,7 +194,7 @@ std::vector<Tensor> ti_compute_indices_weights_linear(
   new_shape[reshape_dim] = output_size;
 
   output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
-  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));  
+  output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
   output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<index_t>())));
   output.emplace_back(empty(new_shape, CPU(c10::CppTypeToScalarType<scalar_t>())));
 
@@ -279,7 +279,7 @@ void ti_upsample_linearNd_kernel_impl(
   // Indices are already containing the strides to optimize the computations
   //
   // Indices dtype can be int32_t or int64_t depending on canUse32BitIndexMath(input)
-  // which should not overflow because maximum possible value that it could take is the 
+  // which should not overflow because maximum possible value that it could take is the
   // product of interpolated input strides: input_size[dim-1] * input_size[dim-2] * ...
   // which is always smaller then the number of input elements checked by canUse32BitIndexMath
   std::vector<std::vector<Tensor>> indices_weights;
@@ -299,7 +299,7 @@ void ti_upsample_linearNd_kernel_impl(
     .declare_static_dtype_and_device(input.scalar_type(), input.device())
     .add_output(output)
     .add_input(restrided_input);
-  
+
   for (auto & idx_weight: indices_weights) {
     for (auto& tensor : idx_weight) {
       config.add_input(tensor);
@@ -329,7 +329,7 @@ void _ti_upsample_bilinear2d_kernel_impl(
       output, input, align_corners, {scales_h, scales_w});
   } else {
     ti_upsample_linearNd_kernel_impl<int64_t, 2, scale_t>(
-      output, input, align_corners, {scales_h, scales_w});  
+      output, input, align_corners, {scales_h, scales_w});
   }
 #else
   ti_upsample_linearNd_kernel_impl<int64_t, 2, scale_t>(
@@ -459,7 +459,7 @@ Tensor ti_upsample_trilinear3d_cpu(
       input.sizes());
 
   output.resize_(full_output_size, input.suggest_memory_format());
-  _ti_upsample_trilinear3d_kernel_impl(output, input, align_corners, scale_d, scale_h, scale_w);  
+  _ti_upsample_trilinear3d_kernel_impl(output, input, align_corners, scale_d, scale_h, scale_w);
   return output;
 }
 

@@ -8,9 +8,10 @@
 
 
 // #define INSPECT_ASSEMBLY_CODE
-// #define BENCH_3D_ONLY
+// #define BENCH_3D_CL_ONLY
+#define BENCH_3D_CF_ONLY
 // #define BENCH_2D_SLOWDOWN_CASE_ONLY
-#define BENCH_2D_SLOWDOWN_CL_CASE_ONLY
+// #define BENCH_2D_SLOWDOWN_CL_CASE_ONLY
 // #define INSPECT_2D_SLOWDOWN_CASE_ONLY
 // #define INSPECT_2D_SLOWDOWN_CASE2_ONLY
 // #define INSPECT_3D_CASE_ONLY
@@ -20,7 +21,7 @@
 // valgrind --tool=callgrind --callgrind-out-file=callgrind.out ./bench 0 0 0 1
 // callgrind_annotate callgrind.out > callgrind.out.log
 // valgrind --tool=callgrind --callgrind-out-file=callgrind.out ./bench 0 0 0 1
-// 
+//
 // How to execute it with perf:
 // perf record -g ./bench 0 0 0 1
 // perf report
@@ -46,7 +47,7 @@ int main(int argc, char** argv)
     c10::optional<IntArrayRef> output_size = osizes;
     c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
 
-    auto out = ti_upsample_trilinear3d_cpu(input, output_size, false, scale_factors);    
+    auto out = ti_upsample_trilinear3d_cpu(input, output_size, false, scale_factors);
 
     return 0;
 
@@ -60,7 +61,7 @@ int main(int argc, char** argv)
     manual_seed(10);
 
     if (argc >= 2)
-    {        
+    {
         n = std::atoi(argv[1]);
     }
     if (argc >= 3) {
@@ -123,7 +124,7 @@ int main(int argc, char** argv)
         int64_t osizes[3] = {8, 256, 256};
         c10::optional<IntArrayRef> output_size = osizes;
         c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
-        
+
         std::cout << "\n- upsample_trilinear3d on channels last" << std::endl;
         native::upsample_trilinear3d(t_input, output_size, false, scale_factors);
 
@@ -142,7 +143,7 @@ int main(int argc, char** argv)
         int64_t osizes[3] = {8, 256, 256};
         c10::optional<IntArrayRef> output_size = osizes;
         c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
-        
+
         std::cout << "\n- upsample_trilinear3d on channels first" << std::endl;
         native::upsample_trilinear3d(t_input, output_size, false, scale_factors);
 
@@ -153,11 +154,20 @@ int main(int argc, char** argv)
     return 1;
 #endif
 
-#ifdef BENCH_3D_ONLY
+#ifdef BENCH_3D_CL_ONLY
     std::cout << "\n\n---- Benchmark 3D ----" << std::endl;
     // bench_3d(n / 10, full_bench);
     auto t_input = at::rand({1, 16, 320, 320, 3}, at::CPU(at::kFloat));
     t_input = t_input.permute({0, 4, 1, 2, 3});
+    sub_bench_3d(n / 10, t_input, 256, 512);
+    std::cout << "\n---- END Benchmark 3D ----" << std::endl;
+    return 1;
+#endif
+
+
+#ifdef BENCH_3D_CF_ONLY
+    std::cout << "\n\n---- Benchmark 3D ----" << std::endl;
+    auto t_input = at::rand({1, 3, 16, 320, 320}, at::CPU(at::kFloat));
     sub_bench_3d(n / 10, t_input, 256, 512);
     std::cout << "\n---- END Benchmark 3D ----" << std::endl;
     return 1;
@@ -172,7 +182,7 @@ int main(int argc, char** argv)
         int64_t osizes[2] = {256, 256};
         c10::optional<IntArrayRef> output_size = osizes;
         c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
-        
+
         std::cout << "\n- upsample_bilinear2d on channels last" << std::endl;
         native::upsample_bilinear2d(t_input, output_size, false, scale_factors);
 

@@ -11,7 +11,7 @@ export min_run_time=12
 # custom_tests="2dcf 3dcf 1d"
 custom_tests="all"
 
-prefix=`date "+%Y%d%m-%H%M%S"`
+prefix=`date "+%Y%m%d-%H%M%S"`
 postfix=""
 
 output_folder="results"
