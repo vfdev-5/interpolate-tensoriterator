@@ -7,7 +7,7 @@
 
 
 #define USE_ALWAYS_INDEX64
-#define VERBOSE
+// #define VERBOSE
 
 
 namespace at {

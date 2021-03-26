@@ -4,7 +4,7 @@ set -xeu
 
 export MASTER_TORCH_PATH=/pytorch
 export PR_TORCH_PATH=/workspace/pth-linear-interp
-export min_run_time=12
+export min_run_time=5
 
 # custom_tests="linear:2dcf"
 # custom_tests="2dcf 2dcl 3dcf 3dcl"
