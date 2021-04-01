@@ -7,9 +7,9 @@
 #include "interpolate.h"
 
 
-// #define INSPECT_ASSEMBLY_CODE
+#define INSPECT_ASSEMBLY_CODE
 // #define BENCH_3D_CL_ONLY
-#define BENCH_3D_CF_ONLY
+// #define BENCH_3D_CF_ONLY
 // #define BENCH_2D_SLOWDOWN_CASE_ONLY
 // #define BENCH_2D_SLOWDOWN_CL_CASE_ONLY
 // #define INSPECT_2D_SLOWDOWN_CASE_ONLY
@@ -47,9 +47,9 @@ int main(int argc, char** argv)
     c10::optional<IntArrayRef> output_size = osizes;
     c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt;
 
-    auto out = ti_upsample_trilinear3d_cpu(input, output_size, false, scale_factors);
-
-    return 0;
+    // auto out = ti_upsample_trilinear3d(input, output_size, false, scale_factors);
+    auto out = native::upsample_trilinear3d(input, output_size, false, scale_factors);
+    return out.sizes()[0];
 
 #endif
 

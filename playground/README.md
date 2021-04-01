@@ -531,19 +531,19 @@ Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-bu
 mat -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_
 FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON,
 
-                                                                    
-                            
+
+
 ---- Benchmark 2D ----
 Input tensor: [1, 3, 320, 320]
-Num threads: 6        
-                                  
+Num threads: 6
+
 - Check consistency (downsampling to 256x256): OK
 
 - Check consistency (upsampling to 512x512): OK
 
 - Bench upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
 Elapsed time (ms): 0.316959
-                                                                   
+
 - Bench ti_upsample_bilinear2d_cpu (7500 rounds) - downsampling to 256x256
 Elapsed time (ms): 0.0636201
 
@@ -581,10 +581,10 @@ Elapsed time (ms): 0.743611
 #### Result 2 (single loop):
 
 ```
-Torch config: PyTorch built with:                                      
-  - GCC 9.3                
+Torch config: PyTorch built with:
+  - GCC 9.3
   - C++ Version: 201402
-  - OpenMP 201511 (a.k.a. OpenMP 4.5)                                     
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
   - CPU capability usage: AVX2
   - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPO
 OL -fopenmp -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragm
@@ -597,7 +597,7 @@ ACK=0, USE_OPENMP=ON,
 
 
 ---- Benchmark 2D ----
-                      
+
 Input tensor: [1, 3, 320, 320]
 Num threads: 6
 
@@ -634,7 +634,7 @@ Elapsed time (ms): 0.109785
 Input tensor: [1, 3, 16, 320, 320]
 Num threads: 6
 
-- Check consistency (upsampling to 512): 
+- Check consistency (upsampling to 512):
 - Bench upsample_trilinear3d_cpu (750 rounds) - downsampling to 256
 Elapsed time (ms): 4.49102
 
@@ -649,7 +649,7 @@ Elapsed time (ms): 0.978064
 
 Install OpenCV libs
 ```
-apt-get install -y libopencv-core-dev libopencv-imgproc-dev 
+apt-get install -y libopencv-core-dev libopencv-imgproc-dev
 
 ls /usr/include/opencv4/opencv2/core/
 ```
@@ -691,10 +691,10 @@ Results
 
 ```
 Torch config: PyTorch built with:
-  - GCC 9.3                       
+  - GCC 9.3
   - C++ Version: 201402
   - OpenMP 201511 (a.k.a. OpenMP 4.5)
-  - CPU capability usage: AVX2                                               
+  - CPU capability usage: AVX2
   - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fope
 nmp -DNDEBUG -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-com
 pare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wn
@@ -703,10 +703,10 @@ zed -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type
 E_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON,
 
 
----- Benchmark 2D ----    
+---- Benchmark 2D ----
 
-Input tensor: [1, 3, 320, 320]                                             
-Num threads: 6             
+Input tensor: [1, 3, 320, 320]
+Num threads: 6
 
 - Bench upsample_bilinear2d_cpu (10000 rounds) - downsampling to 256x256
 Elapsed time (ms): 0.319714
@@ -714,11 +714,11 @@ Elapsed time (ms): 0.319714
 - Bench ti_upsample_bilinear2d_cpu (10000 rounds) - downsampling to 256x256
 Elapsed time (ms): 0.0637279
 
-Input tensor: [1, 3, 1024, 1024]                                  
-Num threads: 6             
+Input tensor: [1, 3, 1024, 1024]
+Num threads: 6
 
 - Bench upsample_bilinear2d_cpu (10000 rounds) - downsampling to 512x512
-Elapsed time (ms): 1.28923 
+Elapsed time (ms): 1.28923
 
 - Bench ti_upsample_bilinear2d_cpu (10000 rounds) - downsampling to 512x512
 Elapsed time (ms): 0.231808
@@ -830,7 +830,7 @@ Native functions: upsample_bilinear2d, pytorch/aten/src/ATen/native/native_funct
 \-> upsample_bilinear2d_kernel, pytorch/aten/src/ATen/native/UpSampleBilinear2d.cpp:48
 |   DEFINE_DISPATCH(upsample_bilinear2d_kernel) , DECLARE_DISPATCH(upsampling_bilinear2d, upsample_bilinear2d_kernel)
 |
-\-> REGISTER_DISPATCH(upsample_bilinear2d_kernel, &upsample_bilinear2d_kernel_impl), 
+\-> REGISTER_DISPATCH(upsample_bilinear2d_kernel, &upsample_bilinear2d_kernel_impl),
 |   pytorch/aten/src/ATen/native/cpu/UpSampleMoreKernel.cpp:569
 |
 \-> upsample_bilinear2d_kernel_impl
@@ -931,7 +931,7 @@ PyTorch built with:
   - CUDA Runtime 11.1
   - NVCC architecture flags: -gencode;arch=compute_61,code=sm_61
   - CuDNN 8.0.5
-  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=ON, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON, 
+  - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS=-O3 -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.0, USE_CUDA=1, USE_CUDNN=ON, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON,
 ```
 
 ```
@@ -985,13 +985,13 @@ Click here for details
 // https://github.com/opencv/opencv/blob/7d7ab462d6bcf39e453b47e95641ede41d3ef8bd/modules/imgproc/src/resize.cpp#L4044
 |-- void cv::resize( InputArray _src, OutputArray _dst, Size dsize,
 |                    double inv_scale_x, double inv_scale_y, int interpolation )
-|                 
 |
-// https://github.com/opencv/opencv/blob/7d7ab462d6bcf39e453b47e95641ede41d3ef8bd/modules/imgproc/src/resize.cpp#L3669 
+|
+// https://github.com/opencv/opencv/blob/7d7ab462d6bcf39e453b47e95641ede41d3ef8bd/modules/imgproc/src/resize.cpp#L3669
 |-- hal::resize(...)
 |
 |
-|--> CALL_HAL(resize, cv_hal_resize, ...) 
+|--> CALL_HAL(resize, cv_hal_resize, ...)
 |--> CV_IPP_RUN_FAST(ipp_resize(...)
 |
 |
@@ -1053,7 +1053,7 @@ On Ubuntu 20.04 docker image, linux kernel is still 4.15, but perf and other too
 ```bash
 echo "deb http://archive.ubuntu.com/ubuntu/ bionic main universe\n" >> /etc/apt/sources.list
 apt-get update
-apt-get install -y linux-tools-4.15.0-20-generic linux-tools-4.15.0-20 linux-tools-4.15.0-20-lowlatency 
+apt-get install -y linux-tools-4.15.0-20-generic linux-tools-4.15.0-20 linux-tools-4.15.0-20-lowlatency
 
 rm -rf /usr/bin/perf
 ln -s /usr/lib/linux-tools-4.15.0-20/perf /usr/bin/perf
@@ -1076,3 +1076,5 @@ ln -s /usr/lib/linux-tools-4.15.0-20/perf /usr/bin/perf
 - https://indico.cern.ch/event/771113/contributions/3203712/attachments/1746730/3022094/PracticalVectorization.pres.pdf
 
 - https://software.intel.com/sites/default/files/m/4/8/8/2/a/31848-CompilerAutovectorizationGuide.pdf
+
+- https://github.com/intel/oneapi-containers
