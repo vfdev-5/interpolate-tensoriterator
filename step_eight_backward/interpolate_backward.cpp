@@ -523,6 +523,95 @@ Tensor ti_upsample_bilinear2d_cpu_backward(
   return grad_input;
 }
 
+
+void _ti_upsample_bilinear1d_backward_kernel_impl(
+    const Tensor& grad_input,
+    const Tensor& grad_output,
+    bool align_corners,
+    c10::optional<double> scales_w) {
+  ti_upsample_generic_Nd_backward_kernel_impl<int64_t, 1, scale_t, HelperInterpLinear>(
+    grad_input, grad_output, align_corners, {scales_w});
+}
+
+
+Tensor ti_upsample_linear1d_cpu_backward(
+    const Tensor& grad_output,
+    c10::optional<IntArrayRef> output_size,
+    IntArrayRef input_size,
+    bool align_corners,
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt)
+{
+  // UpSampleLinear1d.cpp
+  auto grad_input = at::empty({0}, grad_output.options());
+  auto osize = compute_output_size(input_size, output_size, scale_factors);
+  auto scale_w = get_scale_value(scale_factors, 0);
+
+  auto full_output_size = native::upsample_1d_common_check(input_size, osize);
+
+  TORCH_CHECK(
+      input_size.size() == 3,
+      "It is expected input_size equals to 3, but got size ",
+      input_size.size());
+
+  check_dim_size(grad_output, 3, 0, full_output_size[0]);
+  check_dim_size(grad_output, 3, 1, full_output_size[1]);
+  check_dim_size(grad_output, 3, 2, full_output_size[2]);
+
+  grad_input.resize_(input_size, grad_output.suggest_memory_format());
+  grad_input.zero_();
+  _ti_upsample_bilinear1d_backward_kernel_impl(grad_input, grad_output, align_corners, scale_w);
+  return grad_input;
+}
+
+
+void _ti_upsample_trilinear3d_backward_kernel_impl(
+  const Tensor& grad_input,
+  const Tensor& grad_output,
+  bool align_corners,
+  c10::optional<double> scales_d,
+  c10::optional<double> scales_h,
+  c10::optional<double> scales_w) {
+  ti_upsample_generic_Nd_backward_kernel_impl<int64_t, 3, scale_t, HelperInterpLinear>(
+    grad_input, grad_output, align_corners, {scales_d, scales_h, scales_w});
+}
+
+
+Tensor ti_upsample_trilinear3d_cpu_backward(
+    const Tensor& grad_output,
+    c10::optional<IntArrayRef> output_size,
+    IntArrayRef input_size,
+    bool align_corners,
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt)
+{
+  // UpSampleTrilinear3d.cpp
+  auto grad_input = at::empty({0}, grad_output.options());
+  auto osize = compute_output_size(input_size, output_size, scale_factors);
+  auto scale_d = get_scale_value(scale_factors, 0);
+  auto scale_h = get_scale_value(scale_factors, 1);
+  auto scale_w = get_scale_value(scale_factors, 2);
+
+  auto full_output_size = native::upsample_3d_common_check(input_size, osize);
+
+  TORCH_CHECK(
+      grad_output.dim() == 5,
+      "Expected grad_output to be a tensor of dimension 5 but got: dimension ", grad_output.dim());
+
+  for (int i = 0; i < 5; ++i) {
+    TORCH_CHECK(
+        grad_output.size(i) == full_output_size[i],
+        "Expected grad_output to have the same shape as output;",
+        " output.size(", i, ") = ", full_output_size[i],
+        " but got grad_output.size(", i, ") = ", grad_output.size(i));
+  }
+
+  grad_input.resize_(input_size, grad_output.suggest_memory_format());
+  grad_input.zero_();
+  _ti_upsample_trilinear3d_backward_kernel_impl(
+      grad_input, grad_output, align_corners, scale_d, scale_h, scale_w);
+  return grad_input;
+}
+
+
 } // namespace ti_upsample
 } // namespace native
 } // namespace at

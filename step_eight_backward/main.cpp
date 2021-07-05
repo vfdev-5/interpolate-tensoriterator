@@ -12,7 +12,7 @@ int main(int argc, char** argv)
     int n = 7500;
     bool full_bench = false;
     bool test_all_dims = false;
-    int num_threads = 1;
+    int num_threads = 6;
 
     manual_seed(10);
 
@@ -35,18 +35,18 @@ int main(int argc, char** argv)
     set_num_threads(num_threads);
     std::cout << "Num threads: " << get_num_threads() << std::endl;
 
-    std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
-    bench_2d(n, full_bench, 320, 256, 512);
-    if (full_bench) {
-        bench_2d(n, false, 500, 256, 800);
-    }
-    std::cout << "\n---- END Benchmark 2D ----" << std::endl;
+    // std::cout << "\n\n---- Benchmark 2D ----" << std::endl;
+    // bench_2d(n, full_bench, 320, 256, 512);
+    // if (full_bench) {
+    //     bench_2d(n, false, 500, 256, 800);
+    // }
+    // std::cout << "\n---- END Benchmark 2D ----" << std::endl;
 
     if (!test_all_dims) return 0;
 
-    std::cout << "\n\n---- Benchmark 1D ----" << std::endl;
-    bench_1d(n, full_bench);
-    std::cout << "\n---- END Benchmark 1D ----" << std::endl;
+    // std::cout << "\n\n---- Benchmark 1D ----" << std::endl;
+    // bench_1d(n, full_bench);
+    // std::cout << "\n---- END Benchmark 1D ----" << std::endl;
 
     std::cout << "\n\n---- Benchmark 3D ----" << std::endl;
     bench_3d(n / 10, full_bench);

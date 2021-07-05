@@ -49,6 +49,14 @@ Tensor ti_upsample_linear1d_cpu(
     c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt);
 
 
+Tensor ti_upsample_linear1d_cpu_backward(
+    const Tensor& grad_output,
+    c10::optional<IntArrayRef> output_size,
+    IntArrayRef input_size,
+    bool align_corners,
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt);
+
+
 Tensor ti_upsample_nearest3d_cpu(
     const Tensor& input,
     c10::optional<IntArrayRef> output_size,
@@ -58,6 +66,14 @@ Tensor ti_upsample_nearest3d_cpu(
 Tensor ti_upsample_trilinear3d_cpu(
     const Tensor& input,
     c10::optional<IntArrayRef> output_size,
+    bool align_corners,
+    c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt);
+
+
+Tensor ti_upsample_trilinear3d_cpu_backward(
+    const Tensor& grad_output,
+    c10::optional<IntArrayRef> output_size,
+    IntArrayRef input_size,
     bool align_corners,
     c10::optional<c10::ArrayRef<double>> scale_factors = c10::nullopt);
 
