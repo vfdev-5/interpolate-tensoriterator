@@ -38,7 +38,7 @@ Click here for details
 
 
 ```bash
-docker run --rm -it \
+docker run -it \
     --name=tv-interpolate \
     -v $PWD:/interpolate-tensoriterator \
     -v $PWD/../:/workspace \
@@ -54,7 +54,6 @@ apt-get update && ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && 
     dpkg-reconfigure --frontend noninteractive tzdata && \
     apt-get install -y git cmake python3 python3-pip numactl && \
     ln -s /usr/bin/python3 /usr/bin/python && \
-    ln -s /usr/bin/pip3 /usr/bin/pip && \
     pip install numpy typing_extensions
 ```
 
@@ -131,41 +130,41 @@ Cubic 2d prelimiary results
 
 ```
 Torch config: PyTorch built with:
-  - GCC 9.3                                                           
-  - C++ Version: 201402       
-  - OpenMP 201511 (a.k.a. OpenMP 4.5)                       
-  - CPU capability usage: AVX2                                        
+  - GCC 9.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
   - Build settings: BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopen
 mp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas
  -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-
 declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wn
 o-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1
 .9.0, USE_CUDA=1, USE_CUDNN=1, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=0, USE_OPENMP=ON,
-                                                                        
-Num threads: 6                                                 
-                                                              
-                                                               
----- Benchmark 2D ----                                    
-                                                                     
-Input tensor: [1, 3, 320, 320]                                        
+
+Num threads: 6
+
+
+---- Benchmark 2D ----
+
+Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: false
-Input is_contiguous : true                                  
-                              
+Input is_contiguous : true
+
 - Bench upsample_bicubic2d (750 rounds) - downsampling to 256x256
-Elapsed time (ms): 6.5751                                        
-                          
+Elapsed time (ms): 6.5751
+
 - Bench ti_upsample_bicubic2d_cpu (750 rounds) - downsampling to 256x256
-Elapsed time (ms): 0.415758                                             
-                                              
-- Bench upsample_bicubic2d (750 rounds) - upsampling to 512x512         
-Elapsed time (ms): 25.2327                                           
-                          
+Elapsed time (ms): 0.415758
+
+- Bench upsample_bicubic2d (750 rounds) - upsampling to 512x512
+Elapsed time (ms): 25.2327
+
 - Bench ti_upsample_bicubic2d_cpu (750 rounds) - upsampling to 512x512
-Elapsed time (ms): 1.57621                                            
-                                                            
-Input tensor: [1, 3, 320, 320]                                        
+Elapsed time (ms): 1.57621
+
+Input tensor: [1, 3, 320, 320]
 Input is_contiguous memory_format torch.channels_last: false
-Input is_contiguous : false                                      
+Input is_contiguous : false
 
 - Bench upsample_bicubic2d (750 rounds) - downsampling to 256x256
 Elapsed time (ms): 6.54954
@@ -289,7 +288,7 @@ Output is_contiguous memory_format torch.channels_last: false
 Output is_contiguous memory_format torch.channels_last_3d: false
 Output is_contiguous : true
 TI_SHOW: N=256
-TI_SHOW_STRIDES: 4 0 | 0 0 0 0 | 8 4 8 4 | 
+TI_SHOW_STRIDES: 4 0 | 0 0 0 0 | 8 4 8 4 |
 TI_BASIC_LOOP -> CHANNELS_FIRST
 ```
 and
@@ -306,7 +305,7 @@ Output is_contiguous memory_format torch.channels_last: false
 Output is_contiguous memory_format torch.channels_last_3d: false
 Output is_contiguous : true
 TI_SHOW: N=512
-TI_SHOW_STRIDES: 4 0 | 0 0 | 8 4 | 
+TI_SHOW_STRIDES: 4 0 | 0 0 | 8 4 |
 TI_BASIC_LOOP -> CHANNELS_FIRST
 Elapsed time (ms): 1.41033
 ```
@@ -324,7 +323,7 @@ Output is_contiguous memory_format torch.channels_last: false
 Output is_contiguous memory_format torch.channels_last_3d: false
 Output is_contiguous : true
 TI_SHOW: N=512
-TI_SHOW_STRIDES: 4 0 | 0 0 0 0 0 0 0 0 | 8 4 8 4 8 4 8 4 | 
+TI_SHOW_STRIDES: 4 0 | 0 0 0 0 0 0 0 0 | 8 4 8 4 8 4 8 4 |
 TI_BASIC_LOOP -> CHANNELS_FIRST
 Elapsed time (ms): 10.8974
 ```
@@ -359,7 +358,7 @@ Elapsed time (ms): 5.06349
 - Bench upsample_bilinear2d (1000 rounds) - upsampling to 512x512
 Elapsed time (ms): 4.03706
 ```
-vs 
+vs
 ```
 # LOOP2D
 
@@ -402,9 +401,9 @@ Output is_contiguous memory_format torch.channels_last_3d: false
 Output is_contiguous : true
 TI_SHOW: size0=512
 TI_SHOW: size1=512
-TI_SHOW_STRIDES: 4 0 | 0 0 0 0 | 8 4 8 4 | 
- - strides= 4 0 0 0 0 0 8 4 8 4 
- - outer_strides= 2048 0 8 4 8 4 0 0 0 0 
+TI_SHOW_STRIDES: 4 0 | 0 0 0 0 | 8 4 8 4 |
+ - strides= 4 0 0 0 0 0 8 4 8 4
+ - outer_strides= 2048 0 8 4 8 4 0 0 0 0
 ```
 
 ```
@@ -414,9 +413,9 @@ Output is_contiguous memory_format torch.channels_last_3d: true
 Output is_contiguous : false
 TI_SHOW: size0=3
 TI_SHOW: size1=256
-TI_SHOW_STRIDES: 4 4 | 0 0 0 0 | 0 0 0 0 | 0 0 0 0 | 
- - strides= 4 4 0 0 0 0 0 0 0 0 0 0 0 0 
- - outer_strides= 12 0 0 0 0 0 0 0 0 0 8 4 8 4 
+TI_SHOW_STRIDES: 4 4 | 0 0 0 0 | 0 0 0 0 | 0 0 0 0 |
+ - strides= 4 4 0 0 0 0 0 0 0 0 0 0 0 0
+ - outer_strides= 12 0 0 0 0 0 0 0 0 0 8 4 8 4
 TI_BASIC_LOOP -> CHANNELS_LAST
 ```
 
@@ -427,12 +426,67 @@ Output is_contiguous memory_format torch.channels_last_3d: false
 Output is_contiguous : true
 TI_SHOW: size0=256
 TI_SHOW: size1=256
-TI_SHOW_STRIDES: 4 0 | 0 0 0 0 | 0 0 0 0 | 8 4 8 4 | 
- - strides= 4 0 0 0 0 0 0 0 0 0 8 4 8 4 
- - outer_strides= 1024 0 0 0 0 0 8 4 8 4 0 0 0 0 
+TI_SHOW_STRIDES: 4 0 | 0 0 0 0 | 0 0 0 0 | 8 4 8 4 |
+ - strides= 4 0 0 0 0 0 0 0 0 0 8 4 8 4
+ - outer_strides= 1024 0 0 0 0 0 8 4 8 4 0 0 0 0
 TI_BASIC_LOOP -> CHANNELS_FIRST
 ```
 
+
+</details>
+
+
+### Step 8 - Backward with TI for Cubic/Nearest/Linear interpolations
+
+
+#### Linear interpolation
+
+```bash
+cd step_eight_backward/linear && mkdir -p build && cd $_
+export TORCH_PATH=/pytorch/torch
+cmake -DTORCH_DIR=$TORCH_PATH ..
+make
+```
+
+```bash
+make && ./bench
+```
+
+<details>
+
+<summary>
+
+Early results with linear backward using TensorIterator
+
+</summary>
+
+```
+Torch config: PyTorch built with:  - GCC 9.3  - C++ Version: 201402  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2  - Build settings: BUILD_TYPE=Release, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOCUPTI -DUSE_PYTORCH_QNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type-Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.10.0, USE_CUDA=0, USE_CUDNN=OFF, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=0, USE_OPENMP=ON,
+
+Num threads: 1
+
+
+---- Benchmark 2D ----
+
+Grad Output tensor: [1, 3, 320, 320]
+Grad Output is_contiguous memory_format torch.channels_last: false
+Grad Output is_contiguous : true
+
+- Bench ti_upsample_bilinear2d_cpu_backward (7500 rounds) - upsampling from 256x256
+Elapsed time (ms): 0.781853
+
+- Bench upsample_bilinear2d_backward (7500 rounds) - upsampling from 256x256
+Elapsed time (ms): 1.71152
+
+- Bench ti_upsample_bilinear2d_cpu_backward (7500 rounds) - downsampling from 512x512
+Elapsed time (ms): 0.809508
+
+- Bench upsample_bilinear2d_backward (7500 rounds) - downsampling from 512x512
+Elapsed time (ms): 1.80017
+
+---- END Benchmark 2D ----
+```
 
 </details>
 

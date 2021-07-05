@@ -7,7 +7,7 @@
 #include "interpolate.h"
 
 
-#define INSPECT_ASSEMBLY_CODE
+// #define INSPECT_ASSEMBLY_CODE
 // #define BENCH_3D_CL_ONLY
 // #define BENCH_3D_CF_ONLY
 // #define BENCH_2D_SLOWDOWN_CASE_ONLY

@@ -106,7 +106,6 @@ apt-get update && ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && 
     dpkg-reconfigure --frontend noninteractive tzdata && \
     apt-get install -y git cmake python3 python3-pip numactl && \
     ln -s /usr/bin/python3 /usr/bin/python && \
-    ln -s /usr/bin/pip3 /usr/bin/pip && \
     pip install numpy typing_extensions
 ```
 
@@ -1051,11 +1050,9 @@ make && ./bench
 On Ubuntu 20.04 docker image, linux kernel is still 4.15, but perf and other tools are for the kernel 5.4.
 
 ```bash
-echo "deb http://archive.ubuntu.com/ubuntu/ bionic main universe\n" >> /etc/apt/sources.list
-apt-get update
-apt-get install -y linux-tools-4.15.0-20-generic linux-tools-4.15.0-20 linux-tools-4.15.0-20-lowlatency
-
-rm -rf /usr/bin/perf
+echo "deb http://archive.ubuntu.com/ubuntu/ bionic main universe\n" >> /etc/apt/sources.list && \
+apt-get update && apt-get install -y linux-tools-4.15.0-20-generic linux-tools-4.15.0-20 linux-tools-4.15.0-20-lowlatency && \
+rm -rf /usr/bin/perf && \
 ln -s /usr/lib/linux-tools-4.15.0-20/perf /usr/bin/perf
 ```
 
