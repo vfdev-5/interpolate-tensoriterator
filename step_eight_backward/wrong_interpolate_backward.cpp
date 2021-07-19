@@ -7,7 +7,7 @@
 
 
 #define USE_ALWAYS_INDEX64
-#define VERBOSE
+// #define VERBOSE
 
 
 namespace at {
@@ -402,86 +402,76 @@ void ti_upsample_generic_Nd_backward_kernel_impl(
     bool align_corners,
     const scale_type& scales) {
 
-// #ifdef VERBOSE
-//   TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED = 0;
-//   TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED = 0;
-//   TI_BASIC_LOOP_FALLBACK_TRIGGERED = 0;
-//   TI_SHOW_STRIDES = true;
+#ifdef VERBOSE
+  TI_BASIC_LOOP_CHANNELS_FIRST_TRIGGERED = 0;
+  TI_BASIC_LOOP_CHANNELS_LAST_TRIGGERED = 0;
+  TI_BASIC_LOOP_FALLBACK_TRIGGERED = 0;
+  TI_SHOW_STRIDES = true;
 
-//   std::cout << "\nGrad Input tensor: " << grad_input.sizes() << std::endl;
-//   std::cout << "Grad Input is_contiguous memory_format torch.channels_last: " << (grad_input.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
-//   std::cout << "Grad Input is_contiguous memory_format torch.channels_last_3d: " << (grad_input.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
-//   std::cout << "Grad Input is_contiguous : " << (grad_input.is_contiguous() ? "true" : "false") << std::endl;
+  std::cout << "\nGrad Input tensor: " << grad_input.sizes() << std::endl;
+  std::cout << "Grad Input is_contiguous memory_format torch.channels_last: " << (grad_input.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
+  std::cout << "Grad Input is_contiguous memory_format torch.channels_last_3d: " << (grad_input.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
+  std::cout << "Grad Input is_contiguous : " << (grad_input.is_contiguous() ? "true" : "false") << std::endl;
 
-//   std::cout << "\nGrad Output tensor: " << grad_output.sizes() << std::endl;
-//   std::cout << "Grad Output is_contiguous memory_format torch.channels_last: " << (grad_output.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
-//   std::cout << "Grad Output is_contiguous memory_format torch.channels_last_3d: " << (grad_output.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
-//   std::cout << "Grad Output is_contiguous : " << (grad_output.is_contiguous() ? "true" : "false") << std::endl;
-// #endif
+  std::cout << "\nGrad Output tensor: " << grad_output.sizes() << std::endl;
+  std::cout << "Grad Output is_contiguous memory_format torch.channels_last: " << (grad_output.is_contiguous(at::MemoryFormat::ChannelsLast) ? "true" : "false") << std::endl;
+  std::cout << "Grad Output is_contiguous memory_format torch.channels_last_3d: " << (grad_output.is_contiguous(at::MemoryFormat::ChannelsLast3d) ? "true" : "false") << std::endl;
+  std::cout << "Grad Output is_contiguous : " << (grad_output.is_contiguous() ? "true" : "false") << std::endl;
+#endif
 
-//   // input can be NCHW, NCL or NCKHW
-//   auto shape = grad_input.sizes().vec();
-//   auto strides = grad_input.strides().vec();
-//   auto oshape = grad_output.sizes();
+  // input can be NCHW, NCL or NCKHW
+  auto shape = grad_input.sizes().vec();
+  auto strides = grad_input.strides().vec();
+  auto oshape = grad_output.sizes();
 
-//   TORCH_INTERNAL_ASSERT(
-//     shape.size() == oshape.size() && shape.size() == 2 + out_ndims
-//   );
-//   TORCH_INTERNAL_ASSERT(strides.size() == 2 + out_ndims);
+  TORCH_INTERNAL_ASSERT(
+    shape.size() == oshape.size() && shape.size() == 2 + out_ndims
+  );
+  TORCH_INTERNAL_ASSERT(strides.size() == 2 + out_ndims);
 
-//   for (int i=0; i<out_ndims; i++) {
-//     shape[i + 2] = oshape[i + 2];
-//     strides[i + 2] = 0;
-//   }
+  for (int i=0; i<out_ndims; i++) {
+    shape[i + 2] = oshape[i + 2];
+    strides[i + 2] = 0;
+  }
 
-//   auto restrided_grad_input = grad_input.as_strided(shape, strides);
-//   std::vector<std::vector<Tensor>> indices_weights;
-//   constexpr int interp_size = F<index_t, float>::interp_size;
-//   auto input_scalar_type = grad_input.scalar_type();
+  auto restrided_grad_input = grad_input.as_strided(shape, strides);
+  std::vector<std::vector<Tensor>> indices_weights;
+  constexpr int interp_size = F<index_t, float>::interp_size;
+  auto input_scalar_type = grad_input.scalar_type();
 
-//   AT_DISPATCH_FLOATING_TYPES(
-//     input_scalar_type, "compute_indices_weights_generic", [&] {
-//       for (int i=0; i<out_ndims; i++) {
-//         indices_weights.emplace_back(
-//           F<index_t, scalar_t>::compute_indices_weights(
-//             grad_input.size(i + 2), oshape[i + 2],
-//             grad_input.stride(i + 2) * grad_input.element_size(),
-//             grad_input.dim(), i + 2, align_corners, scales[i]
-//           )
-//         );
-//       }
-//     }
-//   );
+  AT_DISPATCH_FLOATING_TYPES(
+    input_scalar_type, "compute_indices_weights_generic", [&] {
+      for (int i=0; i<out_ndims; i++) {
+        indices_weights.emplace_back(
+          F<index_t, scalar_t>::compute_indices_weights(
+            grad_input.size(i + 2), oshape[i + 2],
+            grad_input.stride(i + 2) * grad_input.element_size(),
+            grad_input.dim(), i + 2, align_corners, scales[i]
+          )
+        );
+      }
+    }
+  );
 
-//   TensorIteratorConfig config;
-//   config.check_all_same_dtype(false)
-//     .declare_static_dtype_and_device(grad_input.scalar_type(), grad_input.device())
-//     .add_output(grad_output)
-//     .add_input(restrided_grad_input);
+  TensorIteratorConfig config;
+  config.check_all_same_dtype(false)
+    .declare_static_dtype_and_device(grad_input.scalar_type(), grad_input.device())
+    .add_output(grad_output)
+    .add_input(restrided_grad_input);
 
-//   for (auto & idx_weight: indices_weights) {
-//     for (auto& tensor : idx_weight) {
-//       config.add_input(tensor);
-//     }
-//   }
+  for (auto & idx_weight: indices_weights) {
+    for (auto& tensor : idx_weight) {
+      config.add_input(tensor);
+    }
+  }
 
-//   int64_t sdims[out_ndims];
-//   for (int i=0; i<out_ndims; i++) {
-//     sdims[i] = i + 2;
-//   }
-//   c10::IntArrayRef spatial_dims = sdims;
+  auto iter = config.build();
 
-//   // config.declare_static_dtype_and_device(grad_input.scalar_type(), grad_input.device())
-//   //   .resize_outputs(false)
-//   //   .declare_static_shape(restrided_grad_input.sizes(), /*squash_dims=*/spatial_dims);
-
-//   auto iter = config.build();
-
-//   AT_DISPATCH_FLOATING_TYPES(
-//       iter.dtype(), "upsample_generic_Nd", [&] {
-//       constexpr int interp_size = F<index_t, scalar_t>::interp_size;
-//       ti_cpu_upsample_generic_backward<scalar_t, index_t, out_ndims, interp_size>(iter);
-//   });
+  AT_DISPATCH_FLOATING_TYPES(
+      iter.dtype(), "upsample_generic_Nd", [&] {
+      constexpr int interp_size = F<index_t, scalar_t>::interp_size;
+      ti_cpu_upsample_generic_backward<scalar_t, index_t, out_ndims, interp_size>(iter);
+  });
 }
 
 

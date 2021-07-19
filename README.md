@@ -438,6 +438,11 @@ TI_BASIC_LOOP -> CHANNELS_FIRST
 
 ### Step 8 - Backward with TI for Cubic/Nearest/Linear interpolations
 
+/!\ Under development /!\
+
+- an implementation with implicit 2d kernel and possible race condition with ChannelsLast mem format.
+
+- "Separable implementation" can possibly solve race condition.
 
 #### Linear interpolation
 

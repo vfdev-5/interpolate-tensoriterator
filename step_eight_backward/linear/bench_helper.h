@@ -301,11 +301,11 @@ inline void assert_consistency_2d(int isize=320, int dn_osize=256, int up_osize=
 
     auto check = [](const at::Tensor & t, int osize1, int osize2){
 
-        assert(check_consistency_bilinear2d(t, -1, osize1));
+        // assert(check_consistency_bilinear2d(t, -1, osize1));
         assert(check_consistency_bilinear2d_backward(t, -1, osize1));
 
-        assert(check_consistency_bilinear2d(t, -1, osize1, true));
-        assert(check_consistency_bilinear2d_backward(t, -1, osize1, true));
+        // assert(check_consistency_bilinear2d(t, -1, osize1, true));
+        // assert(check_consistency_bilinear2d_backward(t, -1, osize1, true));
 
         // Not yet sure what to check here
         // assert(check_consistency_bilinear2d(t, -1, -1, false, 1.12, 1.23));
@@ -315,11 +315,11 @@ inline void assert_consistency_2d(int isize=320, int dn_osize=256, int up_osize=
         // assert(check_consistency_bilinear2d(t, -1, -1, true, 1.12, 1.23));
         // assert(check_consistency_bilinear2d_backward(t, -1, -1, true, 1.12, 1.23));
 
-        assert(check_consistency_bilinear2d(t, -1, osize2));
-        assert(check_consistency_bilinear2d_backward(t, -1, osize2));
+        // assert(check_consistency_bilinear2d(t, -1, osize2));
+        // assert(check_consistency_bilinear2d_backward(t, -1, osize2));
 
-        assert(check_consistency_bilinear2d(t, -1, osize2, true));
-        assert(check_consistency_bilinear2d_backward(t, -1, osize2, true));
+        // assert(check_consistency_bilinear2d(t, -1, osize2, true));
+        // assert(check_consistency_bilinear2d_backward(t, -1, osize2, true));
 
         // Not yet sure what to check here
         // assert(check_consistency_bilinear2d(t, -1, -1, false, 0.77, 0.88));
@@ -330,13 +330,14 @@ inline void assert_consistency_2d(int isize=320, int dn_osize=256, int up_osize=
         // assert(check_consistency_bilinear2d_backward(t, -1, -1, true, 0.77, 0.88));
     };
 
-    for (auto dtype: {kFloat, kDouble}) {
-        auto t_input = at::rand({1, 3, isize, isize}, CPU(dtype));
+    // for (auto dtype: {kFloat, kDouble}) {
+    for (auto dtype: {kFloat, }) {
+        auto t_input = at::rand({1, 3, isize + 4, isize}, CPU(dtype));
         check(t_input, dn_osize, up_osize);
 
-        // t_input = at::rand({1, isize, isize, 3}, CPU(dtype));
-        // t_input = t_input.permute({0, 3, 1, 2});
-        // check(t_input, dn_osize, up_osize);
+        t_input = at::rand({1, isize, isize, 3}, CPU(dtype));
+        t_input = t_input.permute({0, 3, 1, 2});
+        check(t_input, dn_osize, up_osize);
 
         // t_input = at::rand({1, 3, isize + 100, isize + 100}, CPU(dtype));
         // t_input = t_input.index({"...", Slice(None, isize), Slice(None, isize)});
@@ -528,9 +529,9 @@ inline void bench_2d(int n, bool full_bench, int isize, int dn_osize, int up_osi
 
     assert_consistency_2d(isize, dn_osize, up_osize);
 
-    sub_bench_2d_backward_contiguous_channel_first(n, isize, dn_osize, up_osize);
-    sub_bench_2d_backward_non_contiguous_channel_last(n, isize, dn_osize, up_osize);
-    sub_bench_2d_backward_non_contiguous_channel_first(n, isize, dn_osize, up_osize);
+    // sub_bench_2d_backward_contiguous_channel_first(n, isize, dn_osize, up_osize);
+    // sub_bench_2d_backward_non_contiguous_channel_last(n, isize, dn_osize, up_osize);
+    // sub_bench_2d_backward_non_contiguous_channel_first(n, isize, dn_osize, up_osize);
 
     // if (!full_bench)
     //     return;
