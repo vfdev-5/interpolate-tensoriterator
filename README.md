@@ -44,11 +44,17 @@ docker run -it \
     -v $PWD/../:/workspace \
     -w /interpolate-tensoriterator \
     -v /home/user/Documents/ml/pytorch/:/pytorch \
-    --network=host --security-opt seccomp:unconfined --privileged --shm-size 16G \
+    --network=host --security-opt seccomp:unconfined --privileged --ipc=host \
     nvidia/cuda:11.1-cudnn8-devel-ubuntu20.04 \
     /bin/bash
 ```
 ```
+# Renew nvidia signing key
+# https://developer.nvidia.com/blog/updating-the-cuda-linux-gpg-repository-key/
+apt-key del 7fa2af80 && \
+    rm -rf /etc/apt/sources.list.d/nvidia-ml.list && \
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
+
 apt-get update && ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && \
     apt-get install -y tzdata && \
     dpkg-reconfigure --frontend noninteractive tzdata && \
