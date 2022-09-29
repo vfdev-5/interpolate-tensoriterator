@@ -1,0 +1,1590 @@
+
+No CUDA runtime is found, using CUDA_HOME='/usr/local/cuda'
+__version__ = 1.9.0a0+gite8e570e
+debug = False
+cuda = None
+git_version = e8e570e9c5b780bc5c1571d5f03a9914e9ca6c49
+hip = None
+
+
+Uses tests cases:  ['linear:2dcf', 'linear:2dcl', 'linear:3dcf', 'linear:3dcl', 'linear:1d', 'nearest:2dcf', 'nearest:2dcl', 'nearest:3dcf', 'nearest:3dcl', 'nearest:1d', 'cubic:2dcf', 'cubic:2dcl', 'cubic:3dcf', 'cubic:3dcl', 'cubic:1d']
+Torch config: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.0, USE_CUDA=0, USE_CUDNN=OFF, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=0, USE_OPENMP=ON, 
+
+Num threads: 6
+
+
+---- Benchmark linear 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad61c0>
+upsample_bilinear2d channels_first contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 76.43 us
+  IQR:    0.61 us (76.22 to 76.83)
+  1251 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6160>
+upsample_bilinear2d channels_first contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 245.19 us
+  IQR:    2.11 us (244.50 to 246.61)
+  390 measurements, 10 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6310>
+upsample_bilinear2d channels_first non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 77.54 us
+  IQR:    0.78 us (77.28 to 78.05)
+  1243 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6430>
+upsample_bilinear2d channels_first non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 245.73 us
+  IQR:    2.31 us (245.43 to 247.74)
+  367 measurements, 10 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6520>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 1.10 ms
+  IQR:    0.00 ms (1.10 to 1.10)
+  876 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad65e0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 4.38 ms
+  IQR:    0.03 ms (4.36 to 4.40)
+  228 measurements, 1 runs per measurement, 6 threads
+
+1 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad66a0>
+upsample_bilinear2d channels_last non-contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 2.27 ms
+  IQR:    0.02 ms (2.27 to 2.29)
+  434 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6790>
+upsample_bilinear2d channels_last non-contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 36.74 ms
+  IQR:    3.16 ms (36.13 to 39.30)
+  27 measurements, 1 runs per measurement, 6 threads
+
+1.2 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [2, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6820>
+upsample_bilinear2d channels_last non-contiguous: [2, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 60.37 us
+  IQR:    0.07 us (60.34 to 60.41)
+  166 measurements, 100 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6460>
+upsample_bilinear2d channels_last non-contiguous: [2, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 902.54 us
+  IQR:    46.71 us (895.92 to 942.63)
+  1077 measurements, 1 runs per measurement, 6 threads
+
+1.3 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [1, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad69a0>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 60.02 us
+  IQR:    0.09 us (59.98 to 60.07)
+  167 measurements, 100 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6a00>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 576.68 us
+  IQR:    0.71 us (576.35 to 577.06)
+  170 measurements, 10 runs per measurement, 6 threads
+
+2 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6af0>
+upsample_bilinear2d channels_first contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 2.33 ms
+  IQR:    0.05 ms (2.32 to 2.36)
+  410 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad64f0>
+upsample_bilinear2d channels_first contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 52.72 ms
+  IQR:    0.97 ms (52.28 to 53.25)
+  19 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99f35c3310>
+upsample_bilinear2d channels_first contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 77.80 us
+  IQR:    0.87 us (77.65 to 78.52)
+  1186 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7afd0>
+upsample_bilinear2d channels_first contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 571.39 us
+  IQR:    3.24 us (569.79 to 573.03)
+  174 measurements, 10 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7afa0>
+upsample_bilinear2d channels_first non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 78.57 us
+  IQR:    0.63 us (78.19 to 78.82)
+  1235 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7a8b0>
+upsample_bilinear2d channels_first non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 572.23 us
+  IQR:    6.25 us (571.64 to 577.89)
+  1679 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7a460>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 1.10 ms
+  IQR:    0.00 ms (1.10 to 1.10)
+  903 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7a250>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 10.28 ms
+  IQR:    0.40 ms (10.18 to 10.58)
+  96 measurements, 1 runs per measurement, 6 threads
+
+---- END Benchmark linear 2D ----
+
+
+---- Benchmark linear 1D ----
+
+Input tensor: [4, 512, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample linear 1d (1 min_run_time) - downsampling to 256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7a970>
+upsample_linear1d channels_first contiguous: [4, 512, 320] -> [256]
+1.9.0a0+gite8e570e
+  Median: 103.24 us
+  IQR:    0.86 us (103.07 to 103.93)
+  921 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample linear 1d (1 min_run_time) - upsampling to 512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7af70>
+upsample_linear1d channels_first contiguous: [4, 512, 320] -> [512]
+1.9.0a0+gite8e570e
+  Median: 192.56 us
+  IQR:    1.62 us (191.91 to 193.53)
+  492 measurements, 10 runs per measurement, 6 threads
+
+---- END Benchmark linear 1D ----
+
+
+---- Benchmark linear 3D ----
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample linear 3d (1 min_run_time) - downsampling to [8, 256, 256]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7a8e0>
+upsample_trilinear3d channels_first contiguous: [1, 3, 16, 320, 320] -> [8, 256, 256]
+1.9.0a0+gite8e570e
+  Median: 1.04 ms
+  IQR:    0.02 ms (1.03 to 1.05)
+  902 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample linear 3d (1 min_run_time) - upsampling to [32, 512, 512]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7a100>
+upsample_trilinear3d channels_first contiguous: [1, 3, 16, 320, 320] -> [32, 512, 512]
+1.9.0a0+gite8e570e
+  Median: 25.43 ms
+  IQR:    0.29 ms (25.35 to 25.64)
+  40 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 3d (1 min_run_time) - downsampling to [8, 256, 256]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7a850>
+upsample_trilinear3d channels_last non-contiguous: [1, 3, 16, 320, 320] -> [8, 256, 256]
+1.9.0a0+gite8e570e
+  Median: 15.15 ms
+  IQR:    0.59 ms (14.63 to 15.22)
+  67 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample linear 3d (1 min_run_time) - upsampling to [32, 512, 512]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7a220>
+upsample_trilinear3d channels_last non-contiguous: [1, 3, 16, 320, 320] -> [32, 512, 512]
+1.9.0a0+gite8e570e
+  Median: 263.89 ms
+  IQR:    18.69 ms (254.63 to 273.32)
+  4 measurements, 1 runs per measurement, 6 threads
+
+---- END Benchmark linear 3D ----
+
+
+---- Benchmark nearest 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3b7a1c0>
+upsample_nearest2d channels_first contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 139.06 us
+  IQR:    0.82 us (138.89 to 139.71)
+  710 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6730>
+upsample_nearest2d channels_first contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 538.02 us
+  IQR:    0.29 us (537.93 to 538.21)
+  1803 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6be0>
+upsample_nearest2d channels_first non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 159.26 us
+  IQR:    0.82 us (158.71 to 159.53)
+  596 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6ca0>
+upsample_nearest2d channels_first non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 559.21 us
+  IQR:    1.00 us (559.03 to 560.03)
+  1704 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6b20>
+upsample_nearest2d channels_last non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 129.51 us
+  IQR:    0.78 us (129.43 to 130.21)
+  736 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6ac0>
+upsample_nearest2d channels_last non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 499.63 us
+  IQR:    2.67 us (498.84 to 501.52)
+  194 measurements, 10 runs per measurement, 6 threads
+
+1 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6850>
+upsample_nearest2d channels_last non-contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 1.39 ms
+  IQR:    0.02 ms (1.38 to 1.40)
+  710 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6340>
+upsample_nearest2d channels_last non-contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 32.23 ms
+  IQR:    0.66 ms (31.68 to 32.33)
+  32 measurements, 1 runs per measurement, 6 threads
+
+1.2 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [2, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6cd0>
+upsample_nearest2d channels_last non-contiguous: [2, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 17.26 us
+  IQR:    0.14 us (17.20 to 17.34)
+  521 measurements, 100 runs per measurement, 6 threads
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6220>
+upsample_nearest2d channels_last non-contiguous: [2, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 525.85 us
+  IQR:    165.15 us (521.39 to 686.54)
+  173 measurements, 10 runs per measurement, 6 threads
+  WARNING: Interquartile range is 31.4% of the median measurement.
+           This suggests significant environmental influence.
+
+1.3 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [1, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6760>
+upsample_nearest2d channels_last non-contiguous: [1, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 13.03 us
+  IQR:    0.16 us (12.98 to 13.14)
+  738 measurements, 100 runs per measurement, 6 threads
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6d00>
+upsample_nearest2d channels_last non-contiguous: [1, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 83.08 us
+  IQR:    0.82 us (82.90 to 83.73)
+  1136 measurements, 10 runs per measurement, 6 threads
+
+2 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6c10>
+upsample_nearest2d channels_first contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 3.05 ms
+  IQR:    0.05 ms (3.04 to 3.09)
+  323 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6dc0>
+upsample_nearest2d channels_first contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 50.84 ms
+  IQR:    5.06 ms (50.41 to 55.47)
+  18 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6f10>
+upsample_nearest2d channels_first contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 140.27 us
+  IQR:    0.79 us (140.17 to 140.96)
+  690 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6670>
+upsample_nearest2d channels_first contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 1.31 ms
+  IQR:    0.01 ms (1.31 to 1.31)
+  714 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6d30>
+upsample_nearest2d channels_first non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 194.16 us
+  IQR:    2.44 us (193.49 to 195.93)
+  495 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6040>
+upsample_nearest2d channels_first non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 1.38 ms
+  IQR:    0.01 ms (1.38 to 1.39)
+  678 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6490>
+upsample_nearest2d channels_last non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 130.60 us
+  IQR:    1.26 us (130.48 to 131.74)
+  703 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6ee0>
+upsample_nearest2d channels_last non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 1.21 ms
+  IQR:    0.01 ms (1.21 to 1.22)
+  802 measurements, 1 runs per measurement, 6 threads
+
+---- END Benchmark nearest 2D ----
+
+
+---- Benchmark nearest 1D ----
+
+Input tensor: [4, 512, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample nearest 1d (1 min_run_time) - downsampling to 256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6b80>
+upsample_nearest1d channels_first contiguous: [4, 512, 320] -> [256]
+1.9.0a0+gite8e570e
+  Median: 174.13 us
+  IQR:    1.14 us (173.50 to 174.64)
+  532 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample nearest 1d (1 min_run_time) - upsampling to 512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6c40>
+upsample_nearest1d channels_first contiguous: [4, 512, 320] -> [512]
+1.9.0a0+gite8e570e
+  Median: 340.01 us
+  IQR:    2.63 us (339.86 to 342.48)
+  289 measurements, 10 runs per measurement, 6 threads
+
+---- END Benchmark nearest 1D ----
+
+
+---- Benchmark nearest 3D ----
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample nearest 3d (1 min_run_time) - downsampling to [8, 256, 256]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad67c0>
+upsample_nearest3d channels_first contiguous: [1, 3, 16, 320, 320] -> [8, 256, 256]
+1.9.0a0+gite8e570e
+  Median: 1.53 ms
+  IQR:    0.02 ms (1.52 to 1.54)
+  617 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample nearest 3d (1 min_run_time) - upsampling to [32, 512, 512]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6fa0>
+upsample_nearest3d channels_first contiguous: [1, 3, 16, 320, 320] -> [32, 512, 512]
+1.9.0a0+gite8e570e
+  Median: 28.96 ms
+  IQR:    1.08 ms (28.86 to 29.94)
+  31 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 3d (1 min_run_time) - downsampling to [8, 256, 256]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99d3ad6910>
+upsample_nearest3d channels_last non-contiguous: [1, 3, 16, 320, 320] -> [8, 256, 256]
+1.9.0a0+gite8e570e
+  Median: 1.29 ms
+  IQR:    0.02 ms (1.28 to 1.30)
+  752 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample nearest 3d (1 min_run_time) - upsampling to [32, 512, 512]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4070>
+upsample_nearest3d channels_last non-contiguous: [1, 3, 16, 320, 320] -> [32, 512, 512]
+1.9.0a0+gite8e570e
+  Median: 28.46 ms
+  IQR:    0.34 ms (28.39 to 28.72)
+  35 measurements, 1 runs per measurement, 6 threads
+
+---- END Benchmark nearest 3D ----
+
+
+---- Benchmark cubic 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4040>
+upsample_bicubic2d channels_first contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 7.20 ms
+  IQR:    0.06 ms (7.18 to 7.24)
+  137 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4100>
+upsample_bicubic2d channels_first contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 25.30 ms
+  IQR:    0.17 ms (25.24 to 25.41)
+  40 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4130>
+upsample_bicubic2d channels_first non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 6.57 ms
+  IQR:    0.04 ms (6.56 to 6.60)
+  152 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b41c0>
+upsample_bicubic2d channels_first non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 25.38 ms
+  IQR:    0.10 ms (25.35 to 25.45)
+  40 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4250>
+upsample_bicubic2d channels_last non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 6.59 ms
+  IQR:    0.05 ms (6.57 to 6.62)
+  152 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4310>
+upsample_bicubic2d channels_last non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 25.38 ms
+  IQR:    0.21 ms (25.33 to 25.54)
+  40 measurements, 1 runs per measurement, 6 threads
+
+1 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b43d0>
+upsample_bicubic2d channels_last non-contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 469.79 ms
+  3 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b44c0>
+upsample_bicubic2d channels_last non-contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  7.23 s
+  1 measurement, 1 runs , 6 threads
+
+1.2 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [2, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b40d0>
+upsample_bicubic2d channels_last non-contiguous: [2, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 10.14 ms
+  IQR:    0.12 ms (10.09 to 10.21)
+  99 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4520>
+upsample_bicubic2d channels_last non-contiguous: [2, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 153.33 ms
+  IQR:    0.53 ms (153.27 to 153.80)
+  7 measurements, 1 runs per measurement, 6 threads
+
+1.3 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [1, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4190>
+upsample_bicubic2d channels_last non-contiguous: [1, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 4.53 ms
+  IQR:    0.09 ms (4.50 to 4.59)
+  220 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b47f0>
+upsample_bicubic2d channels_last non-contiguous: [1, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 65.19 ms
+  IQR:    0.41 ms (65.06 to 65.47)
+  16 measurements, 1 runs per measurement, 6 threads
+
+2 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4280>
+upsample_bicubic2d channels_first contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 491.58 ms
+  3 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4340>
+upsample_bicubic2d channels_first contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  7.98 s
+  1 measurement, 1 runs , 6 threads
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b45e0>
+upsample_bicubic2d channels_first contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 7.20 ms
+  IQR:    0.05 ms (7.17 to 7.22)
+  139 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b46d0>
+upsample_bicubic2d channels_first contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 61.24 ms
+  IQR:    0.61 ms (61.06 to 61.67)
+  17 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b47c0>
+upsample_bicubic2d channels_first non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 6.88 ms
+  IQR:    0.04 ms (6.85 to 6.89)
+  146 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4a90>
+upsample_bicubic2d channels_first non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 62.27 ms
+  IQR:    0.91 ms (61.99 to 62.91)
+  16 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b48e0>
+upsample_bicubic2d channels_last non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 6.90 ms
+  IQR:    0.05 ms (6.87 to 6.93)
+  145 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f99ea1b4940>
+upsample_bicubic2d channels_last non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 64.75 ms
+  IQR:    0.09 ms (64.72 to 64.81)
+  16 measurements, 1 runs per measurement, 6 threads
+
+---- END Benchmark cubic 2D ----
+
+
+
+No CUDA runtime is found, using CUDA_HOME='/usr/local/cuda'
+__version__ = 1.9.0a0+gite8e570e
+debug = False
+cuda = None
+git_version = e8e570e9c5b780bc5c1571d5f03a9914e9ca6c49
+hip = None
+
+
+Uses tests cases:  ['linear:2dcf', 'linear:2dcl', 'linear:3dcf', 'linear:3dcl', 'linear:1d', 'nearest:2dcf', 'nearest:2dcl', 'nearest:3dcf', 'nearest:3dcl', 'nearest:1d', 'cubic:2dcf', 'cubic:2dcl', 'cubic:3dcf', 'cubic:3dcl', 'cubic:1d']
+Torch config: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.0, USE_CUDA=0, USE_CUDNN=OFF, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=0, USE_OPENMP=ON, 
+
+Num threads: 1
+
+
+---- Benchmark linear 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef190>
+upsample_bilinear2d channels_first contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 332.79 us
+  IQR:    17.10 us (332.55 to 349.65)
+  2880 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef130>
+upsample_bilinear2d channels_first contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 1.25 ms
+  IQR:    0.00 ms (1.25 to 1.26)
+  794 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef2e0>
+upsample_bilinear2d channels_first non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 336.17 us
+  IQR:    5.21 us (335.98 to 341.19)
+  296 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef400>
+upsample_bilinear2d channels_first non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 1.26 ms
+  IQR:    0.00 ms (1.25 to 1.26)
+  794 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef4f0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 1.01 ms
+  IQR:    0.00 ms (1.01 to 1.01)
+  987 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef5b0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 4.02 ms
+  IQR:    0.04 ms (4.02 to 4.06)
+  248 measurements, 1 runs per measurement, 1 thread
+
+1 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef670>
+upsample_bilinear2d channels_last non-contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 5.88 ms
+  IQR:    0.04 ms (5.87 to 5.91)
+  170 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef760>
+upsample_bilinear2d channels_last non-contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 110.35 ms
+  IQR:    0.48 ms (110.09 to 110.57)
+  10 measurements, 1 runs per measurement, 1 thread
+
+1.2 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [2, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef7f0>
+upsample_bilinear2d channels_last non-contiguous: [2, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 109.33 us
+  IQR:    0.51 us (109.25 to 109.76)
+  909 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef430>
+upsample_bilinear2d channels_last non-contiguous: [2, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 1.65 ms
+  IQR:    0.02 ms (1.64 to 1.67)
+  604 measurements, 1 runs per measurement, 1 thread
+
+1.3 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [1, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef970>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 56.83 us
+  IQR:    0.53 us (56.75 to 57.28)
+  176 measurements, 100 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef9d0>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 535.86 us
+  IQR:    6.74 us (535.09 to 541.83)
+  186 measurements, 10 runs per measurement, 1 thread
+
+2 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1efac0>
+upsample_bilinear2d channels_first contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 10.28 ms
+  IQR:    0.06 ms (10.25 to 10.32)
+  98 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef4c0>
+upsample_bilinear2d channels_first contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 208.34 ms
+  IQR:    0.93 ms (208.32 to 209.25)
+  5 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef700>
+upsample_bilinear2d channels_first contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 346.02 us
+  IQR:    1.48 us (345.90 to 347.38)
+  288 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a6f45e2e0>
+upsample_bilinear2d channels_first contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 3.03 ms
+  IQR:    0.02 ms (3.03 to 3.04)
+  329 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224fa0>
+upsample_bilinear2d channels_first non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 347.59 us
+  IQR:    2.37 us (347.45 to 349.83)
+  287 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224f70>
+upsample_bilinear2d channels_first non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 3.04 ms
+  IQR:    0.02 ms (3.04 to 3.06)
+  328 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224df0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 1.01 ms
+  IQR:    0.00 ms (1.01 to 1.01)
+  985 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224e50>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 9.82 ms
+  IQR:    0.05 ms (9.81 to 9.87)
+  102 measurements, 1 runs per measurement, 1 thread
+
+---- END Benchmark linear 2D ----
+
+
+---- Benchmark linear 1D ----
+
+Input tensor: [4, 512, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample linear 1d (1 min_run_time) - downsampling to 256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224eb0>
+upsample_linear1d channels_first contiguous: [4, 512, 320] -> [256]
+1.9.0a0+gite8e570e
+  Median: 510.99 us
+  IQR:    5.34 us (510.54 to 515.88)
+  195 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample linear 1d (1 min_run_time) - upsampling to 512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224c40>
+upsample_linear1d channels_first contiguous: [4, 512, 320] -> [512]
+1.9.0a0+gite8e570e
+  Median: 993.44 us
+  IQR:    4.63 us (993.02 to 997.66)
+  1002 measurements, 1 runs per measurement, 1 thread
+
+---- END Benchmark linear 1D ----
+
+
+---- Benchmark linear 3D ----
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample linear 3d (1 min_run_time) - downsampling to [8, 256, 256]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224e20>
+upsample_trilinear3d channels_first contiguous: [1, 3, 16, 320, 320] -> [8, 256, 256]
+1.9.0a0+gite8e570e
+  Median: 5.45 ms
+  IQR:    0.07 ms (5.41 to 5.47)
+  183 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample linear 3d (1 min_run_time) - upsampling to [32, 512, 512]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224dc0>
+upsample_trilinear3d channels_first contiguous: [1, 3, 16, 320, 320] -> [32, 512, 512]
+1.9.0a0+gite8e570e
+  Median: 114.55 ms
+  IQR:    0.33 ms (114.32 to 114.64)
+  9 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 3d (1 min_run_time) - downsampling to [8, 256, 256]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224f40>
+upsample_trilinear3d channels_last non-contiguous: [1, 3, 16, 320, 320] -> [8, 256, 256]
+1.9.0a0+gite8e570e
+  Median: 13.78 ms
+  IQR:    0.10 ms (13.74 to 13.83)
+  73 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample linear 3d (1 min_run_time) - upsampling to [32, 512, 512]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224b80>
+upsample_trilinear3d channels_last non-contiguous: [1, 3, 16, 320, 320] -> [32, 512, 512]
+1.9.0a0+gite8e570e
+  Median: 253.94 ms
+  IQR:    0.30 ms (253.81 to 254.12)
+  4 measurements, 1 runs per measurement, 1 thread
+
+---- END Benchmark linear 3D ----
+
+
+---- Benchmark nearest 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224d30>
+upsample_nearest2d channels_first contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 751.42 us
+  IQR:    5.31 us (746.51 to 751.83)
+  134 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c224c10>
+upsample_nearest2d channels_first contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 2.96 ms
+  IQR:    0.01 ms (2.96 to 2.98)
+  336 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef8e0>
+upsample_nearest2d channels_first non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 830.90 us
+  IQR:    5.38 us (830.06 to 835.44)
+  121 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1efcd0>
+upsample_nearest2d channels_first non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 3.05 ms
+  IQR:    0.02 ms (3.05 to 3.07)
+  327 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef310>
+upsample_nearest2d channels_last non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 691.57 us
+  IQR:    5.34 us (690.72 to 696.06)
+  145 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef160>
+upsample_nearest2d channels_last non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 2.74 ms
+  IQR:    0.03 ms (2.74 to 2.77)
+  363 measurements, 1 runs per measurement, 1 thread
+
+1 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef8b0>
+upsample_nearest2d channels_last non-contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 3.32 ms
+  IQR:    0.03 ms (3.32 to 3.35)
+  300 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef910>
+upsample_nearest2d channels_last non-contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 100.57 ms
+  IQR:    0.29 ms (100.47 to 100.76)
+  10 measurements, 1 runs per measurement, 1 thread
+
+1.2 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [2, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1efc70>
+upsample_nearest2d channels_last non-contiguous: [2, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 74.03 us
+  IQR:    0.43 us (73.96 to 74.39)
+  135 measurements, 100 runs per measurement, 1 thread
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1efd30>
+upsample_nearest2d channels_last non-contiguous: [2, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 1.60 ms
+  IQR:    0.03 ms (1.59 to 1.61)
+  624 measurements, 1 runs per measurement, 1 thread
+
+1.3 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [1, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef070>
+upsample_nearest2d channels_last non-contiguous: [1, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 38.84 us
+  IQR:    0.18 us (38.81 to 38.98)
+  257 measurements, 100 runs per measurement, 1 thread
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef730>
+upsample_nearest2d channels_last non-contiguous: [1, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 417.54 us
+  IQR:    5.06 us (416.08 to 421.14)
+  239 measurements, 10 runs per measurement, 1 thread
+
+2 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef640>
+upsample_nearest2d channels_first contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 16.38 ms
+  IQR:    0.25 ms (16.32 to 16.57)
+  61 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef3a0>
+upsample_nearest2d channels_first contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 198.51 ms
+  IQR:    0.47 ms (198.08 to 198.55)
+  6 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1efaf0>
+upsample_nearest2d channels_first contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 751.92 us
+  IQR:    5.33 us (751.82 to 757.15)
+  133 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1efdc0>
+upsample_nearest2d channels_first contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 7.22 ms
+  IQR:    0.05 ms (7.22 to 7.27)
+  138 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1efca0>
+upsample_nearest2d channels_first non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 1.03 ms
+  IQR:    0.00 ms (1.03 to 1.03)
+  967 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1efa90>
+upsample_nearest2d channels_first non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 7.58 ms
+  IQR:    0.05 ms (7.56 to 7.62)
+  132 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef880>
+upsample_nearest2d channels_last non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 694.81 us
+  IQR:    5.24 us (694.65 to 699.89)
+  144 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample nearest 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef6a0>
+upsample_nearest2d channels_last non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 6.69 ms
+  IQR:    0.05 ms (6.69 to 6.74)
+  149 measurements, 1 runs per measurement, 1 thread
+
+---- END Benchmark nearest 2D ----
+
+
+---- Benchmark nearest 1D ----
+
+Input tensor: [4, 512, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample nearest 1d (1 min_run_time) - downsampling to 256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1eff10>
+upsample_nearest1d channels_first contiguous: [4, 512, 320] -> [256]
+1.9.0a0+gite8e570e
+  Median: 939.66 us
+  IQR:    6.16 us (938.63 to 944.79)
+  107 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample nearest 1d (1 min_run_time) - upsampling to 512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1efd60>
+upsample_nearest1d channels_first contiguous: [4, 512, 320] -> [512]
+1.9.0a0+gite8e570e
+  Median: 1.86 ms
+  IQR:    0.00 ms (1.86 to 1.86)
+  536 measurements, 1 runs per measurement, 1 thread
+
+---- END Benchmark nearest 1D ----
+
+
+---- Benchmark nearest 3D ----
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample nearest 3d (1 min_run_time) - downsampling to [8, 256, 256]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1efb20>
+upsample_nearest3d channels_first contiguous: [1, 3, 16, 320, 320] -> [8, 256, 256]
+1.9.0a0+gite8e570e
+  Median: 8.39 ms
+  IQR:    0.07 ms (8.37 to 8.44)
+  119 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample nearest 3d (1 min_run_time) - upsampling to [32, 512, 512]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef820>
+upsample_nearest3d channels_first contiguous: [1, 3, 16, 320, 320] -> [32, 512, 512]
+1.9.0a0+gite8e570e
+  Median: 135.83 ms
+  IQR:    0.36 ms (135.72 to 136.07)
+  8 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 16, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample nearest 3d (1 min_run_time) - downsampling to [8, 256, 256]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef5e0>
+upsample_nearest3d channels_last non-contiguous: [1, 3, 16, 320, 320] -> [8, 256, 256]
+1.9.0a0+gite8e570e
+  Median: 7.07 ms
+  IQR:    0.06 ms (7.05 to 7.11)
+  142 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample nearest 3d (1 min_run_time) - upsampling to [32, 512, 512]
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c1ef520>
+upsample_nearest3d channels_last non-contiguous: [1, 3, 16, 320, 320] -> [32, 512, 512]
+1.9.0a0+gite8e570e
+  Median: 131.51 ms
+  IQR:    0.30 ms (131.41 to 131.70)
+  8 measurements, 1 runs per measurement, 1 thread
+
+---- END Benchmark nearest 3D ----
+
+
+---- Benchmark cubic 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318070>
+upsample_bicubic2d channels_first contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 6.23 ms
+  IQR:    0.06 ms (6.23 to 6.28)
+  160 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318040>
+upsample_bicubic2d channels_first contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 24.94 ms
+  IQR:    0.07 ms (24.93 to 24.99)
+  41 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318100>
+upsample_bicubic2d channels_first non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 6.32 ms
+  IQR:    0.05 ms (6.31 to 6.37)
+  158 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318130>
+upsample_bicubic2d channels_first non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 25.07 ms
+  IQR:    0.11 ms (25.02 to 25.13)
+  40 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c3181c0>
+upsample_bicubic2d channels_last non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 6.38 ms
+  IQR:    0.05 ms (6.38 to 6.43)
+  157 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318250>
+upsample_bicubic2d channels_last non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+gite8e570e
+  Median: 25.10 ms
+  IQR:    0.08 ms (25.08 to 25.16)
+  40 measurements, 1 runs per measurement, 1 thread
+
+1 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318310>
+upsample_bicubic2d channels_last non-contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 549.10 ms
+  2 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c3183d0>
+upsample_bicubic2d channels_last non-contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  7.25 s
+  1 measurement, 1 runs , 1 thread
+
+1.2 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [2, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c3180d0>
+upsample_bicubic2d channels_last non-contiguous: [2, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 10.95 ms
+  IQR:    0.07 ms (10.91 to 10.97)
+  92 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318430>
+upsample_bicubic2d channels_last non-contiguous: [2, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 154.56 ms
+  IQR:    0.15 ms (154.45 to 154.60)
+  7 measurements, 1 runs per measurement, 1 thread
+
+1.3 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [1, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318190>
+upsample_bicubic2d channels_last non-contiguous: [1, 128, 64, 46] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 4.77 ms
+  IQR:    0.05 ms (4.77 to 4.82)
+  209 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318760>
+upsample_bicubic2d channels_last non-contiguous: [1, 128, 64, 46] -> (128, 128)
+1.9.0a0+gite8e570e
+  Median: 65.13 ms
+  IQR:    0.15 ms (65.04 to 65.19)
+  16 measurements, 1 runs per measurement, 1 thread
+
+2 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c3184f0>
+upsample_bicubic2d channels_first contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+gite8e570e
+  Median: 451.86 ms
+  3 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318280>
+upsample_bicubic2d channels_first contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+gite8e570e
+  7.33 s
+  1 measurement, 1 runs , 1 thread
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : True
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318520>
+upsample_bicubic2d channels_first contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 6.25 ms
+  IQR:    0.05 ms (6.25 to 6.30)
+  160 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318610>
+upsample_bicubic2d channels_first contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 61.06 ms
+  IQR:    0.25 ms (60.98 to 61.24)
+  17 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: False
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318730>
+upsample_bicubic2d channels_first non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 6.53 ms
+  IQR:    0.06 ms (6.53 to 6.58)
+  153 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318a30>
+upsample_bicubic2d channels_first non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 61.46 ms
+  IQR:    0.20 ms (61.34 to 61.54)
+  17 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample cubic 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c318880>
+upsample_bicubic2d channels_last non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+gite8e570e
+  Median: 6.62 ms
+  IQR:    0.05 ms (6.61 to 6.66)
+  151 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample cubic 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f2a5c3188e0>
+upsample_bicubic2d channels_last non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+gite8e570e
+  Median: 61.60 ms
+  IQR:    0.89 ms (61.42 to 62.32)
+  17 measurements, 1 runs per measurement, 1 thread
+
+---- END Benchmark cubic 2D ----

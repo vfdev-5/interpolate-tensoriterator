@@ -1,0 +1,654 @@
+
+No CUDA runtime is found, using CUDA_HOME='/usr/local/cuda'
+__version__ = 1.9.0a0+git768150a
+debug = False
+cuda = None
+git_version = 768150a2ef4d64df4d38fa09da180c8043583cb8
+hip = None
+
+
+Uses tests cases:  ['linear:2dcl']
+Torch config: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.0, USE_CUDA=0, USE_CUDNN=OFF, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=0, USE_OPENMP=ON, 
+
+Num threads: 6
+
+
+---- Benchmark linear 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb9100>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+git768150a
+  Median: 247.90 us
+  IQR:    10.21 us (247.43 to 257.64)
+  3678 measurements, 1 runs per measurement, 6 threads
+output_size (256, 256)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb9520>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (256, 256)
+opencv 4.5.1
+setup: import cv2
+  Median: 26.98 us
+  IQR:    0.14 us (26.91 to 27.06)
+  361 measurements, 100 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb94f0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+git768150a
+  Median: 929.06 us
+  IQR:    5.98 us (928.23 to 934.21)
+  1035 measurements, 1 runs per measurement, 6 threads
+output_size (512, 512)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb95b0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (512, 512)
+opencv 4.5.1
+setup: import cv2
+  Median: 62.13 us
+  IQR:    0.40 us (61.97 to 62.37)
+  1601 measurements, 10 runs per measurement, 6 threads
+
+1 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb9550>
+upsample_bilinear2d channels_last non-contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+git768150a
+  Median: 2.31 ms
+  IQR:    0.03 ms (2.31 to 2.34)
+  420 measurements, 1 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb9670>
+upsample_bilinear2d channels_last non-contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+git768150a
+  Median: 33.35 ms
+  IQR:    1.27 ms (32.44 to 33.71)
+  30 measurements, 1 runs per measurement, 6 threads
+
+1.2 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [2, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb92e0>
+upsample_bilinear2d channels_last non-contiguous: [2, 128, 64, 46] -> (32, 32)
+1.9.0a0+git768150a
+  Median: 38.61 us
+  IQR:    0.34 us (38.47 to 38.81)
+  248 measurements, 100 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb9760>
+upsample_bilinear2d channels_last non-contiguous: [2, 128, 64, 46] -> (128, 128)
+1.9.0a0+git768150a
+  Median: 566.36 us
+  IQR:    150.18 us (561.53 to 711.71)
+  1636 measurements, 1 runs per measurement, 6 threads
+  WARNING: Interquartile range is 26.5% of the median measurement.
+           This suggests significant environmental influence.
+
+1.3 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [1, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb9850>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (32, 32)
+1.9.0a0+git768150a
+  Median: 32.74 us
+  IQR:    0.12 us (32.69 to 32.81)
+  302 measurements, 100 runs per measurement, 6 threads
+output_size (32, 32)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb96d0>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (32, 32)
+opencv 4.5.1
+setup: import cv2
+  Median: 180.60 us
+  IQR:    1.04 us (180.34 to 181.39)
+  549 measurements, 10 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb9940>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (128, 128)
+1.9.0a0+git768150a
+  Median: 132.67 us
+  IQR:    1.23 us (132.23 to 133.46)
+  712 measurements, 10 runs per measurement, 6 threads
+output_size (128, 128)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb99a0>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (128, 128)
+opencv 4.5.1
+setup: import cv2
+  Median: 1.44 ms
+  IQR:    0.08 ms (1.41 to 1.49)
+  679 measurements, 1 runs per measurement, 6 threads
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb9730>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+git768150a
+  Median: 250.10 us
+  IQR:    4.36 us (249.63 to 253.99)
+  3829 measurements, 1 runs per measurement, 6 threads
+output_size (256, 256)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb98b0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (256, 256)
+opencv 4.5.1
+setup: import cv2
+  Median: 36.17 us
+  IQR:    0.18 us (36.11 to 36.28)
+  273 measurements, 100 runs per measurement, 6 threads
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb9bb0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+git768150a
+  Median: 2.24 ms
+  IQR:    0.04 ms (2.24 to 2.28)
+  414 measurements, 1 runs per measurement, 6 threads
+output_size (800, 800)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7f9054eb9a30>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (800, 800)
+opencv 4.5.1
+setup: import cv2
+  Median: 144.92 us
+  IQR:    8.18 us (144.21 to 152.39)
+  637 measurements, 10 runs per measurement, 6 threads
+
+---- END Benchmark linear 2D ----
+
+
+---- Benchmark linear 1D ----
+
+---- END Benchmark linear 1D ----
+
+
+---- Benchmark linear 3D ----
+
+---- END Benchmark linear 3D ----
+
+
+---- Benchmark nearest 2D ----
+
+---- END Benchmark nearest 2D ----
+
+
+---- Benchmark nearest 1D ----
+
+---- END Benchmark nearest 1D ----
+
+
+---- Benchmark nearest 3D ----
+
+---- END Benchmark nearest 3D ----
+
+
+---- Benchmark cubic 2D ----
+
+---- END Benchmark cubic 2D ----
+
+
+opencv version: 4.5.1
+numpy version: 1.20.1
+
+
+
+General configuration for OpenCV 4.5.1 =====================================
+  Version control:               4.5.1
+
+  Platform:
+    Timestamp:                   2021-01-02T13:26:00Z
+    Host:                        Linux 4.15.0-1077-gcp x86_64
+    CMake:                       3.18.4
+    CMake generator:             Unix Makefiles
+    CMake build tool:            /bin/gmake
+    Configuration:               Release
+
+  CPU/HW features:
+    Baseline:                    SSE SSE2 SSE3
+      requested:                 SSE3
+    Dispatched code generation:  SSE4_1 SSE4_2 FP16 AVX AVX2 AVX512_SKX
+      requested:                 SSE4_1 SSE4_2 AVX FP16 AVX2 AVX512_SKX
+      SSE4_1 (15 files):         + SSSE3 SSE4_1
+      SSE4_2 (1 files):          + SSSE3 SSE4_1 POPCNT SSE4_2
+      FP16 (0 files):            + SSSE3 SSE4_1 POPCNT SSE4_2 FP16 AVX
+      AVX (4 files):             + SSSE3 SSE4_1 POPCNT SSE4_2 AVX
+      AVX2 (29 files):           + SSSE3 SSE4_1 POPCNT SSE4_2 FP16 FMA3 AVX AVX2
+      AVX512_SKX (4 files):      + SSSE3 SSE4_1 POPCNT SSE4_2 FP16 FMA3 AVX AVX2 AVX_512F AVX512_COMMON AVX512_SKX
+
+  C/C++:
+    Built as dynamic libs?:      NO
+    C++ standard:                11
+    C++ Compiler:                /usr/lib/ccache/compilers/c++  (ver 9.3.1)
+    C++ flags (Release):         -Wl,-strip-all   -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -Wno-long-long -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse -msse2 -msse3 -fvisibility=hidden -fvisibility-inlines-hidden -O3 -DNDEBUG  -DNDEBUG
+    C++ flags (Debug):           -Wl,-strip-all   -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -Wno-long-long -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse -msse2 -msse3 -fvisibility=hidden -fvisibility-inlines-hidden -g  -O0 -DDEBUG -D_DEBUG
+    C Compiler:                  /usr/lib/ccache/compilers/cc
+    C flags (Release):           -Wl,-strip-all   -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wuninitialized -Wno-comment -Wno-strict-overflow -fdiagnostics-show-option -Wno-long-long -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse -msse2 -msse3 -fvisibility=hidden -O3 -DNDEBUG  -DNDEBUG
+    C flags (Debug):             -Wl,-strip-all   -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wuninitialized -Wno-comment -Wno-strict-overflow -fdiagnostics-show-option -Wno-long-long -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse -msse2 -msse3 -fvisibility=hidden -g  -O0 -DDEBUG -D_DEBUG
+    Linker flags (Release):      -Wl,--exclude-libs,libippicv.a -Wl,--exclude-libs,libippiw.a -L/root/ffmpeg_build/lib  -Wl,--gc-sections -Wl,--as-needed  
+    Linker flags (Debug):        -Wl,--exclude-libs,libippicv.a -Wl,--exclude-libs,libippiw.a -L/root/ffmpeg_build/lib  -Wl,--gc-sections -Wl,--as-needed  
+    ccache:                      YES
+    Precompiled headers:         NO
+    Extra dependencies:          ade /lib64/libpng.so /lib64/libz.so dl m pthread rt
+    3rdparty dependencies:       ittnotify libprotobuf libjpeg-turbo libwebp libtiff libopenjp2 IlmImf quirc ippiw ippicv
+
+  OpenCV modules:
+    To be built:                 calib3d core dnn features2d flann gapi highgui imgcodecs imgproc ml objdetect photo python3 stitching video videoio
+    Disabled:                    world
+    Disabled by dependency:      -
+    Unavailable:                 java python2 ts
+    Applications:                -
+    Documentation:               NO
+    Non-free algorithms:         NO
+
+  GUI: 
+    VTK support:                 NO
+
+  Media I/O: 
+    ZLib:                        /lib64/libz.so (ver 1.2.7)
+    JPEG:                        libjpeg-turbo (ver 2.0.6-62)
+    WEBP:                        build (ver encoder: 0x020f)
+    PNG:                         /lib64/libpng.so (ver 1.5.13)
+    TIFF:                        build (ver 42 - 4.0.10)
+    JPEG 2000:                   build (ver 2.3.1)
+    OpenEXR:                     build (ver 2.3.0)
+    HDR:                         YES
+    SUNRASTER:                   YES
+    PXM:                         YES
+    PFM:                         YES
+
+  Video I/O:
+    DC1394:                      NO
+    FFMPEG:                      YES
+      avcodec:                   YES (58.109.100)
+      avformat:                  YES (58.61.100)
+      avutil:                    YES (56.60.100)
+      swscale:                   YES (5.8.100)
+      avresample:                NO
+    GStreamer:                   NO
+    v4l/v4l2:                    YES (linux/videodev2.h)
+
+  Parallel framework:            pthreads
+
+  Trace:                         YES (with Intel ITT)
+
+  Other third-party libraries:
+    Intel IPP:                   2020.0.0 Gold [2020.0.0]
+           at:                   /tmp/pip-req-build-jhawztrk/_skbuild/linux-x86_64-3.8/cmake-build/3rdparty/ippicv/ippicv_lnx/icv
+    Intel IPP IW:                sources (2020.0.0)
+              at:                /tmp/pip-req-build-jhawztrk/_skbuild/linux-x86_64-3.8/cmake-build/3rdparty/ippicv/ippicv_lnx/iw
+    Lapack:                      NO
+    Eigen:                       NO
+    Custom HAL:                  NO
+    Protobuf:                    build (3.5.1)
+
+  OpenCL:                        YES (no extra features)
+    Include path:                /tmp/pip-req-build-jhawztrk/opencv/3rdparty/include/opencl/1.2
+    Link libraries:              Dynamic load
+
+  Python 3:
+    Interpreter:                 /opt/python/cp38-cp38/bin/python (ver 3.8.6)
+    Libraries:                   libpython3.8.a (ver 3.8.6)
+    numpy:                       /tmp/pip-build-env-a9o7g0a9/overlay/lib/python3.8/site-packages/numpy/core/include (ver 1.17.3)
+    install path:                python
+
+  Python (for build):            /bin/python2.7
+
+  Java:                          
+    ant:                         NO
+    JNI:                         NO
+    Java wrappers:               NO
+    Java tests:                  NO
+
+  Install to:                    /tmp/pip-req-build-jhawztrk/_skbuild/linux-x86_64-3.8/cmake-install
+-----------------------------------------------------------------
+
+
+
+
+
+No CUDA runtime is found, using CUDA_HOME='/usr/local/cuda'
+__version__ = 1.9.0a0+git768150a
+debug = False
+cuda = None
+git_version = 768150a2ef4d64df4d38fa09da180c8043583cb8
+hip = None
+
+
+Uses tests cases:  ['linear:2dcl']
+Torch config: PyTorch built with:
+  - GCC 9.3
+  - C++ Version: 201402
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - CPU capability usage: AVX2
+  - Build settings: BUILD_TYPE=Release, CXX_COMPILER=/usr/lib/ccache/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_PYTORCH_QNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.0, USE_CUDA=0, USE_CUDNN=OFF, USE_EIGEN_FOR_BLAS=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=OFF, USE_MKLDNN=OFF, USE_MPI=OFF, USE_NCCL=OFF, USE_NNPACK=0, USE_OPENMP=ON, 
+
+Num threads: 1
+
+
+---- Benchmark linear 2D ----
+
+Input tensor: [1, 3, 320, 320]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c0d0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (256, 256)
+1.9.0a0+git768150a
+  Median: 1.29 ms
+  IQR:    0.08 ms (1.28 to 1.36)
+  761 measurements, 1 runs per measurement, 1 thread
+output_size (256, 256)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c4f0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (256, 256)
+opencv 4.5.1
+setup: import cv2
+  Median: 97.75 us
+  IQR:    0.92 us (97.38 to 98.31)
+  103 measurements, 100 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 512x512
+<torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c370>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (512, 512)
+1.9.0a0+git768150a
+  Median: 5.15 ms
+  IQR:    0.18 ms (5.08 to 5.26)
+  193 measurements, 1 runs per measurement, 1 thread
+output_size (512, 512)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c490>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 320, 320] -> (512, 512)
+opencv 4.5.1
+setup: import cv2
+  Median: 265.02 us
+  IQR:    0.67 us (264.68 to 265.35)
+  3743 measurements, 1 runs per measurement, 1 thread
+
+1 - Test size as in https://github.com/mingfeima/op_bench-py
+
+Input tensor: [32, 128, 64, 64]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c0a0>
+upsample_bilinear2d channels_last non-contiguous: [32, 128, 64, 64] -> (32, 32)
+1.9.0a0+git768150a
+  Median: 6.33 ms
+  IQR:    0.10 ms (6.28 to 6.37)
+  158 measurements, 1 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c670>
+upsample_bilinear2d channels_last non-contiguous: [32, 128, 64, 64] -> (128, 128)
+1.9.0a0+git768150a
+  Median: 110.52 ms
+  IQR:    0.61 ms (110.14 to 110.75)
+  10 measurements, 1 runs per measurement, 1 thread
+
+1.2 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [2, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c580>
+upsample_bilinear2d channels_last non-contiguous: [2, 128, 64, 46] -> (32, 32)
+1.9.0a0+git768150a
+  Median: 130.90 us
+  IQR:    4.28 us (130.37 to 134.65)
+  753 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c730>
+upsample_bilinear2d channels_last non-contiguous: [2, 128, 64, 46] -> (128, 128)
+1.9.0a0+git768150a
+  Median: 1.77 ms
+  IQR:    0.03 ms (1.76 to 1.78)
+  564 measurements, 1 runs per measurement, 1 thread
+
+1.3 - Test sizes similar to https://github.com/pytorch/pytorch/blob/master/benchmarks/operator_benchmark/pt/interpolate_test.py
+
+Input tensor: [1, 128, 64, 46]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 32x32
+<torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c820>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (32, 32)
+1.9.0a0+git768150a
+  Median: 70.37 us
+  IQR:    0.78 us (70.08 to 70.86)
+  142 measurements, 100 runs per measurement, 1 thread
+output_size (32, 32)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c6a0>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (32, 32)
+opencv 4.5.1
+setup: import cv2
+  Median: 180.58 us
+  IQR:    1.38 us (180.31 to 181.69)
+  550 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 128x128
+<torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c5e0>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (128, 128)
+1.9.0a0+git768150a
+  Median: 641.45 us
+  IQR:    7.34 us (640.34 to 647.68)
+  156 measurements, 10 runs per measurement, 1 thread
+output_size (128, 128)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c970>
+upsample_bilinear2d channels_last non-contiguous: [1, 128, 64, 46] -> (128, 128)
+opencv 4.5.1
+setup: import cv2
+  Median: 1.46 ms
+  IQR:    0.03 ms (1.45 to 1.48)
+  682 measurements, 1 runs per measurement, 1 thread
+
+Input tensor: [1, 3, 500, 500]
+Input is_contiguous memory_format torch.channels_last: True
+Input is_contiguous : False
+
+- Bench upsample linear 2d (1 min_run_time) - downsampling to 256x256
+<torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609ca60>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (256, 256)
+1.9.0a0+git768150a
+  Median: 1.29 ms
+  IQR:    0.06 ms (1.28 to 1.34)
+  757 measurements, 1 runs per measurement, 1 thread
+output_size (256, 256)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609ca90>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (256, 256)
+opencv 4.5.1
+setup: import cv2
+  Median: 146.50 us
+  IQR:    2.25 us (146.12 to 148.37)
+  679 measurements, 10 runs per measurement, 1 thread
+
+- Bench upsample linear 2d (1 min_run_time) - upsampling to 800x800
+<torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609c9a0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (800, 800)
+1.9.0a0+git768150a
+  Median: 12.31 ms
+  IQR:    0.44 ms (12.26 to 12.70)
+  80 measurements, 1 runs per measurement, 1 thread
+output_size (800, 800)
+OpenCV:  <torch.utils.benchmark.utils.common.Measurement object at 0x7fa8f609cbb0>
+upsample_bilinear2d channels_last non-contiguous: [1, 3, 500, 500] -> (800, 800)
+opencv 4.5.1
+setup: import cv2
+  Median: 685.11 us
+  IQR:    6.55 us (683.71 to 690.26)
+  1447 measurements, 1 runs per measurement, 1 thread
+
+---- END Benchmark linear 2D ----
+
+
+---- Benchmark linear 1D ----
+
+---- END Benchmark linear 1D ----
+
+
+---- Benchmark linear 3D ----
+
+---- END Benchmark linear 3D ----
+
+
+---- Benchmark nearest 2D ----
+
+---- END Benchmark nearest 2D ----
+
+
+---- Benchmark nearest 1D ----
+
+---- END Benchmark nearest 1D ----
+
+
+---- Benchmark nearest 3D ----
+
+---- END Benchmark nearest 3D ----
+
+
+---- Benchmark cubic 2D ----
+
+---- END Benchmark cubic 2D ----
+
+
+opencv version: 4.5.1
+numpy version: 1.20.1
+
+
+
+General configuration for OpenCV 4.5.1 =====================================
+  Version control:               4.5.1
+
+  Platform:
+    Timestamp:                   2021-01-02T13:26:00Z
+    Host:                        Linux 4.15.0-1077-gcp x86_64
+    CMake:                       3.18.4
+    CMake generator:             Unix Makefiles
+    CMake build tool:            /bin/gmake
+    Configuration:               Release
+
+  CPU/HW features:
+    Baseline:                    SSE SSE2 SSE3
+      requested:                 SSE3
+    Dispatched code generation:  SSE4_1 SSE4_2 FP16 AVX AVX2 AVX512_SKX
+      requested:                 SSE4_1 SSE4_2 AVX FP16 AVX2 AVX512_SKX
+      SSE4_1 (15 files):         + SSSE3 SSE4_1
+      SSE4_2 (1 files):          + SSSE3 SSE4_1 POPCNT SSE4_2
+      FP16 (0 files):            + SSSE3 SSE4_1 POPCNT SSE4_2 FP16 AVX
+      AVX (4 files):             + SSSE3 SSE4_1 POPCNT SSE4_2 AVX
+      AVX2 (29 files):           + SSSE3 SSE4_1 POPCNT SSE4_2 FP16 FMA3 AVX AVX2
+      AVX512_SKX (4 files):      + SSSE3 SSE4_1 POPCNT SSE4_2 FP16 FMA3 AVX AVX2 AVX_512F AVX512_COMMON AVX512_SKX
+
+  C/C++:
+    Built as dynamic libs?:      NO
+    C++ standard:                11
+    C++ Compiler:                /usr/lib/ccache/compilers/c++  (ver 9.3.1)
+    C++ flags (Release):         -Wl,-strip-all   -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -Wno-long-long -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse -msse2 -msse3 -fvisibility=hidden -fvisibility-inlines-hidden -O3 -DNDEBUG  -DNDEBUG
+    C++ flags (Debug):           -Wl,-strip-all   -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -Wno-long-long -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse -msse2 -msse3 -fvisibility=hidden -fvisibility-inlines-hidden -g  -O0 -DDEBUG -D_DEBUG
+    C Compiler:                  /usr/lib/ccache/compilers/cc
+    C flags (Release):           -Wl,-strip-all   -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wuninitialized -Wno-comment -Wno-strict-overflow -fdiagnostics-show-option -Wno-long-long -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse -msse2 -msse3 -fvisibility=hidden -O3 -DNDEBUG  -DNDEBUG
+    C flags (Debug):             -Wl,-strip-all   -fsigned-char -W -Wall -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wuninitialized -Wno-comment -Wno-strict-overflow -fdiagnostics-show-option -Wno-long-long -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse -msse2 -msse3 -fvisibility=hidden -g  -O0 -DDEBUG -D_DEBUG
+    Linker flags (Release):      -Wl,--exclude-libs,libippicv.a -Wl,--exclude-libs,libippiw.a -L/root/ffmpeg_build/lib  -Wl,--gc-sections -Wl,--as-needed  
+    Linker flags (Debug):        -Wl,--exclude-libs,libippicv.a -Wl,--exclude-libs,libippiw.a -L/root/ffmpeg_build/lib  -Wl,--gc-sections -Wl,--as-needed  
+    ccache:                      YES
+    Precompiled headers:         NO
+    Extra dependencies:          ade /lib64/libpng.so /lib64/libz.so dl m pthread rt
+    3rdparty dependencies:       ittnotify libprotobuf libjpeg-turbo libwebp libtiff libopenjp2 IlmImf quirc ippiw ippicv
+
+  OpenCV modules:
+    To be built:                 calib3d core dnn features2d flann gapi highgui imgcodecs imgproc ml objdetect photo python3 stitching video videoio
+    Disabled:                    world
+    Disabled by dependency:      -
+    Unavailable:                 java python2 ts
+    Applications:                -
+    Documentation:               NO
+    Non-free algorithms:         NO
+
+  GUI: 
+    VTK support:                 NO
+
+  Media I/O: 
+    ZLib:                        /lib64/libz.so (ver 1.2.7)
+    JPEG:                        libjpeg-turbo (ver 2.0.6-62)
+    WEBP:                        build (ver encoder: 0x020f)
+    PNG:                         /lib64/libpng.so (ver 1.5.13)
+    TIFF:                        build (ver 42 - 4.0.10)
+    JPEG 2000:                   build (ver 2.3.1)
+    OpenEXR:                     build (ver 2.3.0)
+    HDR:                         YES
+    SUNRASTER:                   YES
+    PXM:                         YES
+    PFM:                         YES
+
+  Video I/O:
+    DC1394:                      NO
+    FFMPEG:                      YES
+      avcodec:                   YES (58.109.100)
+      avformat:                  YES (58.61.100)
+      avutil:                    YES (56.60.100)
+      swscale:                   YES (5.8.100)
+      avresample:                NO
+    GStreamer:                   NO
+    v4l/v4l2:                    YES (linux/videodev2.h)
+
+  Parallel framework:            pthreads
+
+  Trace:                         YES (with Intel ITT)
+
+  Other third-party libraries:
+    Intel IPP:                   2020.0.0 Gold [2020.0.0]
+           at:                   /tmp/pip-req-build-jhawztrk/_skbuild/linux-x86_64-3.8/cmake-build/3rdparty/ippicv/ippicv_lnx/icv
+    Intel IPP IW:                sources (2020.0.0)
+              at:                /tmp/pip-req-build-jhawztrk/_skbuild/linux-x86_64-3.8/cmake-build/3rdparty/ippicv/ippicv_lnx/iw
+    Lapack:                      NO
+    Eigen:                       NO
+    Custom HAL:                  NO
+    Protobuf:                    build (3.5.1)
+
+  OpenCL:                        YES (no extra features)
+    Include path:                /tmp/pip-req-build-jhawztrk/opencv/3rdparty/include/opencl/1.2
+    Link libraries:              Dynamic load
+
+  Python 3:
+    Interpreter:                 /opt/python/cp38-cp38/bin/python (ver 3.8.6)
+    Libraries:                   libpython3.8.a (ver 3.8.6)
+    numpy:                       /tmp/pip-build-env-a9o7g0a9/overlay/lib/python3.8/site-packages/numpy/core/include (ver 1.17.3)
+    install path:                python
+
+  Python (for build):            /bin/python2.7
+
+  Java:                          
+    ant:                         NO
+    JNI:                         NO
+    Java wrappers:               NO
+    Java tests:                  NO
+
+  Install to:                    /tmp/pip-req-build-jhawztrk/_skbuild/linux-x86_64-3.8/cmake-install
+-----------------------------------------------------------------
+
+
